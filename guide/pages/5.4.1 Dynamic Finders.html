@@ -1,0 +1,39 @@
+<html>
+     <head>
+     	<meta http-equiv="Content-type" content="text/html; charset=utf-8">
+     	<title>5.4.1 Dynamic Finders</title>
+     	<link rel="stylesheet" href="../css/main.css" type="text/css" media="screen" title="Ref" charset="utf-8">
+     </head>
+	<body class="body">
+		GORM은 <strong class="bold">동적 파인더</strong> 개념을 지원한다. 동적 파인더는 정적 메소드를 실행하는 것과 비슷하다. 그렇지만 동적 파인더를 지원하기 위해 특별한 메소드가 존재하는 것은 아니다.<p class="paragraph"/>메소드를 사용하는 것이 아니다. 클래스의 프로퍼티를 기반으로 런타임에 코드를 합성하여 마술처럼 자동으로 생성한다. 다음 Book 클래스의 예를 보자.<p class="paragraph"/><div class="code"><pre>class Book &#123;
+	<span class="java&#45;object">String</span> title
+	Date releaseDate
+	Author author
+&#125;                
+class Author &#123;
+	<span class="java&#45;object">String</span> name
+&#125;</pre></div><p class="paragraph"/><code>Book</code> 클래스는 title, releaseDate, author같은 프로퍼티를 가지고 있다. 이 프로퍼티들은 '메소드 표현식(method expressions)'에 따라 <a href="../ref/Domain Classes/findBy.html" class="domainClasses">findBy</a> <a href="../ref/Domain Classes/findAllBy.html" class="domainClasses">findAllBy</a> 메소드에서 사용된다.<p class="paragraph"/><div class="code"><pre>def book = Book.findByTitle(<span class="java&#45;quote">"The Stand"</span>)<p class="paragraph"/>book = Book.findByTitleLike(<span class="java&#45;quote">"Harry Pot%"</span>)<p class="paragraph"/>book = Book.findByReleaseDateBetween( firstDate, secondDate )<p class="paragraph"/>book = Book.findByReleaseDateGreaterThan( someDate )<p class="paragraph"/>book = Book.findByTitleLikeOrReleaseDateLessThan( <span class="java&#45;quote">"%Something%"</span>, someDate )</pre></div><p class="paragraph"/><h4>Method Expressions(메소드 표현식)</h4><p class="paragraph"/>GORM의 메소드 표현식은 <a href="../ref/Domain Classes/findBy.html" class="domainClasses">findBy</a> 같은 접두어 뒤에 프로퍼티들을 연결시켜서 완성된다. 기본식은 다음과 같다.<p class="paragraph"/><div class="code"><pre>Book.findBy&#91;Property&#93;&#91;Suffix&#93;&#42;&#91;<span class="java&#45;object">Boolean</span> Operator&#93;&#42;&#91;Property&#93;&#91;Suffix&#93;</pre></div><p class="paragraph"/>*는 생략가능하고 각각의 접미어에 따라 쿼리가 달라진다. 예를 들면:<p class="paragraph"/><div class="code"><pre>def book = Book.findByTitle(<span class="java&#45;quote">"The Stand"</span>)<p class="paragraph"/>book =  Book.findByTitleLike(<span class="java&#45;quote">"Harry Pot%"</span>)</pre></div><p class="paragraph"/>
+이 예에서 전자는 등호 연산과 동일하고 후자는 접미어 <code>Like</code>로 인해 <code>like</code> 연산으로 동작한다.<p class="paragraph"/>가능한 접미어들:
+<ul class="star">
+<li><code>LessThan</code> - less than the given value</li>
+<li><code>LessThanEquals</code> - less than or equal a give value</li>
+<li><code>GreaterThan</code> - greater than a given value</li>
+<li><code>GreaterThanEquals</code> - greater than or equal a given value</li>
+<li><code>Like</code> - Equivalent to a SQL like expression</li>
+<li><code>Ilike</code> - Similar to a <code>Like</code>, except case insensitive</li>
+<li><code>NotEqual</code> - Negates equality</li>
+<li><code>Between</code> - Between two values (requires two arguments)</li>
+<li><code>IsNotNull</code> - Not a null value (doesn't require an argument)</li>
+<li><code>IsNull</code> - Is a null value (doesn't require an argument)</li>
+</ul><p class="paragraph"/>You'll notice the last 3 effect the number of arguments required to the method as demonstrated by the example:<p class="paragraph"/><div class="code"><pre>def now = <span class="java&#45;keyword">new</span> Date()
+def lastWeek = now &#45; 7
+def book = Book.findByReleaseDateBetween( lastWeek, now )</pre></div><p class="paragraph"/>Equally <code>isNull</code> and <code>isNotNull</code> require no arguments:<p class="paragraph"/><div class="code"><pre>def books = Book.findAllByReleaseDateIsNull()</pre></div><p class="paragraph"/><h4>Boolean logic (AND/OR) </h4><p class="paragraph"/>Method expressions can also use a boolean operator to combine two criteria:<p class="paragraph"/><div class="code"><pre>def books = 
+    Book.findAllByTitleLikeAndReleaseDateGreaterThan(<span class="java&#45;quote">"%Java%"</span>, <span class="java&#45;keyword">new</span> Date()&#45;30)</pre></div><p class="paragraph"/>In this case we're using <code>And</code> in the middle of the query to make sure both conditions are satisfied, but you could equally use <code>Or</code>:<p class="paragraph"/><div class="code"><pre>def books = 
+    Book.findAllByTitleLikeOrReleaseDateGreaterThan(<span class="java&#45;quote">"%Java%"</span>, <span class="java&#45;keyword">new</span> Date()&#45;30)</pre></div><p class="paragraph"/>Clearly, method names can end up being quite long, in which case you should consider using <a href="../guide/single.html#5.4.2 Criteria" class="guide">Criteria</a>.<p class="paragraph"/><h4>Querying Associations</h4><p class="paragraph"/>Associations can also be used within queries:<p class="paragraph"/><div class="code"><pre>def author = Author.findByName(<span class="java&#45;quote">"Stephen King"</span>)<p class="paragraph"/>def books = author ? Book.findAllByAuthor(author) : &#91;&#93;</pre></div><p class="paragraph"/>In this case if the <code>Author</code> instance is not null we use it in a query to obtain all the <code>Book</code> instances for the given <code>Author</code>.<p class="paragraph"/><h4>Pagination &#38; Sorting</h4><p class="paragraph"/>The same pagination and sorting parameters available on the <a href="../ref/Domain Classes/list.html" class="domainClasses">list</a> method can also be used with dynamic finders by supplying a map as the final parameter:<p class="paragraph"/><div class="code"><pre>def books = 
+  Book.findAllByTitleLike(<span class="java&#45;quote">"Harry Pot%"</span>, &#91;max:3, 
+                                         offset:2, 
+                                         sort:<span class="java&#45;quote">"title"</span>,
+                                         order:<span class="java&#45;quote">"desc"</span>&#93;)</pre></div>
+
+	</body>
+</html>

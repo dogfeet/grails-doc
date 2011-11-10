@@ -1,0 +1,21 @@
+<html>
+     <head>
+     	<meta http-equiv="Content-type" content="text/html; charset=utf-8">
+     	<title>3.3.3 Automatic Database Migration</title>
+     	<link rel="stylesheet" href="../css/main.css" type="text/css" media="screen" title="Ref" charset="utf-8">
+     </head>
+	<body class="body">
+		DataSource를 정의할 때 dbCreate 프로퍼티은 중요하다. 그 이유는 Grails가 런타임에 <a href="../guide/single.html#5. Object Relational Mapping (GORM)" class="guide">GORM</a> 클래스를 이용해 자동적으로 database 테이블를 생성하는 것을 결정하기 때문이다. 옵션들은 다음과 같다.
+<ul class="star">
+<li>create-drop - Grails를 실행할 때마다 데이터베이스를 삭제drop하고 다시 생성한다.</li>
+<li>create - 데이터베이스가 없으면 생성하고 이미 존재할 경우에는 아무일도 하지 않는다. 하지만 데이터는 삭제한다.</li>
+<li>update - 데이터베이스가 없으면 생성하고 이미 존재할 경우에는 변경한다.</li>
+</ul><p class="paragraph"/><blockquote class="warning">
+create-drop과 create 둘 다 이미 있는 데이터를 파괴하므로 사용에 주의해야 한다.
+</blockquote><p class="paragraph"/><a href="../guide/single.html#3.2 Environments" class="guide">개발 환경</a> 에서의 dbCreate의 기본값은 “create-drop”이다.<p class="paragraph"/><div class="code"><pre>dataSource &#123;
+	dbCreate = <span class="java&#45;quote">"create&#45;drop"</span> // one of 'create', 'create&#45;drop','update'
+&#125;</pre></div><p class="paragraph"/>이것은 어플리케이션을 재시작 할 때마다 자동으로 db 테이블을 삭제하고 다시 생성한다. 확실히 이것은 실제 서비스에는 필요없다.<p class="paragraph"/><blockquote class="note">
+비록 Grails가 지금은 Rails 스타일의 이전작업(Migrations)을 지원하고 있지 않지만, 현재 비슷한 기능의 플러그인이 두 개 있다. <a href="http://www.liquibase.org/manual/latest/grails.html" target="blank">LiquiBase</a> 플러그인과 <a href="http://code.google.com/p/dbmigrate/wiki/Grails" target="blank">DbMigrate</a> 플러그인을 <code>list-plugins</code> 명령어로 사용할 수 있다.
+</blockquote><p class="paragraph"/><p class="paragraph"/>
+	</body>
+</html>

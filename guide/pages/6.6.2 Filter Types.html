@@ -1,0 +1,27 @@
+<html>
+     <head>
+     	<meta http-equiv="Content-type" content="text/html; charset=utf-8">
+     	<title>6.6.2 Filter Types</title>
+     	<link rel="stylesheet" href="../css/main.css" type="text/css" media="screen" title="Ref" charset="utf-8">
+     </head>
+	<body class="body">
+		필터의 바디에 정의할 수 있는 인터셉터의 타입은 다음과 같다:
+<ul class="star">
+<li><code>before</code> - 액션이 실행되기 전에 실행된다. false를 반환하면 뒤따르는 모든 필터와 액션이 실행되지 않음</li>
+<li><code>after</code> - 액션이 실행된 후에 실행된다. 첫번째 파라미터로 뷰 모델을 넘겨 받음</li>
+<li><code>afterView</code> - 뷰가 렌더링된 후에 실행</li>
+</ul><p class="paragraph"/>예를 들어 보통의 인증 유즈 케이스를 구현하기 위해서 다음과 같이 정의한다:<p class="paragraph"/><div class="code"><pre>class SecurityFilters &#123;
+   def filters = &#123;
+       loginCheck(controller:'&#42;', action:'&#42;') &#123;
+           before = &#123;
+              <span class="java&#45;keyword">if</span>(!session.user &#38;&#38; !actionName.equals('login')) &#123;
+                  redirect(action:'login')
+                  <span class="java&#45;keyword">return</span> <span class="java&#45;keyword">false</span>
+               &#125;
+           &#125;<p class="paragraph"/>       &#125;
+   &#125;
+&#125;</pre></div><p class="paragraph"/>
+이 예제의 loginCheck 필터는 before 인터셉터를 사용한다. 이 인터셉터는 사용자의 세션이 열려있고 login 액션으로 리다이렉트시켜야 하는지를 검사한다. false가 반환되면 액션이 실행되지 않는다는 것을 기억하라.
+
+	</body>
+</html>

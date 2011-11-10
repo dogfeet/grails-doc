@@ -1,0 +1,25 @@
+<html>
+     <head>
+     	<meta http-equiv="Content-type" content="text/html; charset=utf-8">
+     	<title>5.6 Programmatic Transactions</title>
+     	<link rel="stylesheet" href="../css/main.css" type="text/css" media="screen" title="Ref" charset="utf-8">
+     </head>
+	<body class="body">
+		Grails는 Spring을 기반으로 만들었고 Spring의 Transaction 추상화 기술을 사용하여 트랜젝션 프로그래밍을 지원한다. GORM은 클래스에 <a href="../ref/Domain Classes/withTransaction.html" class="domainClasses">withTransaction</a> 메소드를 추가하여 사용하기 쉽도록 개선했다. withTransaction 메소드는 첫 번째 인자로 Spring의 <a href="http://static.springframework.org/spring/docs/2.5.x/api/org/springframework/transaction/TransactionStatus.html" class="api">TransactionStatus</a> 객체를 넘겨 받는다.<p class="paragraph"/>일반적인 사용법은 다음과 같다:<p class="paragraph"/><div class="code"><pre>def transferFunds = &#123;
+	Account.withTransaction &#123; status &#45;&#62;
+		def source = Account.get(params.from)
+		def dest = Account.get(params.to)<p class="paragraph"/>		def amount = params.amount.toInteger()
+		<span class="java&#45;keyword">if</span>(source.active) &#123;
+			source.balance &#45;= amount
+			<span class="java&#45;keyword">if</span>(dest.active) &#123;
+				dest.amount += amount
+			&#125;
+			<span class="java&#45;keyword">else</span> &#123;
+				status.setRollbackOnly()
+			&#125;
+		&#125;<p class="paragraph"/>		
+	&#125;<p class="paragraph"/>&#125;</pre></div><p class="paragraph"/>이 예제에서 dest 계좌가 active가 아니면 트랜젝션이 롤백되고 트랜젝션이 처리되는 중간에 예외가 발생하면 자동으로 롤백된다.<p class="paragraph"/>트랜젝션이 통째로 롤백되지 않고 특정 시점으로 트랜젝션이 롤백되도록 “save points”를 사용할 수 있다. 이 것은 Spring의 <a href="http://static.springframework.org/spring/docs/2.5.x/api/org/springframework/transaction/SavepointManager.html" class="api">SavePointManager</a> 인터페이스를 사용하여 구현됐다.<p class="paragraph"/>
+<a href="../ref/Domain Classes/withTransaction.html" class="domainClasses">withTransaction</a> 메소드의 블럭내에서만 begin/commit/rollback 로직을 수행할 수 있다.
+
+	</body>
+</html>

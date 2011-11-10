@@ -1,0 +1,31 @@
+<html>
+     <head>
+     	<meta http-equiv="Content-type" content="text/html; charset=utf-8">
+     	<title>6.1.5 Controller Interceptors</title>
+     	<link rel="stylesheet" href="../css/main.css" type="text/css" media="screen" title="Ref" charset="utf-8">
+     </head>
+	<body class="body">
+		인터셉터는 요청, 세션, 어플리케이션의 상태를 처리하는 중에 가로채야intercept할 때 유용하다. 인터셉터는 액션으로 구현된고 현재는 before, after 두 종류의 인터셉터가 있다<p class="paragraph"/><blockquote class="note">
+인터셉터를 하나 이상의 컨트롤러에 적용해야 한다면 <a href="../guide/single.html#6.6 Filters" class="guide">Filter</a>를 사용하는 것이 낫다. Filter는 여러 개의 컨트롤러나 URI이에 적용할 수 있고 각 컨트롤러의 로직을 변경할 필요도 없다.
+</blockquote><p class="paragraph"/><h4>Before Interception</h4><p class="paragraph"/><code>beforeInterceptor</code>는 액션이 실해되기 전에 가로챈다. 만약 인터셉터가 <code>false</code>를 반환하면 요청된 액션은 실행되지 않는다. 인터셉터는 다음의 예제처럼 모든 액션에 적용될 수 있다.<p class="paragraph"/><div class="code"><pre>def beforeInterceptor = &#123;
+       println <span class="java&#45;quote">"Tracing action $&#123;actionUri&#125;"</span>
+&#125;</pre></div><p class="paragraph"/>이 예제는 컨트롤러 안에 정의된다. 이 인터셉터는 액션이 하나도 실행되기 전에 실행될 것이다. 다음은 일반적으로 사용하는 인증 예제이다:<p class="paragraph"/><div class="code"><pre>def beforeInterceptor = &#91;action:<span class="java&#45;keyword">this</span>.&#38;auth,except:'login'&#93;
+// 보통의 메소드처럼 정의했지만 숨겨진다
+def auth() &#123;
+     <span class="java&#45;keyword">if</span>(!session.user) &#123;
+            redirect(action:'login')
+            <span class="java&#45;keyword">return</span> <span class="java&#45;keyword">false</span>
+     &#125;
+&#125;
+def login = &#123;
+     // 로그인 페이지를 보여준다
+&#125;</pre></div><p class="paragraph"/>
+이 예제에서는 <code>auth</code> 메소드를 호출하도록 정의했다. 외부에 액션이 노출되지 않았지만 메소드는 호출된다(액션이 숨겨진다). 이 <code>beforeInterceptor</code>는 login 액션을 제외(except)하고 모든 액션에 적용된다. 즉, 모든 액션이 실행되기 전에 'auth' 메소드가 실행된다. 'auth' 메소드는 Groovy의 메소드 포인터 문법을 사용하여 참조된다. 'auth' 메소드는 인증된 사용자인지를 검사하고 인증된 사용자가 아니면 login 액션으로 리다이렉트 시킨다. 그리고 이 메소드가 false를 반환하기 때문에 원래 요구된 액션은 실행되지 않는다.<p class="paragraph"/><h4>After Interception</h4><p class="paragraph"/>액션이 실행된 후에 실행되는 인터셉터는 <code>afterInterceptor</code> 프로퍼티를 이용하여 정의한다:<p class="paragraph"/><div class="code"><pre>def afterInterceptor = &#123; model &#45;&#62;
+       println <span class="java&#45;quote">"Tracing action $&#123;actionUri&#125;"</span>
+&#125;</pre></div><p class="paragraph"/>afterInterceptor는 결과 모델을 인자로 받는다. 이 인터셉터를 사용하여 액션이 실행된 후의 모델이나 응답을 관리할 수 있다.<p class="paragraph"/>afterInterceptor를 이용하면 렌더링하기 전에 Spring의 MVC <a href="http://static.springframework.org/spring/docs/2.5.x/api/org/springframework/web/servlet/ModelAndView.html" class="api">ModelAndView</a> 객체도 수정할 수 있다. 위 예제에 적용하면 다음과 같이 된다:<p class="paragraph"/><div class="code"><pre>def afterInterceptor = &#123; model, modelAndView &#45;&#62;
+       println <span class="java&#45;quote">"Current view is $&#123;modelAndView.viewName&#125;"</span>
+       <span class="java&#45;keyword">if</span>(model.someVar) modelAndView.viewName = <span class="java&#45;quote">"/mycontroller/someotherview"</span>
+       println <span class="java&#45;quote">"View is now $&#123;modelAndView.viewName&#125;"</span>
+&#125;</pre></div><p class="paragraph"/>이 것는 액션이 반환하는 모델을 사용할 뷰를 변경시키는 예제다. 액션이 가로채어지고 render나 redirect를 호출되면 <code>modelAndView</code>는 <code>null</code>이 된다는 것을 기억하라.<p class="paragraph"/><h4>Interception Conditions(인터셉터에 조건 달기)</h4><p class="paragraph"/>Rails 사용자들은 인증 예제가 친숙할 것이고 인터셉터를 실행할 때 어떻게 'except' 조건을 사용해야 하는지를 잘 알고 있을 것이다(Rails에서는 인터셉터를 필터(filter)라고 부른다. 하지만 필터는 자바의 servlet filter와 혼동된다):<p class="paragraph"/><div class="code"><pre>def beforeInterceptor = &#91;action:<span class="java&#45;keyword">this</span>.&#38;auth,except:'login'&#93;</pre></div><p class="paragraph"/>이 인터셉터은 명시한 액션을 제외하고 모든 액션에 적용된다. 다음의 예처럼 여러 개의 액션을 명시할 수도 있다:<p class="paragraph"/><div class="code"><pre>def beforeInterceptor = &#91;action:<span class="java&#45;keyword">this</span>.&#38;auth,except:&#91;'login','register'&#93;&#93;</pre></div><p class="paragraph"/>다른 조건으로 'only'도 있다. 인터셉터은 오직 명시된 액션에만 적용된다:<p class="paragraph"/><div class="code"><pre>def beforeInterceptor = &#91;action:<span class="java&#45;keyword">this</span>.&#38;auth,only:&#91;'secure'&#93;&#93;</pre></div><p class="paragraph"/>
+	</body>
+</html>

@@ -1,0 +1,17 @@
+<html>
+     <head>
+     	<meta http-equiv="Content-type" content="text/html; charset=utf-8">
+     	<title>5.1 Quick Start Guide</title>
+     	<link rel="stylesheet" href="../css/main.css" type="text/css" media="screen" title="Ref" charset="utf-8">
+     </head>
+	<body class="body">
+		<a href="../ref/Command Line/create-domain-class.html" class="commandLine">create-domain-class</a> 명령으로 도메인 클래스를 만든다:<p class="paragraph"/><div class="code"><pre>grails create&#45;domain&#45;class Person</pre></div><p class="paragraph"/>도메인 클래스는 <code>grails-app/domain/Person.groovy</code> 에 생성되며 그 내용은 다음과 같다:<p class="paragraph"/><div class="code"><pre>class Person &#123;	
+&#125;</pre></div><p class="paragraph"/><blockquote class="note">
+<a href="../guide/single.html#3.3 The DataSource" class="guide">DataSource</a>에 dbCreate 프로퍼티가 “update”, “create”, “create-drop”중에 하나로 설정하면 Grails는 자동으로 데이터베이스 테이블을 생성하거나 수정한다.
+</blockquote><p class="paragraph"/>다음과 같이 클래스에 몇 개의 프로퍼티를 추가한다:<p class="paragraph"/><div class="code"><pre>class Person &#123;	
+	<span class="java&#45;object">String</span> name
+	<span class="java&#45;object">Integer</span> age
+	Date lastVisit
+&#125;</pre></div><p class="paragraph"/>도메인 클래스를 만들고 <a href="../ref/Command Line/shell.html" class="commandLine">shell</a>이나 <a href="../ref/Command Line/console.html" class="commandLine">console</a>에서 관리할 수 있다:<p class="paragraph"/><div class="code"><pre>grails console</pre></div><p class="paragraph"/>이제 Groovy 명령을 입력할 수 있는 GUI 프로그램이 실행된다.
+	</body>
+</html>

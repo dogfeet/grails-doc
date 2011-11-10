@@ -1,0 +1,186 @@
+<html>
+     <head>
+     	<meta http-equiv="Content-type" content="text/html; charset=utf-8">
+     	<title>12. Plug-ins</title>
+     	<link rel="stylesheet" href="../css/main.css" type="text/css" media="screen" title="Ref" charset="utf-8">
+     </head>
+	<body class="body">
+		<h1><a name="12. Plug-ins">12. Plug-ins</a></h1>플러그인을 통해 Grails의 많은 부분들을 확장할 수 있다. 명령 입력 인터페이스로부터 런타임 환경구성 엔진까지 무엇이든 확장할 수 있도록 이끌어준다. 이어지는 절에서 어떻게 확장하는지에 대해 자세하게 다루고 있다.<p class="paragraph"/><h2><a name="12.1 Creating and Installing Plug-ins">12.1 Creating and Installing Plug-ins</a></h2><h4>Creating Plug-ins(플러그인 생성)</h4><p class="paragraph"/>Grails 플러그인 생성을 하기위해 다음과 같은 명령어를 실행한다.<p class="paragraph"/>
+<div class="code"><pre>grails create&#45;plugin &#91;PLUGIN NAME&#93;</pre></div><p class="paragraph"/>이 명령은 위에서 입력한 플러그인 이름에 대한 플러그인 프로젝트를 생성한다. 예를 들어 grails create-plugin example 명령을 실행한다고 하면, Grails는 example이라는 이름의 플러그인 프로젝트를 생성 할 것이다.<p class="paragraph"/>이러한 Grails의 플러그인 디렉토리 구조는 정확히 Grails 프로젝트의 디렉토리 구조와 같다. 단지 플러그인 디렉토리의 최상위에서 “plug-in descriptor”라는 플러그인 Groovy 파일이 있다는 점이 다르다.<p class="paragraph"/>일반적인 Grails 프로젝트가 된다는 것은 다음과 같이 실행하여 바로 테스팅을 할 수 있는 면에서 이득이 많다:<p class="paragraph"/><div class="code"><pre>grails run&#45;app</pre></div><p class="paragraph"/><blockquote class="note">
+ 기본적으로 플러그인을 생성할때, 곧 바로 컨트롤러가 작동하지 않기에 <a href="../guide/single.html#6.4 URL Mappings" class="guide">URL매핑</a>을 가지지 않는다. 플러그인에 컨트롤러를 추가하려면 우선 grails-app/conf/MyUrlMappings.groovy 클래스를 생성하고 ”/$controller/$action?/$id?”()를 플러그인에 기본 매핑을 추가한다.
+</blockquote><p class="paragraph"/>플러그인 디스크립터는 GrailsPlugin으로 끝나는 관례을 따르며 플러그인 프로젝트의 최상위 디렉토리에서 찾을 수 있다. 예를 들어:<p class="paragraph"/><div class="code"><pre>class ExampleGrailsPlugin &#123;
+   def version = 0.1<p class="paragraph"/>   &#8230;
+&#125;</pre></div><p class="paragraph"/>모든 플러그인은 최상위 디렉토리에 이와 같은 클래스를 가지고 있어야 한다. 플러그인 클래스는 플러그인의 버전을 정의하고 옵션으로 플러그인 확장 지점에다가 여러가지 훅Hook을 정의한다 (짧게 다룸).<p class="paragraph"/>또한 여러가지 특별한 프로퍼티를 사용해서 플러그인에 대한 부가적인 정보를 제공할 수 있다:
+<ul class="star">
+<li>title - 플러그인에 관한 한문장의 간단한 설명</li>
+<li>author - 플러그인 제작자의 이름</li>
+<li>authorEmail - 플러그인 제작자의 이메일</li>
+<li>description - 플러그인의 특징에 관한 자세한 여러줄에 걸친 설명</li>
+<li>documentation - 플러그인에 관련된 문서를 찾아 볼 수 있는 URL</li>
+</ul><p class="paragraph"/>다음의 코드는 "Quartz Grails"":http://grails.org/Quartz+plugin 플러그인에서 사용된 예제이다:<p class="paragraph"/><div class="code"><pre>class QuartzGrailsPlugin &#123;
+    def version = <span class="java&#45;quote">"0.1"</span>
+    def author = <span class="java&#45;quote">"Sergey Nebolsin"</span>
+    def authorEmail = <span class="java&#45;quote">"nebolsin@gmail.com"</span>
+    def title = <span class="java&#45;quote">"This plugin adds Quartz job scheduling features to Grails application."</span>
+    def description = '''
+Quartz plugin allows your Grails application to schedule jobs to be
+executed using a specified interval or cron expression. The underlying
+system uses the Quartz Enterprise Job Scheduler configured via Spring,
+but is made simpler by the coding by convention paradigm.
+'''
+    def documentation = <span class="java&#45;quote">"http://grails.org/Quartz+plugin"</span><p class="paragraph"/>   &#8230;
+&#125;</pre></div><p class="paragraph"/><h4>Installing &#38; Distributing Plugins(플러그인의 설치와 배포)</h4><p class="paragraph"/>플러그인을 배포하려면 플러그인의 최상위 디렉토리로 이동해서 아래의 명령을 입력해야 한다.<p class="paragraph"/><div class="code"><pre>grails <span class="java&#45;keyword">package</span>&#45;plugin</pre></div><p class="paragraph"/>이 명령을 통해 하나의 플러그인에 대한 zip파일을 생성한다. 그 파일이름은 grails-로 시작하며 플러그인 이름과 버전을 가진다. 예를 들어 위에서 살펴본 예제 플러그인은 grails-example-0.1.zip로 생성 될 것이다. 또한 package-plugin 명령은 plugin.xml파일을 생성하는데 이 파일은 플러그인에 대한 바이너리 정보가 들어있다.<p class="paragraph"/>한번 플러그인의 배포파일을 생성하면 Grails 프로젝트에서 다음과 같이 입력해서 Grails 프로젝트에서 사용 할 수 있다:<p class="paragraph"/><div class="code"><pre>grails install&#45;plugin /path/to/plugin/grails&#45;example&#45;0.1.zip</pre></div><p class="paragraph"/>플러그인 파일이 원격의 HTTP 서버에 있더라도 다음과 같이 입력할 수 있다:<p class="paragraph"/><div class="code"><pre>grails install&#45;plugin http://myserver.com/plugins/grails&#45;example&#45;0.1.zip</pre></div><p class="paragraph"/><h4>Notes on excluded Artefacts(언급되지 않은 아티펙트 파일에 관한 노트)</h4><p class="paragraph"/><a href="../ref/Command Line/create-plugin.html" class="commandLine">create-plugin</a> 명령이 플러그인이 Grails 어플리케이션으로 동작하기 위한 파일들을 생성한다고 해서 그 생성된 모든 파일이 플러그인으로 묶이는데 전부 포함되지는 않는다. 다음은 생성은 되지만 <a href="../ref/Command Line/package-plugin.html" class="commandLine">package-plugin</a> 명령을 실행시에 포함되지 않는 것들이다.
+<ul class="star">
+<li><code>grails-app/conf/DataSource.groovy</code></li>
+<li><code>grails-app/conf/UrlMappings.groovy</code></li>
+<li><code>grails-app/conf/DataSource.groovy</code></li>
+<li><code>build.xml</code></li>
+<li>Everything within <code>/web-app/WEB-INF</code></li>
+</ul><p class="paragraph"/>WEB-INF 디렉토리 속에 생성된 파일들이 필요하다면, _Install.groovy 스크립트(뒤에서 다시 다룸)를 사용하는 것을 추천한다. 게다가 UrlMappings.groovy 파일이 포함에서 제외되더라도 FooUrlMappings.groovy 처럼 다른이름으로 UrlMappings을 지정하면 포함된다.<p class="paragraph"/><h4>Distributing Plugins in Grails Plugins Repository(Grails 플러그인 저장소를 통해 플러그인 배포하기)</h4><p class="paragraph"/>Grails 플러그인을 배포시에 Grails 플러그인 저장소를 이용하여 배포하는 방법을 추천한다. 이것을 이용하면 <a href="../ref/Command Line/list-plugins.html" class="commandLine">list-plugins</a> 명령에서 새로 생성한 플러그인이 볼 수 있다:<p class="paragraph"/><div class="code"><pre>grails list&#45;plugins</pre></div><p class="paragraph"/>이 <a href="../ref/Command Line/plugin-info.html" class="commandLine">plugin-info</a> 명령은 Grails 플러그인 저장소에 있는 모든 플러그인을 보여준다:<p class="paragraph"/><div class="code"><pre>grails plugin&#45;info &#91;plugin&#45;name&#93;</pre></div><p class="paragraph"/>이것은 해당 Plugin에 대한 자세한 내용을 보여주며 그 내용은 Plugin Descriptor속에 저장된 정보이다.<p class="paragraph"/><blockquote class="note">
+만약 플러그인을 생성하고 중앙 저장소에서 포함되길 원하는 경우에는 <a href="http://www.g2one.com의" target="blank">G2One team</a> 구성원에게 연락을 바란다. 그러면 그들이 접근 권한을 줄 것이다.<p class="paragraph"/></blockquote><p class="paragraph"/>Grails 플러그인 저장소에 플러그인을 릴리스하기 위한 접근 권한을 가지고 있다면, 간단히 <a href="../ref/Command Line/release-plugin.html" class="commandLine">release-plugin</a> 명령을 실행할 수 있다.<p class="paragraph"/><div class="code"><pre>grails release&#45;plugin</pre></div><p class="paragraph"/>이 명령은 자동으로 코드의 변화를 SVN에 전송하고 <a href="../ref/Command Line/list-plugins.html" class="commandLine">list-plugins</a> 명령을 통해 변경된 부분을 이용할 수 있게끔 해준다.<p class="paragraph"/><h2><a name="12.2 Understanding a Plug-ins Structure">12.2 Understanding a Plug-ins Structure</a></h2>위에서 언급한대로 플러그인은 플러그인 디스크립터를 포함하는 일반적인 Grails 어플리케이션이다. 하지만 플러그인이 설치되면 그 구조는 약간 달라지게 된다. 예를 들어 다음과 같은 플러그인 구조를 살펴보자.<p class="paragraph"/><div class="code"><pre>+ grails&#45;app
+     + controllers
+     + domain
+     + taglib
+     etc.
+ + lib
+ + src
+     + java
+     + groovy
+ + web&#45;app
+     + js
+     + css</pre></div><p class="paragraph"/>기본적으로 플러그인이 프로젝트에 설치가되면 grails-app디렉토리의 내용들은 plugins/example-1.0/grails-app 디렉토리로 이동된다. 메인 소스의 디렉토리로 복사가 되는것이 아니다. 플러그인은 프로젝트의 주요 소스 트리를 절대 건드리지 않는다.<p class="paragraph"/>하지만 web-app디렉토리 안의 내용 같은 static 리소스는 프로젝트의 web-app디렉토리 안의 특정 디렉토리로 복사될것이다. 예를 들어 web-app/plugins/example-1.0/js 처럼 말이다.<p class="paragraph"/>그러므로 플러그인이 제대로된 위치에서 static 리소스를 불러오도록 하는것은 플러그인의 책임이다. 예를 들어 GSP에서 자바스크립트 소스를 불러오려면 다음과 같이 사용할 수 있다:<p class="paragraph"/><div class="code"><pre><span class="xml&#45;tag">&#60;g:createLinkTo dir=<span class="xml&#45;quote">"/plugins/example/js"</span> file=<span class="xml&#45;quote">"mycode.js"</span> /&#62;</span></pre></div><p class="paragraph"/>하지만 이것은 개발하는 과정에서 플러그인이 설치되었을때와 플러그인 자체를 실행할때 다른 주소를 가지는 문제를 일으킬 수 있다.<p class="paragraph"/>이 문제를 쉽게처리하기 위해서 pluginContextPath라는 특별한 변수를 사용하는데, 이것은 플러그인이 자체로 동작하거나 어플리케이션에서 실행되거나에 따라 경로를 자동으로 변경해준다:<p class="paragraph"/><div class="code"><pre><span class="xml&#45;tag">&#60;g:createLinkTo dir=<span class="xml&#45;quote">"$&#123;pluginContextPath&#125;/js"</span> file=<span class="xml&#45;quote">"mycode.js"</span> /&#62;</span></pre></div><p class="paragraph"/>실행시에 pluginContextPath 변수는 플러그인만 실행된 것인지 또는 어플리케이션에 설치되었는지에 따라 / 또는 /plugins/example의 값을 갖게 될 것이다.<p class="paragraph"/>플러그인이 lib나 src/java나 src/groovy 디렉토리에서 제공하는 자바와 Groovy 코드는 컴파일되어 메인프로젝트의 web-app/WEB-INF/classes 디렉토리에 위치하여 실행시에 사용가능하게 될 것이다.
+<h2><a name="12.3 Providing Basic Artefacts">12.3 Providing Basic Artefacts</a></h2><h4>Adding a new Script(새로운 스크립트를 추가)</h4><p class="paragraph"/>플러그인의 스크립트 디렉토리에서 적절한 Gant 스크립트를 제공함으로써 간단히 새로운 스크립트를 추가할 수 있다.<p class="paragraph"/>
+<div class="code"><pre>+ MyPlugin.groovy
+   + scripts     &#60;&#45;&#45; 여기에 스크립트를 추가함
+   + grails&#45;app
+        + controllers
+        + services
+        + etc.
+    + lib</pre></div><p class="paragraph"/><h4>Adding a new Controller, Tag Library or Service(새로운 컨트롤러, 태그라이브러리, 서비스 추가하기)</h4><p class="paragraph"/>플러그인은 grails-app 트리안에 적절한 파일을 생성함으로써 새로운 컨트롤러, 태그라이브러리, 서비스를 추가할 수 있다. 플러그인이 설치되면 플러그인이 설치된 디렉토리에서 로드가 되고 메인 프로그램의 트리로 복사되지는 않는다.<p class="paragraph"/>
+it will be loaded from where it is installed and not copied into the main application tree.<p class="paragraph"/><div class="code"><pre>+ ExamplePlugin.groovy
+   + scripts
+   + grails&#45;app
+        + controllers  &#60;&#45;&#45; 여기에 컨트롤러가 추가
+        + services &#60;&#45;&#45; 여기에 서비스가 추가
+        + etc.  &#60;&#45;&#45; 여기에 다른것들이 추가
+    + lib</pre></div><p class="paragraph"/><h2><a name="12.4 Evaluating Conventions">12.4 Evaluating Conventions</a></h2>관례에 의한 런타임 설정 지원에 대해 살펴보기 전에 먼저 플러그인의 관례들이 어떻게 평가되는지 이해해야 한다. 모든 플러그인은 묵시적으로 어플리케이션 변수를 가지는 <a href="../api/org/codehaus/groovy/grails/commons/GrailsApplication.html" class="api">GrailsApplication</a> 인터페이스의 인스턴스이다.<p class="paragraph"/>
+GrailsAppication 인터페이스는 프로젝트 안에서 관례을 평가해보는 메소드들을 제공하고, <a href="../api/org/codehaus/groovy/grails/commons/GrailsClass.html" class="api">GrailsClass</a> 인터페이스를 사용하여 GrailsApplication 안의 모든 클래스에 대한 참조를 내부적으로 저장한다.<p class="paragraph"/>GrailsClass는 태그라이브러리나 컨트롤러같은 물리적인 Grails 리소스를 나타낸다. 예를 들어 모든 GrailsClass 인스턴스를 얻기 위해서 다음과 같은 명령을 사용할 수 있다:<p class="paragraph"/><div class="code"><pre>application.allClasses.each &#123; println it.name &#125;</pre></div><p class="paragraph"/>GrailApplication 인스턴스는 관심있는 것들에 대한 타입들에 대해 모아서 갖고 있는 약간의 “매직” 프로퍼티가 있다. 예를 들어 컨트롤러에 관한 것만 얻고 싶다면 다음과 같이 접근할 수 있다:<p class="paragraph"/><div class="code"><pre>application.controllerClasses.each &#123; println it.name &#125;</pre></div><p class="paragraph"/>동적 메소드 관례는 다음과 같다.
+<ul class="star">
+<li>*Classes - 부분적으로 이름을 가지는 모든 클래스에 대해 얻어온다. 예를 들어 application.controllerClasses.</li>
+<li>get*Class - 하나의 이름을 가지는 클래스를 얻어온다. 예를 들어 application.getControllerClass(“ExampleController”)</li>
+<li>is*Class - 주어진 클래스가 해당 타입이 맞을 경우에 참을 리턴한다. 예를 들어 application.isControllerClass(ExampleController.class)</li>
+<li>add*Class - 해당 타입에 대하여 클래스를 추가하고 그 클래스의 인스턴스를 리턴한다. - 예를 들어 application.addControllerClass(ExampleController.class)</li>
+</ul><p class="paragraph"/>GrailsClass 인터페이스는 메소드를 평가하고 동작시키기 위한 자체적인 여러 유용한 메소드를 제공하며, 그것들은 다음과 같다:
+<ul class="star">
+<li>getPropertyValue - 클래스의 주어진 프로퍼티의 초기 값을 얻어온다.</li>
+<li>hasProperty - 프로퍼티를 가진다면 참을 리턴한다.</li>
+<li>newInstance - 이 클래스의 한 인스턴스를 생성한다.</li>
+<li>getName - 가능하다면 트레일링 관습을 제외한 어플리케이션에서의 클래스의 논리적인 이름을 리턴한다.</li>
+<li>getShortName - 패키지 접두어를 제외한 클래스의 짧은 이름을 리턴한다.</li>
+<li>getFullName - 패키지 이름과 관습 트레일링을 포함한 어플리케이션에서의 클래스의 완전한 이름을 리턴한다.</li>
+<li>getPropertyName - 프로퍼티 이름으로 클래스의 이름을 리턴한다.</li>
+<li>getLogicalPropertyName - 가능하다면 트레일링 관습을 뺀 논리적인 클래스에서의 프로퍼티의 이름을 리턴한다.</li>
+<li>getNaturalName - 프로퍼티의 이름을 자연스러운 단어로 리턴한다.(예. 'lastName' 는 'Last Name' 가 된다)</li>
+<li>getPackageName - 패키지의 이름을 리턴한다.</li>
+</ul><p class="paragraph"/>For a full reference refer to the <a href="../api/org/codehaus/groovy/grails/commons/GrailsClass.html" class="api">javadoc API</a>.<h2><a name="12.5 Hooking into Build Events">12.5 Hooking into Build Events</a></h2><h4>Post-Install Configuration and Participating in Upgrades(설치후 설정과 업그레이드에 관여하기)</h4><p class="paragraph"/>Grails 플러그인은 설치후 설정(Post-install Configuration)을 할 수 있으며 어플리케이션 업그레이드 프로세스(<a href="../ref/Command Line/upgrade.html" class="commandLine">upgrade</a> 명령)에 관여할 수 있다. 이것은 특별한 이름을 가진 두개의 스크립트를 통해 실행된다. 두 스크립트는 Script디렉토리에 위치하며 그 이름은 _Install.groovy 과_Upgrade.groovy이다.<p class="paragraph"/>_Install.groovy 파일은 플러그인이 설치 된 후에 실행이 된다. _Upgrade.groovy 파일은 <a href="../ref/Command Line/upgrade.html" class="commandLine">upgrade</a> 명령을 통해 사용자가 어플리케이션을 업그레이드 할 때 마다 실행이 된다.<p class="paragraph"/>이 스크립트들은 <a href="../guide/single.html#4. The Command Line" class="guide">Gant</a> 스크립트이기 때문에 Gant의 모든 파워풀한 기능을 사용할 수 있다. Gant의 표준 변수에 추가된 것으로는 pluginBasedir변수이며, 플러그인이 설치되는 기본 디렉토리를 가리키고 있다.<p class="paragraph"/>아래의 한 예제를 보면 _Install.groovy스크립트는 grails-app디렉토리 아래에 새로운 디렉토리를 생성하고 설정 템플릿을 설치한다:<p class="paragraph"/><div class="code"><pre>Ant.mkdir(dir:<span class="java&#45;quote">"$&#123;basedir&#125;/grails&#45;app/jobs"</span>)
+Ant.copy(file:<span class="java&#45;quote">"$&#123;pluginBasedir&#125;/src/samples/SamplePluginConfiguration.groovy"</span>,
+         todir:<span class="java&#45;quote">"$&#123;basedir&#125;/grails&#45;app/conf"</span>)<p class="paragraph"/>// To access Grails home you can use following code:
+// Ant.property(environment:<span class="java&#45;quote">"env"</span>)
+// grailsHome = Ant.antProject.properties.<span class="java&#45;quote">"env.GRAILS_HOME"</span></pre></div><p class="paragraph"/>
+<h4>Scripting events(스트립팅 이벤트)</h4><p class="paragraph"/>플러그인을 통해 명령줄 스크립팅 이벤트를 가로채는것이 가능하다. 이 이벤트들은 Grails 명령이나 플러그인 스크립트의 실행중에 트리거된다.<p class="paragraph"/>예를 들어, 상태 업데이트 출력(예, “Tests passed”, “Server running”)을 가로챌 수도 있고, file들의 생성되는 시점에도 가로챌 수 있다.<p class="paragraph"/>플러그인이 필요한 이벤트를 듣기 위해서, 플러그인은 단지 Events.groovy 스크립트를 제공하면 된다. 더 많은 정보를 살펴보려면 이벤트의 가로채기(<a href="../guide/single.html#4.3 Hooking into Events" class="guide">Hooking into Events</a>)에 관한 문서를 살펴보라.
+<h2><a name="12.6 Hooking into Runtime Configuration">12.6 Hooking into Runtime Configuration</a></h2>Grails는 시스템의 여러 다양한 부분에 영향을 주거나 관례에 의해 런타임 구성을 수행하는데 관한 몇 가지 가로채는 방법을 제공한다.<p class="paragraph"/><h4>Hooking into the Grails Spring configuration(Grails Spring 설정에서 가로채기)</h4><p class="paragraph"/>먼저 코드로 할당되는 doWithSpring 프로퍼티를 제공함으로써 Grails 런타임 구성에서 가로챌 수 있다. 예를 들어 아래의 코드는 국제화(<a href="../guide/single.html#10. Internationalization" class="guide">i18n</a>)를 지원하기 위한 코어 Grails 플러그인 중에서 가져온 코드이다:<p class="paragraph"/><div class="code"><pre><span class="java&#45;keyword">import</span> org.springframework.web.servlet.i18n.CookieLocaleResolver;
+<span class="java&#45;keyword">import</span> org.springframework.web.servlet.i18n.LocaleChangeInterceptor;
+<span class="java&#45;keyword">import</span> org.springframework.context.support.ReloadableResourceBundleMessageSource;<p class="paragraph"/>class I18nGrailsPlugin &#123;<p class="paragraph"/>	def version = 0.1<p class="paragraph"/>	def doWithSpring = &#123;
+		messageSource(ReloadableResourceBundleMessageSource) &#123;
+			basename = <span class="java&#45;quote">"WEB&#45;INF/grails&#45;app/i18n/messages"</span>
+		&#125;
+		localeChangeInterceptor(LocaleChangeInterceptor) &#123;
+			paramName = <span class="java&#45;quote">"lang"</span>
+		&#125;
+		localeResolver(CookieLocaleResolver)
+	&#125;
+&#125;</pre></div><p class="paragraph"/>이 플러그인은 Grails messageSource Bean과 로케일 풀이(Resolution)와 로케일간 이동을 관리하는 여러 다른 Bean을 만든다. 이렇게 하기 위해 <a href="../guide/single.html#14. Grails and Spring" class="guide">Spring Bean Builder</a> 문법을 이용한다.<p class="paragraph"/><h4>Participating in web.xml Generation(Web.xml 파일 생성에 참여하기)</h4><p class="paragraph"/>Grails는 실행 시에 WEB-INF/web.xml 파일을 생성한다. 플러그인이 이 파일을 직접 변경할수는 없지만 이 파일을 생성하는데 참야할 수는 있다. 본질적으로 플러그인은 doWithWebDescriptor 프로퍼티를 제공하며 xmlSlurper GPathResult로서 web.xml파일이 전달되는 코드가 할당되어 있다.<p class="paragraph"/>ControllersPlugin의 코드인 아래의 예제를 생각해보자:<p class="paragraph"/><div class="code"><pre>def doWithWebDescriptor = &#123; webXml &#45;&#62;
+	def mappingElement = webXml.'servlet&#45;mapping'
+	mappingElement + &#123;
+		'servlet&#45;mapping' &#123;
+			'servlet&#45;name'(<span class="java&#45;quote">"grails"</span>)
+			'url&#45;pattern'(<span class="java&#45;quote">"&#42;.dispatch"</span>)
+		&#125;
+	&#125;
+&#125;</pre></div><p class="paragraph"/>플러그인은 마지막 &#60;servlnet-mapping&#62; 엘레먼트에 대한 참조를 가지고 클로져와 코드를 사용하여 프로그램적으로 XML을 수정할 수 있는 XmlSlurper의 기능을 사용하여 Grails의 서블릿을 그 끝에다가 추가한다.<p class="paragraph"/>
+<h4>Doing Post Initialisation Configuration(초기화후 설정)</h4><p class="paragraph"/>때때로 Spring <a href="http://static.springframework.org/spring/docs/2.5.x/api/org/springframework/context/ApplicationContext.html" class="api">ApplicationContext</a>가 만들어지고 어떠한 런타임 설정을 할 수 있는것은 유용하다. 이런 상황에서 doWithApplicationContext Closure 프로퍼티를 정의할 수 있다.<p class="paragraph"/><div class="code"><pre>class SimplePlugin &#123;
+     def name=<span class="java&#45;quote">"simple"</span>
+     def version = 1.1<p class="paragraph"/>	 def doWithApplicationContext = &#123; appCtx &#45;&#62;
+          SessionFactory sf = appCtx.getBean(<span class="java&#45;quote">"sessionFactory"</span>)
+          // <span class="java&#45;keyword">do</span> something here with session factory
+	 &#125;
+&#125;</pre></div><p class="paragraph"/><h2><a name="12.7 Adding Dynamic Methods at Runtime">12.7 Adding Dynamic Methods at Runtime</a></h2><h4>The Basics(기본)</h4><p class="paragraph"/>Grails 플러그인은 실행시에 Grails의 클래스나 다른 클래스에 대해서 동적메소드를 등록할 수 있도록 한다. 새로운 메소드는 플러그인의 doWithDynamicMethods Closure 안에서 추가될 수 있다.<p class="paragraph"/>Grails가 관리하는 컨트롤러, 태그라이브러리 등등과 같은 클래스에 메소드나 생성자 기타 등등을 <a href="http://groovy.codehaus.org/ExpandoMetaClass" target="blank">ExpandoMetaClass</a> 메커니즘을 통해 각 컨트롤러의 메타클래스(<a href="api:http://groovy.codehaus.org/api/groovy/lang/MetaObjectProtocol.html" target="blank">MetaClass</a>)에 접근하여 추가할 수 있다.<p class="paragraph"/><div class="code"><pre>class ExamplePlugin &#123;
+  def doWithDynamicMethods = &#123; applicationContext &#45;&#62;
+        application.controllerClasses.each &#123; controllerClass &#45;&#62;
+             controllerClass.metaClass.myNewMethod = &#123;&#45;&#62; println <span class="java&#45;quote">"hello world"</span> &#125;
+        &#125;
+  &#125;
+&#125;</pre></div><p class="paragraph"/>이 예제는 묵시적인 Application 객체를 이용하여 모든 컨트롤러 클래스의 메타클래스 인스턴스들에 대한 참조를 얻고 새로운 메소드인 'myNweMethod'를 각 컨트롤러에 추가하는 것이다. 아니면 새로운 메소드를 추가하고자 하는 클래스에 대해 접근하는 방법을 알고 있다면 간단하게 metaClass 프로퍼티를 통해 메타클래스를 참조하여 새로운 메소드를 추가할 수 있다:<p class="paragraph"/><div class="code"><pre>class ExamplePlugin &#123;<p class="paragraph"/>  def doWithDynamicMethods = &#123; applicationContext &#45;&#62;
+      <span class="java&#45;object">String</span>.metaClass.swapCase = &#123;&#45;&#62;
+           def sb = <span class="java&#45;keyword">new</span> <span class="java&#45;object">StringBuffer</span>()
+           delegate.each &#123;
+               sb &#60;&#60; (<span class="java&#45;object">Character</span>.isUpperCase(it as <span class="java&#45;object">char</span>) ? 
+                      <span class="java&#45;object">Character</span>.toLowerCase(it as <span class="java&#45;object">char</span>) : 
+                      <span class="java&#45;object">Character</span>.toUpperCase(it as <span class="java&#45;object">char</span>))
+           &#125;
+           sb.toString()
+      &#125;<p class="paragraph"/>      assert <span class="java&#45;quote">"UpAndDown"</span> == <span class="java&#45;quote">"uPaNDdOWN"</span>.swapCase()       
+  &#125;
+&#125;</pre></div><p class="paragraph"/>이 예제에서 java.lang.String에 swapCase라는 메소드를 metaClass 프로퍼티를 통해 추가하였다.<p class="paragraph"/><h4>Interacting with the ApplicationContext(ApplicationContext와 주고받기)</h4><p class="paragraph"/>doWithDynamicMethod 클로져는 Spring ApplicationContext 인스턴스를 넘겨 받는다. 이 것은 클로져 내에서 다른 객체를 사용 할 수 있게 해주기 때문에 유용하다. 예를 들어, Hibernate을 함께 사용하는 어떤 메소드를 구현하는 곳에 SessionFactory 인스턴스를 HibernateTemplate과 함께 결합하여 사용할수 있다:<p class="paragraph"/><div class="code"><pre><span class="java&#45;keyword">import</span> org.springframework.orm.hibernate3.HibernateTemplate<p class="paragraph"/>class ExampleHibernatePlugin &#123;<p class="paragraph"/>   def doWithDynamicMethods = &#123; applicationContext &#45;&#62;<p class="paragraph"/>       application.domainClasses.each &#123; domainClass &#45;&#62;<p class="paragraph"/>           domainClass.metaClass.<span class="java&#45;keyword">static</span>.load = &#123; <span class="java&#45;object">Long</span> id&#45;&#62; 
+                def sf = applicationContext.sessionFactory
+                def template = <span class="java&#45;keyword">new</span> HibernateTemplate(sf)
+				template.load(delegate, id)
+           &#125;
+       &#125;
+   &#125;
+&#125;</pre></div><p class="paragraph"/>또한 Spring 컨테이너의 autowiring과 의존성 주입(dependency injection) 기능 덕분에 실행시에 객체에서 의존성을 연결해주기 위해 Application Context를 사용하는 더 강력한 동적 생성자를 구현할 수 있다.<p class="paragraph"/><div class="code"><pre>class MyConstructorPlugin &#123;<p class="paragraph"/>    def doWithDynamicMethods = &#123; applicationContext &#45;&#62;
+         application.domainClasses.each &#123; domainClass &#45;&#62;
+              domainClass.metaClass.constructor = &#123;&#45;&#62;
+                  <span class="java&#45;keyword">return</span> applicationContext.getBean(domainClass.name)
+              &#125;
+         &#125;<p class="paragraph"/>    &#125;
+&#125;</pre></div><p class="paragraph"/>사실 기본 생성자 대신 프로토타입 된 Spring Bean을 살펴보는 어떤 한 생성자로 교체하는 것이다.<p class="paragraph"/><h2><a name="12.8 Participating in Auto Reload Events">12.8 Participating in Auto Reload Events</a></h2><h4>Monitoring Resources for Changes(리소스 변화를 지켜보기)</h4><p class="paragraph"/>종종 리소스의 변화를 살펴보고 그 변화가 일어났을때 다시 불러들이는 것은 그럴만한 가치가 있다. 이것은 실행시에 Grails가 Application의 상태의 진보적인 재로딩 어떻게 구현하는가 이다. 예를 들어 Grails에서 사용하는 ServicePlugin로 부터의 아래의 간략화 한 코드를 살펴보자:<p class="paragraph"/><div class="code"><pre>class ServicesGrailsPlugin &#123;
+    &#8230;
+    def watchedResources = <span class="java&#45;quote">"file:./grails&#45;app/services/&#42;Service.groovy"</span><p class="paragraph"/>    &#8230;
+  def onChange = &#123; event &#45;&#62;
+    <span class="java&#45;keyword">if</span>(event.source) &#123;
+      def serviceClass = application.addServiceClass(event.source)
+      def serviceName = <span class="java&#45;quote">"$&#123;serviceClass.propertyName&#125;"</span>
+      def beans = beans &#123;
+           <span class="java&#45;quote">"$serviceName"</span>(serviceClass.getClazz()) &#123; bean &#45;&#62;
+               bean.autowire =  <span class="java&#45;keyword">true</span>
+      &#125;
+            &#125;
+      <span class="java&#45;keyword">if</span>(event.ctx) &#123;
+        event.ctx.registerBeanDefinition(serviceName,
+                                       beans.getBeanDefinition(serviceName))
+      &#125;
+    &#125;
+  &#125;
+&#125;</pre></div><p class="paragraph"/>먼저 String이나 String 배열로 watchedResources 들을 정의한다. watchedResources 는 살펴볼 리소스에 대한 패턴이나 참조를 담고 있다. 살펴 보는 리소스가 Groovy 파일이고, 그 파일이 변경된다면 그 파일은 자동으로 재로드 되고 onChange 이벤트 객체의 클로져로 보내진다.<p class="paragraph"/>event 객체는 몇 개의 유용한 프로퍼티를 정의한다.
+<ul class="star">
+<li>event.source - 다시 읽어들인 클래스나 스프링 리소스의 이벤트의 소스</li>
+<li>event.ctx - 스프링 ApplicationContext 인스턴스</li>
+<li>event.plugin - 리소스를 관리하는 플러그인 객체 (대개 this이다)</li>
+<li>event.application - GrailsApplication 인스턴스</li>
+</ul><p class="paragraph"/>이런 객체들로부터 관례을 평가할 수 있고 ApplicationContext나 관례에 기반한 기타 등등에 적절한 변화를 적용시킬 수 있다. 위의 “Services” 예제에서 새로운 서비스 빈은 서비스 클래스들중 하나가 바뀌면 ApplicationContext에 다시 등록된다.<p class="paragraph"/><h4>Influencing Other Plugins(다른 플러그인에 영향 주기)</h4><p class="paragraph"/>플러그인에서 변화가 일어날 때 일어나는 변화에 대응하는것 뿐만 아니라 종종 한 플러그인은 다른 플러그인에 영향을 줄 필요가 있다.<p class="paragraph"/>서비스와 컨트롤러 플러그인의 예를 들어보자. 서비스가 다시 로드되면, 컨트롤러 또한 다시 로드되지 않는 한 문제가 발생한다. 그 문제는 다시 로드된 서비스를 예전의 컨트롤러 클래스에 자동으로 연결하려고 할 때 발생한다.<p class="paragraph"/>이를 해결하기 위해 어느 플러그인이 다른 플러그인에 영향을 주는지 지정할 수 있다. 이것이 의미하는 것은 한 플러그인이 변화를 감지했을때 자신은 재로딩 될 것이고 그 후에 모든 영향을 주는 플러그인을 재로딩 할 것이다. 이 점을 ServicesGrailsPlugin의 부분을 통해 볼 수 있다.<p class="paragraph"/><div class="code"><pre>def influences = &#91;'controllers'&#93;</pre></div><p class="paragraph"/><h4>Observing other plugins(다른 플러그인을 관찰하기)</h4><p class="paragraph"/>변화를 관찰하고자 하는 어떤 특정한 플러그인이 있다면 “observe” 프로퍼티를 사용할 수 있다. 지켜보고자 하는 플러그인이 모니터링하는 리소스의 변화를 지켜보는것이 아니라 플러그인의 변화 자체만을 관찰하는 것이다:<p class="paragraph"/><div class="code"><pre>def observe = &#91;<span class="java&#45;quote">"hibernate"</span>&#93;</pre></div><p class="paragraph"/>이 경우에 Hibernate 도메인 클래스가 변화될 때 hibernate 플러그인으로부터 연결된 이벤트를 받을 것이다.
+<h2><a name="12.9 Understanding Plug-in Load Order">12.9 Understanding Plug-in Load Order</a></h2>플러그인은 종종 다른 플러그인의 존재 여부에 영향을 받는다. 또한 다른 플러그인의 존재 여부에 따라 적응하기도 한다. 플러그인은 두가지 프로퍼티를 정의하여 이를 다룰 수 있다. 하나는 dependsOn이라 부르는 것이다. 예를 들어 Grails Hibernate 플러그인으로부터 가져온 부분을 살펴보자.<p class="paragraph"/><div class="code"><pre>class HibernateGrailsPlugin &#123;
+	def version = 1.0
+	def dependsOn = &#91;dataSource:1.0,
+	                 domainClass:1.0,
+	                 i18n:1.0,
+	                 core: 1.0&#93;<p class="paragraph"/>&#125;</pre></div><p class="paragraph"/>위의 예제에서 보듯이 Hibernate 플러그인은 4개의 플러그인에 의존적이다. 그 4개의 플러그인은 dataSource, domainClass, i18n, core 플러그인이다.<p class="paragraph"/>필수로 의존성에 걸리는 플러그인은 Hibernate 플러그인보다 먼저 로드가 된다. 모든 의존성에 걸린 플러그인이 로드되지 않으면, Hibernate 플러그인은 로드되지 않는다.<p class="paragraph"/>하지만, 이것은 의존성에 걸리는 플러그인에 대해서 로드하지 못하면 로드하는 것을 포기하는 굉장히 엄격한 의존성이다. loadAfter 프로퍼티를 통해 좀 더 약한(유연한) 의존성을 가지게 할 수 있다:<p class="paragraph"/><div class="code"><pre>def loadAfter = &#91;'controllers'&#93;</pre></div><p class="paragraph"/>controller 플러그인이 존재한다면 controllers 플러그인이 로드된 이후에 이 플러그인은 로드될 것이다. controller 플러그인이 존재하지 않는다면 그냥 이 플러그인은 의존성 없이 로드될 것이다. 플러그인은 다른 플러그인이 로드되었는지에 대해서 적응할 수 있다. 예를 들어 Hibernate 플러그인은 doWithSpring 클로져에서 아래와 같은 코드를 가지고 있다:<p class="paragraph"/><div class="code"><pre><span class="java&#45;keyword">if</span>(manager?.hasGrailsPlugin(<span class="java&#45;quote">"controllers"</span>)) &#123;
+	openSessionInViewInterceptor(OpenSessionInViewInterceptor) &#123;
+        	flushMode = HibernateAccessor.FLUSH_MANUAL
+	        sessionFactory = sessionFactory
+	&#125;
+        grailsUrlHandlerMapping.interceptors &#60;&#60; openSessionInViewInterceptor
+  &#125;</pre></div><p class="paragraph"/>Hibernate 플러그인은 controllers플러그인이 로드되었을 때만 OpenSessionInViewInterceptor를 등록한다. manager변수는 <a href="../api/org/codehaus/groovy/grails/plugins/GrailsPluginManager.html" class="api">GrailsPluginManager</a> 인터페이스의 인스턴스이며 어떠한 플러그인이라도 다른 플러그인이나 GrailsPluginManager 자신과의 상호작용에 대한 메소드를 지원한다.
+
+	</body>
+</html>

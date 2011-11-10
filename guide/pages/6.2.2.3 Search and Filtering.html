@@ -1,0 +1,18 @@
+<html>
+     <head>
+     	<meta http-equiv="Content-type" content="text/html; charset=utf-8">
+     	<title>6.2.2.3 Search and Filtering</title>
+     	<link rel="stylesheet" href="../css/main.css" type="text/css" media="screen" title="Ref" charset="utf-8">
+     </head>
+	<body class="body">
+		종종 객체의 컬랙션을 정렬하고 필터링이 필요할 때가 있다. GSP는 이 것을 위해 <a href="../ref/Tags/findAll.html" class="tags">findAll</a>과 <a href="../ref/Tags/grep.html" class="tags">grep</a>을 지원한다.<p class="paragraph"/><div class="code"><pre>Stephen King's Books:
+<span class="xml&#45;tag">&#60;g:findAll in=<span class="xml&#45;quote">"$&#123;books&#125;"</span> expr=<span class="xml&#45;quote">"it.author == 'Stephen King'"</span>&#62;</span>
+     <span class="xml&#45;tag">&#60;p&#62;</span>Title: $&#123;it.title&#125;<span class="xml&#45;tag">&#60;/p&#62;</span>
+<span class="xml&#45;tag">&#60;/g:findAll&#62;</span></pre></div><p class="paragraph"/>필터링하기 위해 <code>expr</code> 속성에 Groovy 표현식을 사용한다. <a href="../ref/Tags/grep.html" class="tags">grep</a> 태그를 이용하여 클래스로 필터링할 수도 있다.<p class="paragraph"/><div class="code"><pre><span class="xml&#45;tag">&#60;g:grep in=<span class="xml&#45;quote">"$&#123;books&#125;"</span> filter=<span class="xml&#45;quote">"NonFictionBooks.class"</span>&#62;</span>
+     <span class="xml&#45;tag">&#60;p&#62;</span>Title: $&#123;it.title&#125;<span class="xml&#45;tag">&#60;/p&#62;</span>
+<span class="xml&#45;tag">&#60;/g:grep&#62;</span></pre></div><p class="paragraph"/>정규 표현식도 사용할 수 있다:<p class="paragraph"/><div class="code"><pre><span class="xml&#45;tag">&#60;g:grep in=<span class="xml&#45;quote">"$&#123;books.title&#125;"</span> filter=<span class="xml&#45;quote">"~/.&#42;?Groovy.&#42;?/"</span>&#62;</span>
+     <span class="xml&#45;tag">&#60;p&#62;</span>Title: $&#123;it&#125;<span class="xml&#45;tag">&#60;/p&#62;</span>
+<span class="xml&#45;tag">&#60;/g:grep&#62;</span></pre></div><p class="paragraph"/>이 예제에서는 GPath가 사용됐다. GPath는 Groovy가 지원하는 XPath같은 언어이다. 구체적으로 설명하자면 <code>books</code> 컬랙션은 <code>Book</code> 인스턴스들의 컬랙션이다. 그리고 <code>Book</code>이 <code>title</code>을 가지고 있다고 가정하면 <code>books.title</code> 표현식을 사용하여 <code>Book</code>의 <code>title</code>들을 리스트로 얻어올 수 있다. Groovy는 자동으로 Book 인스턴스들의 리스트를 이용하여 title의 리스트를 만들어 반환한다!
+
+	</body>
+</html>

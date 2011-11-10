@@ -1,0 +1,37 @@
+<html>
+     <head>
+     	<meta http-equiv="Content-type" content="text/html; charset=utf-8">
+     	<title>11.3 Authentication</title>
+     	<link rel="stylesheet" href="../css/main.css" type="text/css" media="screen" title="Ref" charset="utf-8">
+     </head>
+	<body class="body">
+		기본적으로 현재 인증에 관한 기본 메커니즘이 없다고 하더라도 여러가지 다양한 방법으로 인증을 구현할 수 있다. 하지만 <a href="../guide/single.html#6.1.5 Controller Interceptors" class="guide">interceptors</a>나 <a href="../guide/single.html#6.6 Filters" class="guide">filters</a>를 이용하면 인증 메커니즘을 쉽게 구현할 수 있다.<p class="paragraph"/>필터는 인증이 모든 컨트롤러나 URI 스페이스에 적용될 수 있다. 예를 들어 grails-app/conf/SecurityFilters.groovy 클래스를 아래와 같은 내용으로 생성할 수 있다:<p class="paragraph"/><div class="code"><pre>class SecurityFilters &#123;
+   def filters = &#123;
+       loginCheck(controller:'&#42;', action:'&#42;') &#123;
+           before = &#123;
+              <span class="java&#45;keyword">if</span>(!session.user &#38;&#38; actionName != <span class="java&#45;quote">"login"</span>) &#123;
+                  redirect(controller:<span class="java&#45;quote">"user"</span>,action:<span class="java&#45;quote">"login"</span>)
+                  <span class="java&#45;keyword">return</span> <span class="java&#45;keyword">false</span>					
+	           &#125;
+           &#125;<p class="paragraph"/>       &#125;
+   &#125;
+&#125;</pre></div><p class="paragraph"/>loginCheck 필터는 어떤 액션이 실행되기 전에 가로챌 것이다. 그리고 session에 user가 없거나 login 액션을 실행한것이 아니라면 login 액션으로 리다이렉트 한다.<p class="paragraph"/>login 액션은 다음과 같이 간단하게 작성할 수 있다:<p class="paragraph"/><div class="code"><pre>def login = &#123;
+	<span class="java&#45;keyword">if</span>(request.get) render(view:<span class="java&#45;quote">"login"</span>)
+	<span class="java&#45;keyword">else</span> &#123;
+		def u = User.findByLogin(params.login)
+		<span class="java&#45;keyword">if</span>(u) &#123;
+			<span class="java&#45;keyword">if</span>(u.password == params.password) &#123;
+				session.user = u
+				redirect(action:<span class="java&#45;quote">"home"</span>)
+			&#125;
+			<span class="java&#45;keyword">else</span> &#123;
+				render(view:<span class="java&#45;quote">"login"</span>, model:&#91;message:<span class="java&#45;quote">"Password incorrect"</span>&#93;)							
+			&#125;
+		&#125;
+		<span class="java&#45;keyword">else</span> &#123;
+			render(view:<span class="java&#45;quote">"login"</span>, model:&#91;message:<span class="java&#45;quote">"User not found"</span>&#93;)			
+		&#125;
+	&#125;
+&#125;</pre></div>
+	</body>
+</html>

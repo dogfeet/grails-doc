@@ -1,0 +1,24 @@
+<html>
+     <head>
+     	<meta http-equiv="Content-type" content="text/html; charset=utf-8">
+     	<title>6.2.1 GSP Basics</title>
+     	<link rel="stylesheet" href="../css/main.css" type="text/css" media="screen" title="Ref" charset="utf-8">
+     </head>
+	<body class="body">
+		이 장에서는 GSP의 기초와 무엇을 이용할 수 있는지에 대해서 살펴본다. 먼저 기본 문법에 대해서 살펴보자. JSP나 ASP 사용자라면 매우 친숙할 것이다.<p class="paragraph"/>GSP는 Groovy 코드를 넣을 수 있도록 <code>&#60;% %&#62;</code> 블럭을 지원한다(다시 한번 강조하지만 권장하지 않는다):<p class="paragraph"/><div class="code"><pre><span class="xml&#45;tag">&#60;html&#62;</span>
+   <span class="xml&#45;tag">&#60;body&#62;</span>
+     <span class="xml&#45;tag">&#60;% out &#60;&#60; <span class="xml&#45;quote">"Hello GSP!"</span> %&#62;</span>
+   <span class="xml&#45;tag">&#60;/body&#62;</span>
+<span class="xml&#45;tag">&#60;/html&#62;</span></pre></div><p class="paragraph"/>또한 값을 출락하기 위해 <code>&#60;%= %&#62;</code> 문법을 사용할 수도 있다:<p class="paragraph"/><div class="code"><pre><span class="xml&#45;tag">&#60;html&#62;</span>
+   <span class="xml&#45;tag">&#60;body&#62;</span>
+     <span class="xml&#45;tag">&#60;%=<span class="xml&#45;quote">"Hello GSP!"</span> %&#62;</span>
+   <span class="xml&#45;tag">&#60;/body&#62;</span>
+<span class="xml&#45;tag">&#60;/html&#62;</span></pre></div><p class="paragraph"/>GSP는 JSP 스타일의 주석도 지원한다. 다음 예제를 보자:<p class="paragraph"/><div class="code"><pre><span class="xml&#45;tag">&#60;html&#62;</span>
+   <span class="xml&#45;tag">&#60;body&#62;</span>
+	 <span class="xml&#45;tag">&#60;%&#45;&#45; This is my comment &#45;&#45;%&#62;</span>
+     <span class="xml&#45;tag">&#60;%=<span class="xml&#45;quote">"Hello GSP!"</span> %&#62;</span>
+   <span class="xml&#45;tag">&#60;/body&#62;</span>
+<span class="xml&#45;tag">&#60;/html&#62;</span></pre></div>
+
+	</body>
+</html>

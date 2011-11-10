@@ -1,0 +1,21 @@
+<html>
+     <head>
+     	<meta http-equiv="Content-type" content="text/html; charset=utf-8">
+     	<title>6.2.3 Views and Templates</title>
+     	<link rel="stylesheet" href="../css/main.css" type="text/css" media="screen" title="Ref" charset="utf-8">
+     </head>
+	<body class="body">
+		Grails는 뷰뿐만 아니라 템플릿도 지원한다. 템플릿은 뷰를 쉽게 관리할 수 있게 만들기 때문에 유용하고 구조적인 뷰를 위해 훌륭한 재사용 매커니즘을 제공하는 <a href="../guide/single.html#6.2.4 Layouts with Sitemesh" class="guide">Layouts</a>과 함께 사용할 수 있다.<p class="paragraph"/><h4>Template Basics(템플릿의 기초)</h4><p class="paragraph"/>Grails는 템플릿을 식별하기 위해서 뷰의 이름 앞에 '_'를 붙이는 관례를 사용한다. 예를 들어 Book을 렌더링하는 템플릿은 <code>grails-app/views/book/_bookTemplate.gsp</code>에 위치한다:<p class="paragraph"/><div class="code"><pre><span class="xml&#45;tag">&#60;div class=<span class="xml&#45;quote">"book"</span> id=<span class="xml&#45;quote">"$&#123;book?.id&#125;"</span>&#62;</span>
+   <span class="xml&#45;tag">&#60;div&#62;</span>Title: $&#123;book?.title&#125;<span class="xml&#45;tag">&#60;/div&#62;</span>
+   <span class="xml&#45;tag">&#60;div&#62;</span>Author: $&#123;book?.author?.name&#125;<span class="xml&#45;tag">&#60;/div&#62;</span>
+<span class="xml&#45;tag">&#60;/div&#62;</span></pre></div><p class="paragraph"/><code>grails-app/views/book</code>에 있는 뷰에서 템플릿을 렌더링하려면 <a href="../ref/Tags/render.html" class="tags">render</a> 태그를 사용해야 한다:<p class="paragraph"/><div class="code"><pre><span class="xml&#45;tag">&#60;g:render template=<span class="xml&#45;quote">"bookTemplate"</span> model=<span class="xml&#45;quote">"&#91;book:myBook&#93;"</span> /&#62;</span></pre></div><p class="paragraph"/><code>render</code> 태그의 <code>model</code> 속성이 어떻게 사용되고 있는지 기억하라. <code>Book</code> 인스턴스가 많을 때 <code>render</code> 태그와 템플릿을 사용하여 Book 인스턴스들을 렌더링할 수 있다:<p class="paragraph"/><div class="code"><pre><span class="xml&#45;tag">&#60;g:render template=<span class="xml&#45;quote">"bookTemplate"</span> var=<span class="xml&#45;quote">"book"</span> collection=<span class="xml&#45;quote">"$&#123;bookList&#125;"</span> /&#62;</span></pre></div><p class="paragraph"/><h4>Shared Templates(템플릿 공유하기)</h4><p class="paragraph"/>위의 예제에서 우리는 템플릿을 BookController와 grails-app/views/book에서만 사용했다. 그러나 템플릿을 어플리케에션 전체에서 공유할 수도 있다.<p class="paragraph"/>이 경우에 뷰들의 루트 디렉토리인 grails-app/views나 그 하위 디렉토리에 템플릿을 위치시킨다. 그리고 template 속성에 템플릿 이름 앞에 '/'과 상대경로를 더해서 명시한다. grails-app/views/shared/_mySharedTemplate.gsp라는 템플릿이 있으면 다음과 같이 사용할 수 있다:<p class="paragraph"/><div class="code"><pre><span class="xml&#45;tag">&#60;g:render template=<span class="xml&#45;quote">"/shared/mySharedTemplate"</span> /&#62;</span></pre></div><p class="paragraph"/>뷰와 컨트롤러의 디렉토리에 있는 템플릿도 사용할 수 있다:<p class="paragraph"/><div class="code"><pre><span class="xml&#45;tag">&#60;g:render template=<span class="xml&#45;quote">"/book/bookTemplate"</span> model=<span class="xml&#45;quote">"&#91;book:myBook&#93;"</span> /&#62;</span></pre></div><p class="paragraph"/><h4>Templates in Controllers and Tag Libraries(컨트롤러와 테그 라이브러리에서 템플릿 사용하기)</h4><p class="paragraph"/>컨트롤러에서도 <a href="../ref/Controllers/render.html" class="controllers">render</a> 메소드를 사용하여 템플릿을 렌더링할 수 있다. 이 것은 <a href="../guide/single.html#6.7 Ajax" class="guide">Ajax</a> 어플리케이션에 유용하다:<p class="paragraph"/><div class="code"><pre>def show = &#123;
+    def b = Book.get(params.id)
+	render(template:<span class="java&#45;quote">"bookTemplate"</span>, model:&#91;book:b&#93;)
+&#125;</pre></div><p class="paragraph"/>컨트롤러에서 <a href="../ref/Controllers/render.html" class="controllers">render</a> 메소드를 사용하면 응답에 바로 씌여진다. 이 것이 가장 일반적인 용법이지만 템플릿의 결과를 알고 싶다면 다음과 같이 <a href="../ref/Tags/render.html" class="tags">render</a> 태그를 사용할 수 있다:<p class="paragraph"/><div class="code"><pre>def show = &#123;
+    def b = Book.get(params.id)
+	<span class="java&#45;object">String</span> content = g.render(template:<span class="java&#45;quote">"bookTemplate"</span>, model:&#91;book:b&#93;)
+	render content
+&#125;</pre></div><p class="paragraph"/><code>g.</code> 네임스페이스를 사용하면 Grails는 <a href="../ref/Controllers/render.html" class="controllers">render</a> 메소드가 아니라 <a href="../guide/single.html#6.2.2.6 Tags as Method Calls" class="guide">render 태그</a>를 사용하는 것이라고 해석한다.
+
+	</body>
+</html>

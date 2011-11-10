@@ -1,0 +1,12 @@
+<html>
+     <head>
+     	<meta http-equiv="Content-type" content="text/html; charset=utf-8">
+     	<title>5.3.2 Deleting Objects</title>
+     	<link rel="stylesheet" href="../css/main.css" type="text/css" media="screen" title="Ref" charset="utf-8">
+     </head>
+	<body class="body">
+		다음은 <a href="../ref/Domain Classes/delete.html" class="domainClasses">delete</a> 메소드를 사용하는 예이다.<p class="paragraph"/><div class="code"><pre>def p = Person.get(1)
+p.delete()</pre></div><p class="paragraph"/><a href="../ref/Domain Classes/delete.html" class="domainClasses">delete</a> 메소드에도 flush 인자를 이용하여 flush시킬 수 있다.<p class="paragraph"/><div class="code"><pre>def p = Person.get(1)
+p.delete(flush:<span class="java&#45;keyword">true</span>)</pre></div><p class="paragraph"/>데이터를 삭제하는 것은 조심해야 하기 때문에 Grails도 <code>deleteAll</code> 메소드를 제공하지 않는다. 이진 flags/logic을 이용해서 데이터를 삭제할 수 있다.<p class="paragraph"/>정말 일괄 삭제해야 한다면 <a href="../ref/Domain Classes/executeUpdate.html" class="domainClasses">executeUpdate</a> 메소드를 이용하여 DML 문을 실행시켜서 삭제할 수 있다.<p class="paragraph"/><div class="code"><pre>Customer.executeUpdate(<span class="java&#45;quote">"delete Customer c where c.name = :oldName"</span>, &#91;oldName:<span class="java&#45;quote">"Fred"</span>&#93;)</pre></div><p class="paragraph"/>
+	</body>
+</html>

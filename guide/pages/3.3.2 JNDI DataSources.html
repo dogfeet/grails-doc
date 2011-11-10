@@ -1,0 +1,12 @@
+<html>
+     <head>
+     	<meta http-equiv="Content-type" content="text/html; charset=utf-8">
+     	<title>3.3.2 JNDI DataSources</title>
+     	<link rel="stylesheet" href="../css/main.css" type="text/css" media="screen" title="Ref" charset="utf-8">
+     </head>
+	<body class="body">
+		많은 Java EE 컨테이너는 보통 JNDI(<a href="http://java.sun.com/products/jndi/" target="blank">Java Naming and Directory Interface</a> )의 DataSource 인스턴스를 제공한다. 그래서 DataSource를 통해서 JNDI를 사용해야 할 때도 있다.<p class="paragraph"/>아래와 같이 JNDI data source를 정의할 수 있다.<p class="paragraph"/><div class="code"><pre>dataSource &#123;
+    jndiName = <span class="java&#45;quote">"java:comp/env/myDataSource"</span>
+&#125;</pre></div><p class="paragraph"/>JNDI 이름의 형태는 컨테이너 마다 다를지도 모르지만, DataSource를 정의하는 방법은 똑같다.<p class="paragraph"/>
+	</body>
+</html>

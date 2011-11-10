@@ -1,0 +1,87 @@
+<html>
+     <head>
+     	<meta http-equiv="Content-type" content="text/html; charset=utf-8">
+     	<title>5.5.2.1 Table and Column Names</title>
+     	<link rel="stylesheet" href="../css/main.css" type="text/css" media="screen" title="Ref" charset="utf-8">
+     </head>
+	<body class="body">
+		<h4>Table names(테이블 이름)</h4><p class="paragraph"/><code>table</code>을 사용하여 클래스가 매핑될 데이터베이스 테이블 이름을 정의할 수 있다.:<p class="paragraph"/><div class="code"><pre>class Person &#123;
+  ..
+  <span class="java&#45;keyword">static</span> mapping = &#123;
+      table 'people'
+  &#125;
+&#125;</pre></div><p class="paragraph"/>이 경우 <code>person</code>이 아니라 <code>people</code>이라는 테이블에 매핑될 것이다.<p class="paragraph"/><h4>Column names(컬럼 이름)</h4><p class="paragraph"/>데이터베이스의 컬럼에 매핑하는 규칙도 정의할 수 있다. 다음의 예제처럼 원하는 이름으로 매핑시킬 수 있다:<p class="paragraph"/><div class="code"><pre>class Person &#123;
+  <span class="java&#45;object">String</span> firstName
+  <span class="java&#45;keyword">static</span> mapping = &#123;
+      table 'people'
+      firstName column:'First_Name'
+  &#125;
+&#125;</pre></div><p class="paragraph"/>이 예제에서는 매핑할 프로퍼티 이름은 <code>firstName</code>이고 <code>column</code>이라는 파라미터를 이용하여 어느 컬럼에 매핑할지 명시한다.<p class="paragraph"/><h4>Column type(컬럼 타입)</h4><p class="paragraph"/>GORM은 DSL의 타입 속성(attribute)으로 Hibernate 타입을 설정할 수 있다. 이 것은 <a href="http://www.hibernate.org/hib_docs/v3/api/org/hibernate/types/UserType.html" class="api">org.hibernate.types.UserType</a>를 상속한 사용자 타입도 명시할 수 있고 타입에 어떻게 영속성을 부여할지 정의할 수 있게 한다. <code>PostCodeType</code>을 만들었고 이 것을 사용한다면 다음의 예제처럼 할 수 있다:<p class="paragraph"/><div class="code"><pre>class Address &#123;
+   <span class="java&#45;object">String</span> number
+   <span class="java&#45;object">String</span> postCode
+   <span class="java&#45;keyword">static</span> mapping = &#123;
+      postCode type:PostCodeType
+   &#125;
+&#125;</pre></div><p class="paragraph"/>뿐만아니라 Grails가 선택하는 기본 타입을 사용하지 않고 Hibernate가 제공하는 기본 타입중에 하나로 매핑하게 할 수 있다:<p class="paragraph"/><div class="code"><pre>class Address &#123;
+   <span class="java&#45;object">String</span> number
+   <span class="java&#45;object">String</span> postCode
+   <span class="java&#45;keyword">static</span> mapping = &#123;
+      postCode type:'text'
+   &#125;
+&#125;</pre></div><p class="paragraph"/>이 예제에서는 <code>postCode</code> 컬럼이 SQL TEXT나 CLOB 형식에 매핑된다. 매핑되는 형식은 사용하는 데이터베이스에 따라 다르다.<p class="paragraph"/><h4>One-to-One Mapping(일대일 매핑)</h4><p class="paragraph"/>관계(association)가 있을 때 관계를 매핑하는 외래 키를 변경하는 것도 가능하다. 일대일 관계에서는 일반 컬럼을 매핑하는 것과 동일하다. 예를 들면 다음과 같다:<p class="paragraph"/><div class="code"><pre>class Person &#123;
+  <span class="java&#45;object">String</span> firstName
+  Address address
+  <span class="java&#45;keyword">static</span> mapping = &#123;
+      table 'people'
+      firstName column:'First_Name'
+	  address column:'Person_Adress_Id'
+  &#125;
+&#125;</pre></div><p class="paragraph"/>기본적으로 <code>address</code> 관계는 외래키 컬럼 <code>address_id</code>에 매핑된다. 그러나 <code>Person_Adress_Id</code> 컬럼에 매핑하도록 변경했다.<p class="paragraph"/><h4>One-to-Many Mapping(일대다 매핑)</h4><p class="paragraph"/>양방향 일대다 관계에서는 '다'쪽의 컬럼이름을 변경하는 것만으로도 외래키 컬럼을 변경할 수 있다. 하지만 단방향 관계에서는 관계 자체에 외래키를 명시해야 한다. 다음은 <code>Person</code>과 <code>Address</code>사이의 단방향 일대다 관계에서 <code>address</code> 테이블의 외래키를 변경시키는 예제이다:<p class="paragraph"/><div class="code"><pre>class Person &#123;
+  <span class="java&#45;object">String</span> firstName
+  <span class="java&#45;keyword">static</span> hasMany = &#91;addresses:Address&#93;
+  <span class="java&#45;keyword">static</span> mapping = &#123;
+      table 'people'
+      firstName column:'First_Name'
+	  addresses column:'Person_Address_Id'
+  &#125;
+&#125;</pre></div><p class="paragraph"/><code>joinTable</code> 파라미터를 이용하면 <code>address</code> 테이블에 있는 컬럼이 아니라 테이블을 조인할 수 있다:<p class="paragraph"/><div class="code"><pre>class Person &#123;
+  <span class="java&#45;object">String</span> firstName
+  <span class="java&#45;keyword">static</span> hasMany = &#91;addresses:Address&#93;
+  <span class="java&#45;keyword">static</span> mapping = &#123;
+      table 'people'
+      firstName column:'First_Name'
+      addresses joinTable:&#91;name:'Person_Addresses', key:'Person_Id', column:'Address_Id'&#93;
+  &#125;
+&#125;</pre></div><p class="paragraph"/><h4>Many-to-Many Mapping(다대다 매핑)</h4><p class="paragraph"/>Grails에서는 기본적으로 n-n 관계를 조인 테이블으로 매핑한다. 다음은 n-n 관계의 예제이다:<p class="paragraph"/><div class="code"><pre>class Group &#123;
+	&#8230;
+	<span class="java&#45;keyword">static</span> hasMany = &#91;people:Person&#93;
+&#125;
+class Person &#123;
+	&#8230;
+	<span class="java&#45;keyword">static</span> belongsTo = Group
+	<span class="java&#45;keyword">static</span> hasMany = &#91;groups:Group&#93;
+&#125;</pre></div><p class="paragraph"/>이 예제에서 Grails는 <code>person</code>과 <code>group</code> 테이블을 참조하는 외래키 <code>person_id</code>와 <code>group_id</code>을 사용하여 <code>group_person</code>이라는 조인 테이블을 만든다. 각 클래스를 매핑할 때 mapping 블럭에 컬럼을 명시하여 매핑하는 컬럼도 변경할 수 있다:<p class="paragraph"/><div class="code"><pre>class Group &#123;
+   &#8230;
+   <span class="java&#45;keyword">static</span> mapping = &#123;
+       people column:'Group_Person_Id'
+   &#125;	
+&#125;
+class Person &#123;
+   &#8230;
+   <span class="java&#45;keyword">static</span> mapping = &#123;
+       groups column:'Group_Group_Id'
+   &#125;	
+&#125;</pre></div><p class="paragraph"/>사용할 조인 테이블의 이름도 명시할 수 있다:<p class="paragraph"/><div class="code"><pre>class Group &#123;
+   &#8230;
+   <span class="java&#45;keyword">static</span> mapping = &#123;
+       people column:'Group_Person_Id',joinTable:'PERSON_GROUP_ASSOCIATIONS'
+   &#125;	
+&#125;
+class Person &#123;
+   &#8230;
+   <span class="java&#45;keyword">static</span> mapping = &#123;
+       groups column:'Group_Group_Id',joinTable:'PERSON_GROUP_ASSOCIATIONS'
+   &#125;	
+&#125;</pre></div>
+	</body>
+</html>

@@ -1,0 +1,81 @@
+<html>
+     <head>
+     	<meta http-equiv="Content-type" content="text/html; charset=utf-8">
+     	<title>2. Getting Started</title>
+     	<link rel="stylesheet" href="../css/main.css" type="text/css" media="screen" title="Ref" charset="utf-8">
+     </head>
+	<body class="body">
+		<h1><a name="2. Getting Started">2. Getting Started</a></h1><h2><a name="2.1 Downloading and Installing">2.1 Downloading and Installing</a></h2>Grails를 시작하고 작동시키기 위해서 처음해야 하는 일은 배포본을 설치하는 것이다. 천천히 다음 단계들을 따라하라.
+<ul class="star">
+<li>Grails의 바이너리 배포본을 <a href=":http://grails.org/Download">다운</a> 받고, 원하는 위치에 다운받은 zip파일의 압축을 푼다.</li>
+<li>zip파일의 압축을 푼곳으로 GRAILS_HOME이라는 환경변수를 설정한다.</li>
+<ul class="star">
+<li>Unix/Linux 환경에서는 일반적으로 프로필 파일에 <code>export GRAILS_HOME=/path/to/grails</code> 와 같은 것을 추가시키는 방법을 사용한다.</li>
+<li>윈도우 환경에서는 일반적으로 내 <code>컴퓨터/속성/고급/환경변수</code> 에서 설정한다.</li>
+</ul>
+<li>이제 당신의 <code>PATH</code> 변수에 Grails의 <code>bin</code> 디렉토리를 설정해야한다.</li>
+<ul class="star">
+<li>Unix/Linux 환경에서는 <code>export PATH="$PATH:$GRAILS_HOME/bin"</code>를 실행하는 것으로 설정할 수 있다.</li>
+<li>윈도우즈 환경에서는 내 컴퓨터/속성/환경변수에 있는 <code>Path</code> 환경변수를 수정함으로써 설정 할 수 있다.</li>
+</ul></ul><p class="paragraph"/>만약 Grails가 정상적으로 동작한다면 당신은 터미널 윈도우에서 grails를 타이핑하고서, 다음과 같은 결과물을 볼 수 있다.<p class="paragraph"/><pre class="bq"><code>
+Welcome to Grails 1.0 - http://grails.org/
+Licensed under Apache Standard License 2.0
+Grails home is set to: /Developer/grails-1.0
+No script name specified. Use 'grails help' for more info</code></pre><p class="paragraph"/><h2><a name="2.2 Creating an Application">2.2 Creating an Application</a></h2>
+Grails 어플리케이션을 생성하려면 먼저 다음과 같은 <code>grails</code> 명령어의 사용법에 익숙해질 필요가 있다.<p class="paragraph"/><div class="code"><pre>grails &#91;command name&#93;</pre></div><p class="paragraph"/>이제 create-app 명령어를 사용하여 어플리케이션을 생성할 수 있다.<p class="paragraph"/>tc.
+grails create-app helloworld<p class="paragraph"/>
+이 명령어는 현재 디렉토리 위치에 프로젝트를 담고있는 새로운 디렉토리를 만들어 줄 것이다. 당신은 이제 터미널에서 이 디렉토리를 돌아다녀야 한다:<p class="paragraph"/><pre class="bq"><code>
+cd helloworld</code></pre><p class="paragraph"/><h2><a name="2.3 A Hello World Example">2.3 A Hello World Example</a></h2>전형적인 "hello world!" 예제 프로그램을 구현하기 위해서는 <a href="../ref/Command Line/create-controller.html" class="commandLine">create-controller</a> 명령어를 사용한다.<p class="paragraph"/><pre class="bq"><code>
+grails create-controller hello  </code></pre><p class="paragraph"/>이것은 <code>grails-app/controllers</code> 디렉토리 안에 <code>HelloController.groovy</code> 라는 새로운 컨트롤러를 생성할 것이다(더 많은 정보를 원한다면 <a href="../guide/single.html#6.1 Controllers" class="guide">컨트롤러</a> 절을 보라.)<p class="paragraph"/>컨트롤러는 웹 요청들을 처리할 수 있다. 그리고 다음과 같이 구현하여 "hello world!"라는 메시지를 출력할 수 있다.<p class="paragraph"/><div class="code"><pre>class HelloController &#123;<p class="paragraph"/>    def world = &#123;
+            render <span class="java&#45;quote">"Hello World!"</span>
+     &#125; 
+&#125;</pre></div><p class="paragraph"/>다했다. 이제 또 다른 명령어인 <a href="../ref/Command Line/run-app.html" class="commandLine">run-app</a>로 컨테이너를 실행시킨다.<p class="paragraph"/><pre class="bq"><code>
+grails run-app</code></pre><p class="paragraph"/>이 명령어로 8080포트로 서버를 실행시키고나서 <code>http://localhost:8080/helloworld</code> 와 같은 URL로 해당 어플리케이션에 접속할 수 있다.<p class="paragraph"/>결과는 다음의 스크린샷과 같이 나올 것이다.<p class="paragraph"/><img border="0" class="center" src="../img/intropage.png"></img><p class="paragraph"/>이 것은 <code>web-app/index.gsp</code> 로 렌더링된 Grails의 소개페이지이다. 이 페이지에는 컨트롤러들이 보여질 것이고 컨트롤러의 링크를 클릭하면 브라우저 윈도우에 "Hello World!"라고 출력되는 것을 보게 될 것이다.
+<h2><a name="2.4 Getting Set-up in an IDE">2.4 Getting Set-up in an IDE</a></h2><h4>IntelliJ IDEA</h4><p class="paragraph"/>현재 굉장히 성숙하고, 풍부한 기능을 가진 Groovy&#38;Grails IDE는 <a href="http://www.jetbrains.com/idea" target="blank">IntelliJ IDEA 7.0</a> 과 <a href="http://www.jetbrains.net/confluence/display/GRVY/Groovy+Home" target="blank">JetGroovy</a> 플러그인이다. Grails 개발팀은 커다란 프로젝트를 위해서 다른 IDE 환경을 넘어선 IDEA를 추천한다.<p class="paragraph"/><h4>TextMate</h4><p class="paragraph"/>Grails는 단순함에 초첨이 맞춰져 있기 때문에 단순한 텍스트 편집기를 사용하는 것도 가능하다. Mac의 <a href="http://macromates.com/" target="blank">TextMate</a> 에는 우수한 Groovy/Grails 번들을 가졌다. <a href="http://wiki.macromates.com/Main/SubversionCheckout" target="blank">Texmate bundles SVN</a>에서 이용할 수 있다.<p class="paragraph"/><h4>Eclipse</h4><p class="paragraph"/><a href="http://www.eclipse.org/" target="blank">Eclipse</a> 위해서 여기에 또 문법 강조와 코드 완성등을 해주는 <a href="http://groovy.codehaus.org/Eclipse+Plugin" target="blank">Groovy Eclipse Plugin</a> 이 있다.<p class="paragraph"/><blockquote class="note">
+이 Groovy 이클립스 플러그인은 자주 변한다. 그 변화의 <a href="http://grails.org/Eclipse+IDE+Integration" target="blank">자세한 사항</a>은 Grails 위키에서 알 수 있다.
+</blockquote><p class="paragraph"/>Grails는 자동적으로 이클립스의 <code>.project</code> 파일과 <code>classpath</code> 파일을 만든다. 그리고 "Package Explorer"창에서 오른쪽 버튼을 클릭을 하여 "Import"를 선택한 후 "Existing projext into Workspace"에서 그레일즈 프로젝트가 있는 곳을 "Browse"하는 것으로 Grails 프로젝트를 추가시킬 수 있다.<p class="paragraph"/>그리고 "Finish"를 누른 다음에 나오는 "Ok"를 클릭하면 프로젝트는 설치된다.<p class="paragraph"/>또한 Grails는 적당한 이클립스 실행 설정을 자동으로 셋업한다. 이것은 이클립스의 "Run"메뉴를 통해서 접근이 가능하다.
+<h2><a name="2.5 Convention over Configuration">2.5 Convention over Configuration</a></h2>Grails는 "설정보다 관례"를 사용한다. 이 것은 이름과 파일의 위치를 명시적으로 설정하는 하지 않고 Grails가 제공하는 디렉토리 구조에 익숙해져야 하는 것을 의미한다.<p class="paragraph"/>여기에 Grails의 상세 내역과 관련된 링크가 있다.
+<ul class="star">
+<li><code>grails-app</code> - 그루비 소스코드의 최상위 레벨의 디렉토리</li>
+<ul class="star">
+<li><code>conf</code> - <a href="../guide/single.html#3. Configuration" class="guide">설정 소스</a>.</li>
+<li><code>controllers</code> - MVC에서 C인 <a href="../guide/single.html#6.1 Controllers" class="guide">웹 컨트롤러</a></li>
+<li><code>domain</code> - The <a href="../guide/single.html#5. Object Relational Mapping (GORM)" class="guide">어플리케이션의 도메인</a>.</li>
+<li><code>i18n</code> - <a href="../guide/single.html#10. Internationalization" class="guide">국제화 (i18n)</a> 를 위한 지원.</li>
+<li><code>services</code> - <a href="../guide/single.html#8. The Service Layer" class="guide">서비스 계층</a>.</li>
+<li><code>taglib</code> - <a href="../guide/single.html#6.3 Tag Libraries" class="guide">태그 라이브러리</a>.</li>
+<li><code>views</code> - <a href="../guide/single.html#6.2 Groovy Server Pages" class="guide">Groovy 서버 페이지</a>.</li>
+</ul>
+<li><code>scripts</code> - <a href="../guide/single.html#4. The Command Line" class="guide">Gant 스크립트</a>.</li>
+<li><code>src</code> - 지원 소스 코드</li>
+<ul class="star">
+<li><code>groovy</code> - 기타 Groovy 소스</li>
+<li><code>java</code> - 기타 Java 소스</li>
+</ul>
+<li><code>test</code>  - <a href="../guide/single.html#9. Testing" class="guide">단위/통합 테스트</a>.</li>
+</ul><p class="paragraph"/><h2><a name="2.6 Running an Application">2.6 Running an Application</a></h2>Grails 어플리케이션은 <a href="../ref/Command Line/run-app.html" class="commandLine">run-app</a> 명령어를 사용해서 Jetty 서버에서 돌아갈 수 있다. Jetty서버는 기본적으로 8080포트를 사용한다.<p class="paragraph"/><div class="code"><pre>grails run&#45;app</pre></div><p class="paragraph"/><code>server.port</code> 인자를 이용해서 다른 포트를 사용할 수 있다.<p class="paragraph"/><div class="code"><pre>grails &#45;Dserver.port=8090 run&#45;app</pre></div><p class="paragraph"/><a href="../ref/Command Line/run-app.html" class="commandLine">run-app</a> 에 대한 더 많은 정보는 레퍼런스 가이드에서 얻을 수 있다.
+<h2><a name="2.7 Testing an Application">2.7 Testing an Application</a></h2>Grails의 <code>create-*</code>형식의 명령어들은 t<code>est/integration</code> 디렉토리에 통합 테스트들을 자동적으로 만든다. 물론 <a href="../guide/single.html#9. Testing" class="guide">테스트</a> 에 대한 장에서 설명하는 정보와 테스트 로직에 부합하도록 내용을 채우는 일은 당신의 몫이다. 하지만 만약 테스트를 실행하기를 원한다면 당신은 다음과 같이 <a href="../ref/Command Line/test-app.html" class="commandLine">test-app</a> 명령어를 사용할 수 있다.<p class="paragraph"/><div class="code"><pre>grails test&#45;app</pre></div><p class="paragraph"/>Grails는 <a href="../ref/Command Line/test-app.html" class="commandLine">test-app</a> 명령어와 동일하게 동작하는 Ant의 <code>build.xml</code> 파일을 자동으로 만들어준다.<p class="paragraph"/>
+<div class="code"><pre>ant test</pre></div><p class="paragraph"/>이것을 통해 CruiseControl같은 지속적 통합(continuous integration) 플랫폼을 유용하게 사용할 수 있다<h2><a name="2.8 Deploying an Application">2.8 Deploying an Application</a></h2>Grails 어플리케이션은 WAR(Web Application Archieves) 파일로 설치할 수 있다. <a href="../ref/Command Line/war.html" class="commandLine">war</a> 명령어를 사용하여 만들 수 있다:<p class="paragraph"/><div class="code"><pre>grails war</pre></div><p class="paragraph"/>프로젝트 루트에 WAR파일이 생성될 것이다. 이제 각 컨테이너의 사용법에 따라 설치할 수 있다.<p class="paragraph"/><blockquote class="warning">
+결코 Grails의 <a href="../ref/Command Line/run-app.html" class="commandLine">run-app</a> 명령을 사용하여 실제로 서비스하지 말아라. Grails의 이 명령어는 서버 성능이나 확장성이 중요한 런타임에도 자동으로 reload 하도록 설정돼 있다.
+</blockquote><p class="paragraph"/>Grails를 설치할때에는 컨테이너의 JVM에 충분히 메모리를 할당하고 <code>-server</code> 옵션을 사용해야 한다. 다음은 권장하는 VM 옵션들이다.<p class="paragraph"/><div class="code"><pre>&#45;server &#45;Xmx512M</pre></div><h2><a name="2.9 Supported Java EE Containers">2.9 Supported Java EE Containers</a></h2>Grails는 다음과 같이 꽤 많은 컨테이너들을 지원한다.
+<ul class="star">
+<li>Tomcat 5.5</li>
+<li>Tomcat 6.0</li>
+<li>GlassFish v1 (Sun AS 9.0)</li>
+<li>GlassFish v2 (Sun AS 9.1)</li>
+<li>Sun App Server 8.2</li>
+<li>Websphere 6.1</li>
+<li>Websphere 5.1</li>
+<li>Resin 3.2</li>
+<li>Oracle AS</li>
+<li>JBoss 4.2</li>
+<li>Jetty 6.1</li>
+<li>Jetty 5</li>
+<li>Weblogic 7/8/9/10</li>
+</ul><p class="paragraph"/>몇몇 컨테이너들는 버그가 있지만 대부분의 경우에는 잘 동작한다. <a href="http://grails.org/Deployment" target="blank">설치에 관한 문제</a>는 Grails 위키에서 찾을 수 있다.<p class="paragraph"/>Some containers have bugs however, which in most cases can be worked around. A <a href="http://grails.org/Deployment" target="blank">list of known deployment issues</a> can be found on the Grails wiki.<h2><a name="2.10 Creating Artefacts">2.10 Creating Artefacts</a></h2>Grails는 <a href="../ref/Command Line/create-controller.html" class="commandLine">create-controller</a>, <a href="../ref/Command Line/create-domain-class.html" class="commandLine">create-domain-class</a> 등과 같은 편리한 명령어를 지원한다. 이 것들은 컨트롤러를 생성하거나 다른 타입의 아티펙트들을 만들어줄 것이다.<p class="paragraph"/><blockquote class="note">
+여기에 있는 것이 전부가 아니다. IDE나 익숙한 텍스트 편집기를 바로 사용하는 것도 쉽다.
+</blockquote><p class="paragraph"/>예를 들어 다음과 같이 어플리케이션을 만들 때 기본적으로 필요한 <a href="../guide/single.html#5. Object Relational Mapping (GORM)" class="guide">도메인 모델</a>을 만든다:<p class="paragraph"/><div class="code"><pre>grails create&#45;domain&#45;class book</pre></div><p class="paragraph"/>도메인 클래스가 grails-app/domain/Book.groovy 파일이 만들어진다. 그 내용은 다음과 같다:<p class="paragraph"/><div class="code"><pre>class Book &#123;	
+&#125;</pre></div><p class="paragraph"/>Grails에는 많은 <code>create-*</code> 와 같은 명령어가 있다. 이 것들은 명령줄 레퍼런스 가이드에서 찾아볼 수 있다.
+<h2><a name="2.11 Generating an Application">2.11 Generating an Application</a></h2>Grails를 시작할 때 어플리케이션의 뼈대를 만들어주는 <a href="../guide/single.html#16. Scaffolding" class="guide">스케폴드</a> 라는 특징은 매우 유용하다. <code>generate-*</code> 명령어들 중에서 하나를 사용하여 만들 수 있고 <a href="../ref/Command Line/generate-all.html" class="commandLine">generate-all</a> 을 사용하면 관계된 <a href="../guide/single.html#6.1 Controllers" class="guide">컨트롤러</a> 와 <a href="../guide/single.html#6.2 Groovy Server Pages" class="guide">뷰</a> 가 생성될 것이다.<p class="paragraph"/><div class="code"><pre>grails generate&#45;all Book</pre></div><p class="paragraph"/>
+	</body>
+</html>

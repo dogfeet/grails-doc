@@ -1,0 +1,15 @@
+<html>
+     <head>
+     	<meta http-equiv="Content-type" content="text/html; charset=utf-8">
+     	<title>6.2 Groovy Server Pages</title>
+     	<link rel="stylesheet" href="../css/main.css" type="text/css" media="screen" title="Ref" charset="utf-8">
+     </head>
+	<body class="body">
+		GSP는 Grails의 뷰 기술이다. 이 것은 ASP와 JSP 사용자에게 친숙하도록 설계됐다. 하지만 좀 더 유연하고 직관적으로 설계하였다.<p class="paragraph"/>Grails의 GSP는 <code>grails-app/views</code> 디렉토리에 있다. 관례에 따라서 자동적으로 렌더링되도록 할 수 있고 다음과 같이 <a href="../ref/Controllers/render.html" class="controllers">render</a> 메소드를 사용할 수도 있다.<p class="paragraph"/><div class="code"><pre>render(view:<span class="java&#45;quote">"index"</span>)</pre></div><p class="paragraph"/>GSP는 뷰를 렌더링할 때 일반적으로 마크업(mark-up)과 GSP 태그를 혼합하여 사용한다.<p class="paragraph"/><blockquote class="note">
+Groovy 로직을 GSP 안에 넣을 수도 있지만 실제로 사용하지 않는 것이 좋다. 사용방법은 이 문서에서 설명할 것이다. 마크업과 코드를 혼합하는 것은 오류를 범하는 것이다. 대부분의 GSP 페이지에는 code가 한 줄도 없을 것이고 필요하지도 않다.
+</blockquote><p class="paragraph"/>GSP는 일반적으로 뷰를 렌더링하는데 사용하는 변수들의 집합인 "model"을 하나 가지고 있다. 이 모델은 컨트롤러에서 GSP 뷰로 전달된다. 예를 들어 다음과 같이 컨트롤러의 액션을 만든다:<p class="paragraph"/><div class="code"><pre>def show = &#123;
+	&#91;book: Book.get(params.id)&#93;
+&#125;</pre></div><p class="paragraph"/>이 액션은 <code>Book</code> 인스턴스를 찾아서 <code>book</code>으로 참조될 수 있도록 모델을 만든다. 이 키는 GSP 뷰에서 <code>book</code>이라는 이름으로 참조될 수 있다.<p class="paragraph"/><div class="code"><pre>&#60;%=book.title%&#62;</pre></div>
+
+	</body>
+</html>

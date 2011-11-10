@@ -1,0 +1,29 @@
+<html>
+     <head>
+     	<meta http-equiv="Content-type" content="text/html; charset=utf-8">
+     	<title>12.4 Evaluating Conventions</title>
+     	<link rel="stylesheet" href="../css/main.css" type="text/css" media="screen" title="Ref" charset="utf-8">
+     </head>
+	<body class="body">
+		관례에 의한 런타임 설정 지원에 대해 살펴보기 전에 먼저 플러그인의 관례들이 어떻게 평가되는지 이해해야 한다. 모든 플러그인은 묵시적으로 어플리케이션 변수를 가지는 <a href="../api/org/codehaus/groovy/grails/commons/GrailsApplication.html" class="api">GrailsApplication</a> 인터페이스의 인스턴스이다.<p class="paragraph"/>
+GrailsAppication 인터페이스는 프로젝트 안에서 관례을 평가해보는 메소드들을 제공하고, <a href="../api/org/codehaus/groovy/grails/commons/GrailsClass.html" class="api">GrailsClass</a> 인터페이스를 사용하여 GrailsApplication 안의 모든 클래스에 대한 참조를 내부적으로 저장한다.<p class="paragraph"/>GrailsClass는 태그라이브러리나 컨트롤러같은 물리적인 Grails 리소스를 나타낸다. 예를 들어 모든 GrailsClass 인스턴스를 얻기 위해서 다음과 같은 명령을 사용할 수 있다:<p class="paragraph"/><div class="code"><pre>application.allClasses.each &#123; println it.name &#125;</pre></div><p class="paragraph"/>GrailApplication 인스턴스는 관심있는 것들에 대한 타입들에 대해 모아서 갖고 있는 약간의 “매직” 프로퍼티가 있다. 예를 들어 컨트롤러에 관한 것만 얻고 싶다면 다음과 같이 접근할 수 있다:<p class="paragraph"/><div class="code"><pre>application.controllerClasses.each &#123; println it.name &#125;</pre></div><p class="paragraph"/>동적 메소드 관례는 다음과 같다.
+<ul class="star">
+<li>*Classes - 부분적으로 이름을 가지는 모든 클래스에 대해 얻어온다. 예를 들어 application.controllerClasses.</li>
+<li>get*Class - 하나의 이름을 가지는 클래스를 얻어온다. 예를 들어 application.getControllerClass(“ExampleController”)</li>
+<li>is*Class - 주어진 클래스가 해당 타입이 맞을 경우에 참을 리턴한다. 예를 들어 application.isControllerClass(ExampleController.class)</li>
+<li>add*Class - 해당 타입에 대하여 클래스를 추가하고 그 클래스의 인스턴스를 리턴한다. - 예를 들어 application.addControllerClass(ExampleController.class)</li>
+</ul><p class="paragraph"/>GrailsClass 인터페이스는 메소드를 평가하고 동작시키기 위한 자체적인 여러 유용한 메소드를 제공하며, 그것들은 다음과 같다:
+<ul class="star">
+<li>getPropertyValue - 클래스의 주어진 프로퍼티의 초기 값을 얻어온다.</li>
+<li>hasProperty - 프로퍼티를 가진다면 참을 리턴한다.</li>
+<li>newInstance - 이 클래스의 한 인스턴스를 생성한다.</li>
+<li>getName - 가능하다면 트레일링 관습을 제외한 어플리케이션에서의 클래스의 논리적인 이름을 리턴한다.</li>
+<li>getShortName - 패키지 접두어를 제외한 클래스의 짧은 이름을 리턴한다.</li>
+<li>getFullName - 패키지 이름과 관습 트레일링을 포함한 어플리케이션에서의 클래스의 완전한 이름을 리턴한다.</li>
+<li>getPropertyName - 프로퍼티 이름으로 클래스의 이름을 리턴한다.</li>
+<li>getLogicalPropertyName - 가능하다면 트레일링 관습을 뺀 논리적인 클래스에서의 프로퍼티의 이름을 리턴한다.</li>
+<li>getNaturalName - 프로퍼티의 이름을 자연스러운 단어로 리턴한다.(예. 'lastName' 는 'Last Name' 가 된다)</li>
+<li>getPackageName - 패키지의 이름을 리턴한다.</li>
+</ul><p class="paragraph"/>For a full reference refer to the <a href="../api/org/codehaus/groovy/grails/commons/GrailsClass.html" class="api">javadoc API</a>.
+	</body>
+</html>

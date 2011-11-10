@@ -1,0 +1,42 @@
+<html>
+     <head>
+     	<meta http-equiv="Content-type" content="text/html; charset=utf-8">
+     	<title>15.1 Mapping with Hibernate Annotations</title>
+     	<link rel="stylesheet" href="../css/main.css" type="text/css" media="screen" title="Ref" charset="utf-8">
+     </head>
+	<body class="body">
+		Grails는 Hibernate가 지원하는 자바 5.0 어노테이션을 사용하여 매핑된 도메인 클래스를 만들 수 있도록 지원한다. 그렇게 하기 위해 DataSource에 다음과 같이 configClass를 설정함으로써 어노테이션의 설정을 사용한다는 것을 Grails에 알려줄 필요가 있다:<p class="paragraph"/><div class="code"><pre><span class="java&#45;keyword">import</span> org.codehaus.groovy.grails.orm.hibernate.cfg.GrailsAnnotationConfiguration
+dataSource &#123;
+	configClass = GrailsAnnotationConfiguration.class
+   &#8230; // remaining properties
+&#125;</pre></div><p class="paragraph"/>이제 어노테이션을 위한 설정이 끝났다. 어노테이션을 사용하려면 Java 5.0이 필요하다는 것을 잊지 마라. 이제 쉽게 어노테이션을 사용한 클래스를 만들 수 있다. src/java 디렉토리에 새로운 자바 클래스를 생성하고 EJB 3.0 스펙의 한 부분으로 정의되어 있는 어노테이션을 사용한다(더 자세한 정보를 얻으려면 <a href="http://annotations.hibernate.org/" target="blank">Hibernate 어노테이션 Docs</a>를 찾아보라):<p class="paragraph"/><div class="code"><pre><span class="java&#45;keyword">package</span> com.books;
+@Entity
+<span class="java&#45;keyword">public</span> class Book &#123;
+    <span class="java&#45;keyword">private</span> <span class="java&#45;object">Long</span> id;
+    <span class="java&#45;keyword">private</span> <span class="java&#45;object">String</span> title;
+    <span class="java&#45;keyword">private</span> <span class="java&#45;object">String</span> description;
+    <span class="java&#45;keyword">private</span> Date date;<p class="paragraph"/>    @Id
+    @GeneratedValue
+    <span class="java&#45;keyword">public</span> <span class="java&#45;object">Long</span> getId() &#123;
+        <span class="java&#45;keyword">return</span> id;
+    &#125;<p class="paragraph"/>    <span class="java&#45;keyword">public</span> void setId(<span class="java&#45;object">Long</span> id) &#123;
+        <span class="java&#45;keyword">this</span>.id = id;
+    &#125;<p class="paragraph"/>    <span class="java&#45;keyword">public</span> <span class="java&#45;object">String</span> getTitle() &#123;
+        <span class="java&#45;keyword">return</span> title;
+    &#125;<p class="paragraph"/>    <span class="java&#45;keyword">public</span> void setTitle(<span class="java&#45;object">String</span> title) &#123;
+        <span class="java&#45;keyword">this</span>.title = title;
+    &#125;<p class="paragraph"/>    <span class="java&#45;keyword">public</span> <span class="java&#45;object">String</span> getDescription() &#123;
+        <span class="java&#45;keyword">return</span> description;
+    &#125;<p class="paragraph"/>    <span class="java&#45;keyword">public</span> void setDescription(<span class="java&#45;object">String</span> description) &#123;
+        <span class="java&#45;keyword">this</span>.description = description;
+    &#125;
+&#125;</pre></div><p class="paragraph"/>이제 하이버네이트 sessionFactory에 클래스를 등록해야 하기 위해서 grails-app/conf/hibernate/hibernate.cfg.xml 파일에 다음과 같이 추가 한다:<p class="paragraph"/><div class="code"><pre>&#60;!DOCTYPE hibernate&#45;configuration SYSTEM
+  <span class="xml&#45;quote">"http://hibernate.sourceforge.net/hibernate&#45;configuration&#45;3.0.dtd"</span>&#62;
+<span class="xml&#45;tag">&#60;hibernate&#45;configuration&#62;</span>
+    <span class="xml&#45;tag">&#60;session&#45;factory&#62;</span>
+        <span class="xml&#45;tag">&#60;mapping package=<span class="xml&#45;quote">"com.books"</span> /&#62;</span>
+        <span class="xml&#45;tag">&#60;mapping class=<span class="xml&#45;quote">"com.books.Book"</span> /&#62;</span>
+    <span class="xml&#45;tag">&#60;/session&#45;factory&#62;</span>
+<span class="xml&#45;tag">&#60;/hibernate&#45;configuration&#62;</span></pre></div><p class="paragraph"/>Grails가 이것을 로드할 때 해당 클래스에 관련된 필요한 동적 메소드를 등록한다. Hibernate 도메인 클래스로 할 수 있는 다른 것들을 살펴보려면 스케폴드(<a href="../guide/single.html#16. Scaffolding" class="guide">Scaffolding</a>)장에서 Hibernate절을 살펴보라.<p class="paragraph"/>
+	</body>
+</html>

@@ -1,0 +1,42 @@
+<html>
+     <head>
+     	<meta http-equiv="Content-type" content="text/html; charset=utf-8">
+     	<title>12.1 Creating and Installing Plug-ins</title>
+     	<link rel="stylesheet" href="../css/main.css" type="text/css" media="screen" title="Ref" charset="utf-8">
+     </head>
+	<body class="body">
+		<h4>Creating Plug-ins(플러그인 생성)</h4><p class="paragraph"/>Grails 플러그인 생성을 하기위해 다음과 같은 명령어를 실행한다.<p class="paragraph"/>
+<div class="code"><pre>grails create&#45;plugin &#91;PLUGIN NAME&#93;</pre></div><p class="paragraph"/>이 명령은 위에서 입력한 플러그인 이름에 대한 플러그인 프로젝트를 생성한다. 예를 들어 grails create-plugin example 명령을 실행한다고 하면, Grails는 example이라는 이름의 플러그인 프로젝트를 생성 할 것이다.<p class="paragraph"/>이러한 Grails의 플러그인 디렉토리 구조는 정확히 Grails 프로젝트의 디렉토리 구조와 같다. 단지 플러그인 디렉토리의 최상위에서 “plug-in descriptor”라는 플러그인 Groovy 파일이 있다는 점이 다르다.<p class="paragraph"/>일반적인 Grails 프로젝트가 된다는 것은 다음과 같이 실행하여 바로 테스팅을 할 수 있는 면에서 이득이 많다:<p class="paragraph"/><div class="code"><pre>grails run&#45;app</pre></div><p class="paragraph"/><blockquote class="note">
+ 기본적으로 플러그인을 생성할때, 곧 바로 컨트롤러가 작동하지 않기에 <a href="../guide/single.html#6.4 URL Mappings" class="guide">URL매핑</a>을 가지지 않는다. 플러그인에 컨트롤러를 추가하려면 우선 grails-app/conf/MyUrlMappings.groovy 클래스를 생성하고 ”/$controller/$action?/$id?”()를 플러그인에 기본 매핑을 추가한다.
+</blockquote><p class="paragraph"/>플러그인 디스크립터는 GrailsPlugin으로 끝나는 관례을 따르며 플러그인 프로젝트의 최상위 디렉토리에서 찾을 수 있다. 예를 들어:<p class="paragraph"/><div class="code"><pre>class ExampleGrailsPlugin &#123;
+   def version = 0.1<p class="paragraph"/>   &#8230;
+&#125;</pre></div><p class="paragraph"/>모든 플러그인은 최상위 디렉토리에 이와 같은 클래스를 가지고 있어야 한다. 플러그인 클래스는 플러그인의 버전을 정의하고 옵션으로 플러그인 확장 지점에다가 여러가지 훅Hook을 정의한다 (짧게 다룸).<p class="paragraph"/>또한 여러가지 특별한 프로퍼티를 사용해서 플러그인에 대한 부가적인 정보를 제공할 수 있다:
+<ul class="star">
+<li>title - 플러그인에 관한 한문장의 간단한 설명</li>
+<li>author - 플러그인 제작자의 이름</li>
+<li>authorEmail - 플러그인 제작자의 이메일</li>
+<li>description - 플러그인의 특징에 관한 자세한 여러줄에 걸친 설명</li>
+<li>documentation - 플러그인에 관련된 문서를 찾아 볼 수 있는 URL</li>
+</ul><p class="paragraph"/>다음의 코드는 "Quartz Grails"":http://grails.org/Quartz+plugin 플러그인에서 사용된 예제이다:<p class="paragraph"/><div class="code"><pre>class QuartzGrailsPlugin &#123;
+    def version = <span class="java&#45;quote">"0.1"</span>
+    def author = <span class="java&#45;quote">"Sergey Nebolsin"</span>
+    def authorEmail = <span class="java&#45;quote">"nebolsin@gmail.com"</span>
+    def title = <span class="java&#45;quote">"This plugin adds Quartz job scheduling features to Grails application."</span>
+    def description = '''
+Quartz plugin allows your Grails application to schedule jobs to be
+executed using a specified interval or cron expression. The underlying
+system uses the Quartz Enterprise Job Scheduler configured via Spring,
+but is made simpler by the coding by convention paradigm.
+'''
+    def documentation = <span class="java&#45;quote">"http://grails.org/Quartz+plugin"</span><p class="paragraph"/>   &#8230;
+&#125;</pre></div><p class="paragraph"/><h4>Installing &#38; Distributing Plugins(플러그인의 설치와 배포)</h4><p class="paragraph"/>플러그인을 배포하려면 플러그인의 최상위 디렉토리로 이동해서 아래의 명령을 입력해야 한다.<p class="paragraph"/><div class="code"><pre>grails <span class="java&#45;keyword">package</span>&#45;plugin</pre></div><p class="paragraph"/>이 명령을 통해 하나의 플러그인에 대한 zip파일을 생성한다. 그 파일이름은 grails-로 시작하며 플러그인 이름과 버전을 가진다. 예를 들어 위에서 살펴본 예제 플러그인은 grails-example-0.1.zip로 생성 될 것이다. 또한 package-plugin 명령은 plugin.xml파일을 생성하는데 이 파일은 플러그인에 대한 바이너리 정보가 들어있다.<p class="paragraph"/>한번 플러그인의 배포파일을 생성하면 Grails 프로젝트에서 다음과 같이 입력해서 Grails 프로젝트에서 사용 할 수 있다:<p class="paragraph"/><div class="code"><pre>grails install&#45;plugin /path/to/plugin/grails&#45;example&#45;0.1.zip</pre></div><p class="paragraph"/>플러그인 파일이 원격의 HTTP 서버에 있더라도 다음과 같이 입력할 수 있다:<p class="paragraph"/><div class="code"><pre>grails install&#45;plugin http://myserver.com/plugins/grails&#45;example&#45;0.1.zip</pre></div><p class="paragraph"/><h4>Notes on excluded Artefacts(언급되지 않은 아티펙트 파일에 관한 노트)</h4><p class="paragraph"/><a href="../ref/Command Line/create-plugin.html" class="commandLine">create-plugin</a> 명령이 플러그인이 Grails 어플리케이션으로 동작하기 위한 파일들을 생성한다고 해서 그 생성된 모든 파일이 플러그인으로 묶이는데 전부 포함되지는 않는다. 다음은 생성은 되지만 <a href="../ref/Command Line/package-plugin.html" class="commandLine">package-plugin</a> 명령을 실행시에 포함되지 않는 것들이다.
+<ul class="star">
+<li><code>grails-app/conf/DataSource.groovy</code></li>
+<li><code>grails-app/conf/UrlMappings.groovy</code></li>
+<li><code>grails-app/conf/DataSource.groovy</code></li>
+<li><code>build.xml</code></li>
+<li>Everything within <code>/web-app/WEB-INF</code></li>
+</ul><p class="paragraph"/>WEB-INF 디렉토리 속에 생성된 파일들이 필요하다면, _Install.groovy 스크립트(뒤에서 다시 다룸)를 사용하는 것을 추천한다. 게다가 UrlMappings.groovy 파일이 포함에서 제외되더라도 FooUrlMappings.groovy 처럼 다른이름으로 UrlMappings을 지정하면 포함된다.<p class="paragraph"/><h4>Distributing Plugins in Grails Plugins Repository(Grails 플러그인 저장소를 통해 플러그인 배포하기)</h4><p class="paragraph"/>Grails 플러그인을 배포시에 Grails 플러그인 저장소를 이용하여 배포하는 방법을 추천한다. 이것을 이용하면 <a href="../ref/Command Line/list-plugins.html" class="commandLine">list-plugins</a> 명령에서 새로 생성한 플러그인이 볼 수 있다:<p class="paragraph"/><div class="code"><pre>grails list&#45;plugins</pre></div><p class="paragraph"/>이 <a href="../ref/Command Line/plugin-info.html" class="commandLine">plugin-info</a> 명령은 Grails 플러그인 저장소에 있는 모든 플러그인을 보여준다:<p class="paragraph"/><div class="code"><pre>grails plugin&#45;info &#91;plugin&#45;name&#93;</pre></div><p class="paragraph"/>이것은 해당 Plugin에 대한 자세한 내용을 보여주며 그 내용은 Plugin Descriptor속에 저장된 정보이다.<p class="paragraph"/><blockquote class="note">
+만약 플러그인을 생성하고 중앙 저장소에서 포함되길 원하는 경우에는 <a href="http://www.g2one.com의" target="blank">G2One team</a> 구성원에게 연락을 바란다. 그러면 그들이 접근 권한을 줄 것이다.<p class="paragraph"/></blockquote><p class="paragraph"/>Grails 플러그인 저장소에 플러그인을 릴리스하기 위한 접근 권한을 가지고 있다면, 간단히 <a href="../ref/Command Line/release-plugin.html" class="commandLine">release-plugin</a> 명령을 실행할 수 있다.<p class="paragraph"/><div class="code"><pre>grails release&#45;plugin</pre></div><p class="paragraph"/>이 명령은 자동으로 코드의 변화를 SVN에 전송하고 <a href="../ref/Command Line/list-plugins.html" class="commandLine">list-plugins</a> 명령을 통해 변경된 부분을 이용할 수 있게끔 해준다.<p class="paragraph"/>
+	</body>
+</html>

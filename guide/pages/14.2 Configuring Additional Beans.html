@@ -1,0 +1,47 @@
+<html>
+     <head>
+     	<meta http-equiv="Content-type" content="text/html; charset=utf-8">
+     	<title>14.2 Configuring Additional Beans</title>
+     	<link rel="stylesheet" href="../css/main.css" type="text/css" media="screen" title="Ref" charset="utf-8">
+     </head>
+	<body class="body">
+		<h4>Using XML(XML 사용)</h4><p class="paragraph"/>Bean은 Grails 어플리케이션의 grails-app/conf/spring/resources.xml 파일을 사용하여 설정 할 수 있다. 이 파일은 일반적인 Spring XML 파일이며 Spring 문서는 Spring Bean을 어떤식으로 설정하는지에 대한 <a href="http://static.springframework.org/spring/docs/2.0.x/reference/beans.html#beans-basics" target="blank">가장 좋은 참고자료</a>이다. 간단한 예제로서 다음과 같은 형식으로 하나의 Bean을 설정할 수 있다:<p class="paragraph"/><div class="code"><pre><span class="xml&#45;tag">&#60;bean id=<span class="xml&#45;quote">"myBean"</span> class=<span class="xml&#45;quote">"my.company.MyBeanImpl"</span>&#62;</span><span class="xml&#45;tag">&#60;/bean&#62;</span></pre></div><p class="paragraph"/>이와 같이 myBean으로 이름지어서 Bean을 한번 설정하면 Grails의 컨트롤러들, 태그라이브러리들, 서비스들 기타 등등에서 사용할 있도록 자동으로 연결된다:<p class="paragraph"/><div class="code"><pre>class ExampleController &#123;<p class="paragraph"/>     def myBean
+&#125;</pre></div><p class="paragraph"/><h4>Referencing Existing Beans(존재하는 Bean을 참조하기)</h4><p class="paragraph"/>resources.xml 파일에 정의된 Bean은 관례에 따라 Grails 클래스를 참조할 수 있다. 예를 들어, 한 Bean에서 BookSerivce와 같은 한 서비스에 대한 참조가 필요하면 클래스 이름으로 표현된 프로퍼티(the property name representation)를 사용한다. 예를 들어, BookService의 경우 bookService가 될 것이다:<p class="paragraph"/><div class="code"><pre><span class="xml&#45;tag">&#60;bean id=<span class="xml&#45;quote">"myBean"</span> class=<span class="xml&#45;quote">"my.company.MyBeanImpl"</span>&#62;</span>
+	<span class="xml&#45;tag">&#60;property name=<span class="xml&#45;quote">"bookService"</span> ref=<span class="xml&#45;quote">"bookService"</span> /&#62;</span>	
+<span class="xml&#45;tag">&#60;/bean&#62;</span></pre></div><p class="paragraph"/>Bean은 그 자체로 퍼블릭 지정자(setter)를 필요로 하며 Grails에서는 다음과 같이 정의한다.<p class="paragraph"/><div class="code"><pre><span class="java&#45;keyword">package</span> my.company
+class MyBeanImpl &#123;
+	BookService bookService
+&#125;</pre></div><p class="paragraph"/>자바에서라면 다음과 같다:<p class="paragraph"/><div class="code"><pre><span class="java&#45;keyword">package</span> my.company;
+class MyBeanImpl &#123;
+	<span class="java&#45;keyword">private</span> BookService bookService;
+	<span class="java&#45;keyword">public</span> void setBookService(BookService theBookService) &#123;
+		<span class="java&#45;keyword">this</span>.bookService = theBookService;
+	&#125;
+&#125;</pre></div><p class="paragraph"/>많은 Grails 설정이 관례적으로 런타임에 이루어지기 때문에 Bean들을 아무데나 정의하면 안된다. Spring 설정을 통해서 참조할 수 있도록 해야 한다. 예를 들어, Grails DataSource를 참조할 필요가 있다면 다음과 같이 할 수 있다:<p class="paragraph"/><div class="code"><pre><span class="xml&#45;tag">&#60;bean id=<span class="xml&#45;quote">"myBean"</span> class=<span class="xml&#45;quote">"my.company.MyBeanImpl"</span>&#62;</span>
+	<span class="xml&#45;tag">&#60;property name=<span class="xml&#45;quote">"bookService"</span> ref=<span class="xml&#45;quote">"bookService"</span> /&#62;</span>	
+	<span class="xml&#45;tag">&#60;property name=<span class="xml&#45;quote">"dataSource"</span> ref=<span class="xml&#45;quote">"dataSource"</span> /&#62;</span>
+<span class="xml&#45;tag">&#60;/bean&#62;</span></pre></div><p class="paragraph"/>Hibernate SessionFactory가 필요하다면 다음과 같이 할 수 있다:<p class="paragraph"/><div class="code"><pre><span class="xml&#45;tag">&#60;bean id=<span class="xml&#45;quote">"myBean"</span> class=<span class="xml&#45;quote">"my.company.MyBeanImpl"</span>&#62;</span>
+	<span class="xml&#45;tag">&#60;property name=<span class="xml&#45;quote">"bookService"</span> ref=<span class="xml&#45;quote">"bookService"</span> /&#62;</span>	
+	<span class="xml&#45;tag">&#60;property name=<span class="xml&#45;quote">"sessionFactory"</span> ref=<span class="xml&#45;quote">"sessionFactory"</span> /&#62;</span>
+<span class="xml&#45;tag">&#60;/bean&#62;</span></pre></div><p class="paragraph"/>사용가능한 모든 Bean에 대한 참조를 살펴보려면 참조 가이드에서 플러그인 참조를 살펴보라.<p class="paragraph"/><h4>Using the Spring DSL(Spring DSL 사용)</h4><p class="paragraph"/>Grails가 제공하는 <a href="../guide/single.html#14.3 Runtime Spring with the Beans DSL" class="guide">Spring DSL</a>을 사용하고자 한다면 grails-app/conf/spring/resources.groovy 파일을 만들고 다음과 같은 코드를 가지는 beans로 불리는 메소드를 정의해야 한다.<p class="paragraph"/><div class="code"><pre>beans &#123;
+	// beans here
+&#125;</pre></div><p class="paragraph"/>XML 예제에 대한 동일한 설정은 다음과 같이 쓸 수 있다:<p class="paragraph"/><div class="code"><pre>beans &#123;
+	myBean(my.company.MyBeanImpl) &#123;
+		bookService = ref(<span class="java&#45;quote">"bookService"</span>)
+	&#125;	
+&#125;</pre></div><p class="paragraph"/>이런 방식에서 주요 장점은 이제 beans 정의안에서 로직을 섞을 수 있다. 환경(<a href="../guide/single.html#3.2 Environments" class="guide">environment</a>)에 기반한 예제는 다음과 같다:<p class="paragraph"/><div class="code"><pre><span class="java&#45;keyword">import</span> grails.util.&#42;
+beans &#123;
+	<span class="java&#45;keyword">switch</span>(GrailsUtil.environment) &#123;
+		<span class="java&#45;keyword">case</span> <span class="java&#45;quote">"production"</span>:
+			myBean(my.company.MyBeanImpl) &#123;
+				bookService = ref(<span class="java&#45;quote">"bookService"</span>)
+			&#125;<p class="paragraph"/>		<span class="java&#45;keyword">break</span>
+		<span class="java&#45;keyword">case</span> <span class="java&#45;quote">"development"</span>:
+			myBean(my.company.mock.MockImpl) &#123;
+				bookService = ref(<span class="java&#45;quote">"bookService"</span>)
+			&#125;	
+		<span class="java&#45;keyword">break</span>
+	&#125;	
+&#125;</pre></div><p class="paragraph"/>
+	</body>
+</html>

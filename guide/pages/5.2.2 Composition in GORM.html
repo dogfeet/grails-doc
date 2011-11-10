@@ -1,0 +1,20 @@
+<html>
+     <head>
+     	<meta http-equiv="Content-type" content="text/html; charset=utf-8">
+     	<title>5.2.2 Composition in GORM</title>
+     	<link rel="stylesheet" href="../css/main.css" type="text/css" media="screen" title="Ref" charset="utf-8">
+     </head>
+	<body class="body">
+		<a href="../guide/single.html#5.2.1 Association in GORM" class="guide">association</a> 외에도 Grails는 결합(Composition)도 지원한다. 클래스를 각각의 테이블에 매핑하지 않고 하나의 테이블에 "포함하여" 매핑할 수 있다.<p class="paragraph"/><div class="code"><pre>class Person &#123;
+	Address homeAddress
+	Address workAddress
+	<span class="java&#45;keyword">static</span> embedded = &#91;'homeAddress', 'workAddress'&#93;
+&#125;
+class Address &#123;
+	<span class="java&#45;object">String</span> number
+	<span class="java&#45;object">String</span> code
+&#125;</pre></div><p class="paragraph"/>다음과 같이 테이블이 매핑된다.<p class="paragraph"/><img border="0" class="center" src="../img/5.2.2-composition.jpg"></img><p class="paragraph"/><blockquote class="note">
+<code>grails-app/domain</code> 디렉토리에 새로운 Groovy 파일을 만들고 그 파일에 <code>Address</code> 클래스를 만들면 <code>address</code> 테이블이 생성된다. 이 것을 원하지 않으면 <code>grails-app/domain/Person.groovy</code> 파일의 <code>Person</code> 클래스 아래에 <code>Address</code> 클래스를 만든다. Groovy에서는 한 파일에 여러개의 클래스를 정의할 수 있다.
+</blockquote>
+	</body>
+</html>

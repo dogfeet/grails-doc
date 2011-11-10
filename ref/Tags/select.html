@@ -1,0 +1,133 @@
+<html>
+     <head>
+     	<meta http-equiv="Content-type" content="text/html; charset=utf-8">
+     	<title>Grails Reference</title>
+     	<link rel="stylesheet" href="../../css/ref.css" type="text/css" media="screen" title="Ref" charset="utf-8">
+     </head>
+	<body class="body">
+		<h1>select </h1><p class="paragraph"/><h2>Purpose</h2><p class="paragraph"/>Helper tag for creating HTML selects.<p class="paragraph"/><h2>Examples</h2><p class="paragraph"/><div class="code"><pre>// create a select from a range
+<span class="xml&#45;tag">&#60;g:select name=<span class="xml&#45;quote">"user.age"</span> from=<span class="xml&#45;quote">"$&#123;18..65&#125;"</span> value=<span class="xml&#45;quote">"$&#123;age&#125;"</span>
+          noSelection=<span class="xml&#45;quote">"&#91;'':'&#45;Choose your age&#45;'&#93;"</span>/&#62;</span><p class="paragraph"/>// create select from a list of companies
+// note the 'optionKey' is set to the id of each company element
+<span class="xml&#45;tag">&#60;g:select name=<span class="xml&#45;quote">"user.company.id"</span>
+          from=<span class="xml&#45;quote">"$&#123;Company.list()&#125;"</span>
+          value=<span class="xml&#45;quote">"$&#123;user?.company.id&#125;"</span>
+          optionKey=<span class="xml&#45;quote">"id"</span> /&#62;</span><p class="paragraph"/>// create select with internationalized labels (this is useful for small static lists and the inList constraint)
+// expected properties in messages.properties:
+// book.category.M=Mystery
+// book.category.T=Thriller
+// book.category.F=Fantasy
+<span class="xml&#45;tag">&#60;g:select name=<span class="xml&#45;quote">"book.category"</span> from=<span class="xml&#45;quote">"$&#123;&#91;'M', 'T', 'F'&#93;&#125;"</span> valueMessagePrefix=<span class="xml&#45;quote">"book.category"</span> /&#62;</span></pre></div><p class="paragraph"/>Example as a method call in GSP only:<p class="paragraph"/><div class="code"><pre>$&#123;select(from:aList,value:aValue)&#125;</pre></div><p class="paragraph"/><p class="paragraph"/><h2>Description</h2><p class="paragraph"/>Attributes
+<ul class="star">
+<li><code>from</code> (required) - The list or range to select from</li>
+<li><code>value</code> (optional) - The current selected value that evaluates equals() to true for one of the elements in the from list.</li>
+<li><code>optionKey</code> (optional) - By default the value attribute of each "option" element will be the result of a "toString()" call on each element in the "from" attribute list. Setting this allows the value of the attribute to be a bean property of each element in the list</li>
+<li><code>optionValue</code> (optional) - By default the value "option" element will be the result of a "toString()" call on each element in the "from" attribute list. Setting this allows the value to be a bean property of each element in the list.</li>
+<li><code>keys</code> (optional) - A list of values to be used for the value attribute of each "option" element.</li>
+<li><code>noSelection</code> (optional) - A single-entry map detailing the key and value to use for the "no selection made" choice in the select box. If there is no current selection this will be shown as it is first in the list, and if submitted with this selected, the key that you provide will be submitted. Typically this will be blank.</li>
+<li><code>valueMessagePrefix</code> (Optional) - By default the value "option" element will be the result of a "toString()" call on each element in the "from" attribute list. Setting this allows the value to be resolved from the I18n messages. The valueMessagePrefix will be suffixed with a dot ('.') and then the value attribute of the option to resolve the message. If the message could not be resolved, the value is presented.</li>
+</ul><p class="paragraph"/><h2>Source</h2><p class="paragraph"/><p><a href="#" onclick="document.getElementById('select').style.display='inline'">Show Source</a></p><div id="select" style="display:none;"><div class="code"><pre>def select = &#123;attrs &#45;&#62;
+        def messageSource = grailsAttributes.getApplicationContext().getBean(&#34;messageSource&#34;)
+        def locale = RCU.getLocale(request)
+        def writer = out
+        attrs.id = attrs.id ? attrs.id : attrs.name
+        def from = attrs.remove(&#39;from&#39;)
+        def keys = attrs.remove(&#39;keys&#39;)
+        def optionKey = attrs.remove(&#39;optionKey&#39;)
+        def optionValue = attrs.remove(&#39;optionValue&#39;)
+        def value = attrs.remove(&#39;value&#39;)
+        <span class="java&#45;keyword">if</span> (value <span class="java&#45;keyword">instanceof</span> Collection) &#123;
+            attrs.multiple = <span class="java&#45;keyword">true</span>
+        &#125;
+        def valueMessagePrefix = attrs.remove(&#39;valueMessagePrefix&#39;)
+        def noSelection = attrs.remove(&#39;noSelection&#39;)
+        <span class="java&#45;keyword">if</span> (noSelection != <span class="java&#45;keyword">null</span>) &#123;
+            noSelection = noSelection.entrySet().iterator().next()
+        &#125;<p class="paragraph"/>        writer &#60;&#60; &#34;&#60;select name=&#92;&#34;$&#123;attrs.remove(&#39;name&#39;)&#125;&#92;&#34; &#34;
+        // process remaining attributes
+        outputAttributes(attrs)<p class="paragraph"/>        writer &#60;&#60; &#39;&#62;&#39;
+        writer.println()<p class="paragraph"/>        <span class="java&#45;keyword">if</span> (noSelection) &#123;
+            renderNoSelectionOption(noSelection.key, noSelection.value, value)
+            writer.println()
+        &#125;<p class="paragraph"/>        // create options from list
+        <span class="java&#45;keyword">if</span> (from) &#123;
+            from.eachWithIndex &#123;el, i &#45;&#62;
+                def keyValue = <span class="java&#45;keyword">null</span>
+                writer &#60;&#60; &#39;&#60;option &#39;
+                <span class="java&#45;keyword">if</span> (keys) &#123;
+                    keyValue = keys&#91;i&#93;
+                    writeValueAndCheckIfSelected(keyValue, value, writer)
+                &#125;
+                <span class="java&#45;keyword">else</span> <span class="java&#45;keyword">if</span> (optionKey) &#123;
+                    <span class="java&#45;keyword">if</span> (optionKey <span class="java&#45;keyword">instanceof</span> Closure) &#123;
+                        keyValue = optionKey(el)
+                    &#125;
+                    <span class="java&#45;keyword">else</span> <span class="java&#45;keyword">if</span> (el != <span class="java&#45;keyword">null</span> &#38;&#38; optionKey == &#39;id&#39; &#38;&#38; grailsApplication.getArtefact(DomainClassArtefactHandler.TYPE, el.getClass().name)) &#123;
+                        keyValue = el.ident()
+                    &#125;
+                    <span class="java&#45;keyword">else</span> &#123;
+                        keyValue = el&#91;optionKey&#93;
+                    &#125;
+                    writeValueAndCheckIfSelected(keyValue, value, writer)
+                &#125;
+                <span class="java&#45;keyword">else</span> &#123;
+                    keyValue = el
+                    writeValueAndCheckIfSelected(keyValue, value, writer)
+                &#125;
+                writer &#60;&#60; &#39;&#62;&#39;
+                <span class="java&#45;keyword">if</span> (optionValue) &#123;
+                    <span class="java&#45;keyword">if</span> (optionValue <span class="java&#45;keyword">instanceof</span> Closure) &#123;
+                        writer &#60;&#60; optionValue(el).toString().encodeAsHTML()
+                    &#125;
+                    <span class="java&#45;keyword">else</span> &#123;
+                        writer &#60;&#60; el&#91;optionValue&#93;.toString().encodeAsHTML()
+                    &#125;
+                &#125;
+                <span class="java&#45;keyword">else</span> <span class="java&#45;keyword">if</span> (valueMessagePrefix) &#123;
+                    def message = messageSource.getMessage(&#34;$&#123;valueMessagePrefix&#125;.$&#123;keyValue&#125;&#34;, <span class="java&#45;keyword">null</span>, <span class="java&#45;keyword">null</span>, locale)
+                    <span class="java&#45;keyword">if</span> (message != <span class="java&#45;keyword">null</span>) &#123;
+                        writer &#60;&#60; message.encodeAsHTML()
+                    &#125;
+                    <span class="java&#45;keyword">else</span> <span class="java&#45;keyword">if</span> (keyValue) &#123;
+                        writer &#60;&#60; keyValue.encodeAsHTML()
+                    &#125;
+                    <span class="java&#45;keyword">else</span> &#123;
+                        def s = el.toString()
+                        <span class="java&#45;keyword">if</span> (s) writer &#60;&#60; s.encodeAsHTML()
+                    &#125;
+                &#125;
+                <span class="java&#45;keyword">else</span> &#123;
+                    def s = el.toString()
+                    <span class="java&#45;keyword">if</span> (s) writer &#60;&#60; s.encodeAsHTML()
+                &#125;
+                writer &#60;&#60; &#39;&#60;/option&#62;&#39;
+                writer.println()
+            &#125;
+        &#125;
+        // close tag
+        writer &#60;&#60; &#39;&#60;/select&#62;&#39;
+    &#125;<p class="paragraph"/>    def typeConverter = <span class="java&#45;keyword">new</span> SimpleTypeConverter()
+    <span class="java&#45;keyword">private</span> writeValueAndCheckIfSelected(keyValue, value, writer) &#123;<p class="paragraph"/>        <span class="java&#45;object">boolean</span> selected = <span class="java&#45;keyword">false</span>
+        def keyClass = keyValue?.getClass()
+        <span class="java&#45;keyword">if</span> (keyClass.isInstance(value)) &#123;
+            selected = (keyValue == value)
+        &#125;
+        <span class="java&#45;keyword">else</span> <span class="java&#45;keyword">if</span> (value <span class="java&#45;keyword">instanceof</span> Collection) &#123;
+            selected = value.contains(keyValue)
+        &#125;
+        <span class="java&#45;keyword">else</span> <span class="java&#45;keyword">if</span> (keyClass &#38;&#38; value) &#123;
+            <span class="java&#45;keyword">try</span> &#123;
+                value = typeConverter.convertIfNecessary(value, keyClass)
+                selected = (keyValue == value)
+            &#125; <span class="java&#45;keyword">catch</span> (Exception) &#123;
+                // ignore
+            &#125;
+        &#125;
+        writer &#60;&#60; &#34;value=&#92;&#34;$&#123;keyValue&#125;&#92;&#34; &#34;
+        <span class="java&#45;keyword">if</span> (selected) &#123;
+            writer &#60;&#60; &#39;selected=&#34;selected&#34; &#39;
+        &#125;
+    &#125;</pre></div></div><p class="paragraph"/>
+
+	</body>
+</html>

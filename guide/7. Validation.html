@@ -1,0 +1,69 @@
+<html>
+     <head>
+     	<meta http-equiv="Content-type" content="text/html; charset=utf-8">
+     	<title>7. Validation</title>
+     	<link rel="stylesheet" href="../css/main.css" type="text/css" media="screen" title="Ref" charset="utf-8">
+     </head>
+	<body class="body">
+		<h1><a name="7. Validation">7. Validation</a></h1>Grails의 유효성 검사 기능은 Spring의 <a href="http://static.springframework.org/spring/docs/2.0.x/api/org/springframework/validation/package-summary.html" target="blank">Validator API</a>와 바인딩 기능에 의존한다. 하지만 Grails는 이 것을 더 발전시켜서 제약조건을 정의하는 통합된 방법을 제공한다.<p class="paragraph"/>Grails의 제약조건은 유효성 검사 규칙을 명시하는 것을 말한다. 대부분의 경우 도메인 클래스(<a href="../guide/single.html#5. Object Relational Mapping (GORM)" class="guide">domain classes</a>)에 정의하지만 URL 매핑(<a href="../guide/single.html#6.4 URL Mappings" class="guide">URL Mappings</a>)과 일반 객체(<a href="../guide/single.html#6.1.9 Command Objects" class="guide">Command Objects</a>)에도 정의할 수 있다.<p class="paragraph"/>
+<h2><a name="7.1 Declaring Constraints">7.1 Declaring Constraints</a></h2>제약 조건를 정의하기 위해서는 도메인 클래스의 <a href="../ref/Domain Classes/constraints.html" class="domainClasses">constraints</a> 속성에 코드 블럭을 할당한다:<p class="paragraph"/><div class="code"><pre>class User &#123;
+    <span class="java&#45;object">String</span> login
+    <span class="java&#45;object">String</span> password
+    <span class="java&#45;object">String</span> email
+    <span class="java&#45;object">Integer</span> age<p class="paragraph"/>    <span class="java&#45;keyword">static</span> constraints = &#123;
+	  &#8230;
+    &#125;
+&#125;</pre></div><p class="paragraph"/>constraints 블럭에 속성의 이름과 일치하는 메소드를 호출하고 네임드 파라미터를 사용하여 제약조건을 명시한다:<p class="paragraph"/><div class="code"><pre>class User &#123;
+    ...<p class="paragraph"/>    <span class="java&#45;keyword">static</span> constraints = &#123;
+        login(size:5..15, blank:<span class="java&#45;keyword">false</span>, unique:<span class="java&#45;keyword">true</span>)
+        password(size:5..15, blank:<span class="java&#45;keyword">false</span>)
+        email(email:<span class="java&#45;keyword">true</span>, blank:<span class="java&#45;keyword">false</span>)
+        age(min:18, nullable:<span class="java&#45;keyword">false</span>)
+    &#125;
+&#125;</pre></div><p class="paragraph"/>이 예제의 login 속성 값은 5에서 15 사이로 문자열의 길이를 제한하고, 공백이 될 수 없고, 유일(unique)해야 한다. 그 뿐만 아니라 password, email, age 속성에도 제약조건을 정의했다.<p class="paragraph"/>
+<blockquote class="note">
+이용가능한 제약조건에 대한 내용은 레퍼런스 가이드를 참고하라.
+</blockquote><h2><a name="7.2 Validating Constraints">7.2 Validating Constraints</a></h2><h4>Validation Basics(유효성 검사의 기초)</h4><p class="paragraph"/>도메인 클래스의 유효성을 검사하기 위해 모든 인스턴스의 <a href="../ref/Domain Classes/validate.html" class="domainClasses">validate</a> 메소드를 호출할 수 있다:<p class="paragraph"/><div class="code"><pre>def user =  <span class="java&#45;keyword">new</span> User(params)<p class="paragraph"/><span class="java&#45;keyword">if</span>(user.validate()) &#123;
+    // <span class="java&#45;keyword">do</span> something with user
+&#125;
+<span class="java&#45;keyword">else</span> &#123;
+    user.errors.allErrors.each &#123;
+        println it
+    &#125;
+&#125;</pre></div><p class="paragraph"/>도메인 클래스의 errors 속성은 Spring의 <a href="http://static.springframework.org/spring/docs/2.5.x/api/org/springframework/validation/Errors.html" class="api">Errors</a> 인터페이스의 인스턴스이다. Errors 인터페이스는 유효성 검사의 에러를 살펴보는(navigate) 방법과 원래 값을 얻어 오는 방법을 제공한다.<p class="paragraph"/><h4>Validation Phases(유효성 검사 시점)</h4><p class="paragraph"/>Grails의 유효성 검사는 본질적으로 두 가지로 나뉜다. 먼저 다음과 같이 인스턴스에 요청 파리미터를 바인딩(<a href="../guide/single.html#6.1.6 Data Binding" class="guide">data binding</a>)할 때 유효성이 검사된다:<p class="paragraph"/><div class="code"><pre>def user = <span class="java&#45;keyword">new</span> User(params)</pre></div><p class="paragraph"/>이 시점에서 String을 Date로 변환하는 것 같은 형 변환 에러가 errors 속성에 이미 넣어진다. Errors API를 이용해 이 에러를 확인하고 원래 값을 얻을 수 있다:<p class="paragraph"/><div class="code"><pre><span class="java&#45;keyword">if</span>(user.hasErrors()) &#123;
+	<span class="java&#45;keyword">if</span>(user.hasFieldError(<span class="java&#45;quote">"login"</span>)) &#123;
+		println user.getFieldError(<span class="java&#45;quote">"login"</span>).rejectedValue
+	&#125;
+&#125;</pre></div><p class="paragraph"/><a href="../ref/Domain Classes/validate.html" class="domainClasses">validate</a>나 <a href="../ref/Domain Classes/save.html" class="domainClasses">save</a>를 호출될 때도 유효성이 검사된다. 이 때 <a href="../ref/Domain Classes/constraints.html" class="domainClasses">constraints</a> 속성에 정의한 조건에 만족하는지 검사된다. 기본적으로 영속적 <a href="../ref/Domain Classes/save.html" class="domainClasses">save</a> 메소드는 유효성을 검사하기 때문에 다음과 같이 코드를 작성할 수 있다:<p class="paragraph"/><div class="code"><pre><span class="java&#45;keyword">if</span>(user.save()) &#123;
+    <span class="java&#45;keyword">return</span> user
+&#125;
+<span class="java&#45;keyword">else</span> &#123;
+    user.errors.allErrors.each &#123;
+        println it
+    &#125;
+&#125;</pre></div><p class="paragraph"/><h2><a name="7.3 Validation on the Client">7.3 Validation on the Client</a></h2><h4>Displaying Errors(에러 출력하기)</h4><p class="paragraph"/>보통 유효성 검사 에러가 발생하면 그 뷰를 다시 보여줘야 할 것이고 에러를 출력할 어떤 방법이 필요하다. Grails에는 에러를 처리하는 태그들이 많이 있다. <a href="../ref/Tags/renderErrors.html" class="tags">renderErrors</a>를 사용하여 단순히 에러의 목록을 출력할 수 있다:<p class="paragraph"/><div class="code"><pre><span class="xml&#45;tag">&#60;g:renderErrors bean=<span class="xml&#45;quote">"$&#123;user&#125;"</span> /&#62;</span></pre></div><p class="paragraph"/><a href="../ref/Tags/hasErrors.html" class="tags">hasErrors</a>와 <a href="../ref/Tags/eachError.html" class="tags">eachError</a>를 사용하여 상세하게 제어할 수도 있다:<p class="paragraph"/><div class="code"><pre><span class="xml&#45;tag">&#60;g:hasErrors bean=<span class="xml&#45;quote">"$&#123;user&#125;"</span>&#62;</span>
+  <span class="xml&#45;tag">&#60;ul&#62;</span>
+   <span class="xml&#45;tag">&#60;g:eachError var=<span class="xml&#45;quote">"err"</span> bean=<span class="xml&#45;quote">"$&#123;user&#125;"</span>&#62;</span>
+       <span class="xml&#45;tag">&#60;li&#62;</span>$&#123;err&#125;<span class="xml&#45;tag">&#60;/li&#62;</span> 
+   <span class="xml&#45;tag">&#60;/g:eachError&#62;</span>
+  <span class="xml&#45;tag">&#60;/ul&#62;</span>
+<span class="xml&#45;tag">&#60;/g:hasErrors&#62;</span></pre></div><p class="paragraph"/><h4>Highlighting Errors(에러 꾸미기)</h4><p class="paragraph"/>잘못된 값이 입력되면 붉은 박스나 어떤 지시자를 사용하여 꾸미는 것이 매우 유용하다. 이 것은 <a href="../ref/Tags/hasErrors.html" class="tags">hasErrors</a>를 메소드처럼 호출하여 처리한다:<p class="paragraph"/><div class="code"><pre><span class="xml&#45;tag">&#60;div class='value $&#123;hasErrors(bean:user,field:'login','errors')&#125;'&#62;</span>
+   <span class="xml&#45;tag">&#60;input type=<span class="xml&#45;quote">"text"</span> name=<span class="xml&#45;quote">"login"</span> value=<span class="xml&#45;quote">"$&#123;fieldValue(bean:user,field:'login')&#125;"</span>/&#62;</span>
+<span class="xml&#45;tag">&#60;/div&#62;</span></pre></div><p class="paragraph"/>이 코드가 하는 일은 user Bean과 관련된 login 필드에 에러가 있는지 검사하고 에러가 있으면 div 태그의 class 속성에 “errors”를 추가한다. 그래서 CSS 규칙을 정의하여 div 태그를 꾸밀 수 있다.<p class="paragraph"/><h4>Retrieving Input Values(입력 값 가져오기)</h4><p class="paragraph"/>각각의 에러는 실질적으로 Spring의 <a href="http://static.springframework.org/spring/docs/2.5.x/api/org/springframework/validation/FieldError.html" class="api">FieldError</a> 클래스의 인스턴스이다. 이 인스턴스에는 원래 값이 저장돼 있다. 이 것은 <a href="../ref/Tags/fieldValue.html" class="tags">fieldValue</a> 태그를 통해서 사용자가 입력 값을 고칠 수 있도록 에러 값을 재사용할 수 있다.<p class="paragraph"/><div class="code"><pre><span class="xml&#45;tag">&#60;input type=<span class="xml&#45;quote">"text"</span> name=<span class="xml&#45;quote">"login"</span> value=<span class="xml&#45;quote">"$&#123;fieldValue(bean:user,field:'login')&#125;"</span>/&#62;</span></pre></div><p class="paragraph"/>이 코드는 user Bean에 FieldError가 있는지 확인하고 만약 존재하면 login 필드에 입력된 값을 다시 넣는다.
+<h2><a name="7.4 Validation and Internationalization">7.4 Validation and Internationalization</a></h2>에러를 출력하는 코드가 어느곳에도 하드코딩되지 않아야 한다는 것은 Grails에서도 역시 중요하다. Spring의 <a href="http://static.springframework.org/spring/docs/2.5.x/api/org/springframework/validation/FieldError.html" class="api">FieldError</a> 클래스는 내부적으로 Grails의 <a href="../guide/single.html#10. Internationalization" class="guide">i18n</a> 기능에서 메시지들을 읽어온다.<p class="paragraph"/><h4>Constraints and Message Codes(제약조건과 메시지 코드)</h4><p class="paragraph"/>메시지 코드 자체는 관례에 따른다. 예를 들어 위에 예시했던 제약조건을 살펴보면:<p class="paragraph"/><div class="code"><pre>class User &#123;
+    ...<p class="paragraph"/>    <span class="java&#45;keyword">static</span> constraints = &#123;
+        login(size:5..15, blank:<span class="java&#45;keyword">false</span>, unique:<span class="java&#45;keyword">true</span>)
+        password(size:5..15, blank:<span class="java&#45;keyword">false</span>)
+        email(email:<span class="java&#45;keyword">true</span>, blank:<span class="java&#45;keyword">false</span>)
+        age(min:18, nullable:<span class="java&#45;keyword">false</span>)
+    &#125;
+&#125;</pre></div><p class="paragraph"/>blank 제약 조건을 위반하게 되면 Grails는 다음과 같은 관례에 따라 메시지를 찾는다:<p class="paragraph"/><div class="code"><pre>&#91;<span class="java&#45;object">Class</span> Name&#93;.&#91;Property Name&#93;.&#91;Constraint Code&#93;</pre></div><p class="paragraph"/>blank 제약 조건을 위반한 경우에의 메시지 코드는 user.login.blank가 될 것이기 때문에 grails-app/i18n/messages.properties 파일에 다음과 같이 메시지를 정의해야 한다:<p class="paragraph"/><div class="code"><pre>user.login.blank=Your login name must be specified!</pre></div><p class="paragraph"/>어떤 제약조건이 어떤 메시지 코드를 사용하는 지를 알고 싶다면 레퍼런스 가이드를 참고하라.<p class="paragraph"/><h4>Displaying Messages(메시지 출력하기)</h4><p class="paragraph"/><a href="../ref/Tags/renderErrors.html" class="tags">renderErrors</a> 태그는 자동으로 <a href="../ref/Tags/message.html" class="tags">message</a> 태그에 사용할 메시지를 찾는다. 하지만 다음과 같이 원하는 대로 메시지를 출력할 수 있다:<p class="paragraph"/><div class="code"><pre><span class="xml&#45;tag">&#60;g:hasErrors bean=<span class="xml&#45;quote">"$&#123;user&#125;"</span>&#62;</span>
+  <span class="xml&#45;tag">&#60;ul&#62;</span>
+   <span class="xml&#45;tag">&#60;g:eachError var=<span class="xml&#45;quote">"err"</span> bean=<span class="xml&#45;quote">"$&#123;user&#125;"</span>&#62;</span>
+       <span class="xml&#45;tag">&#60;li&#62;</span><span class="xml&#45;tag">&#60;g:message error=<span class="xml&#45;quote">"$&#123;err&#125;"</span> /&#62;</span><span class="xml&#45;tag">&#60;/li&#62;</span> 
+   <span class="xml&#45;tag">&#60;/g:eachError&#62;</span>
+  <span class="xml&#45;tag">&#60;/ul&#62;</span>
+<span class="xml&#45;tag">&#60;/g:hasErrors&#62;</span></pre></div><p class="paragraph"/>이 예제에서는 에러 메시지를 읽어오기 위해 <a href="../ref/Tags/eachError.html" class="tags">eachError</a> 태그의 바디에 <a href="../ref/Tags/message.html" class="tags">message</a> 태그를 넣고 err 인자를 사용했다.<p class="paragraph"/>
+
+	</body>
+</html>

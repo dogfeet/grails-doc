@@ -1,0 +1,14 @@
+<html>
+     <head>
+     	<meta http-equiv="Content-type" content="text/html; charset=utf-8">
+     	<title>10.1 Understanding Message Bundles</title>
+     	<link rel="stylesheet" href="../css/main.css" type="text/css" media="screen" title="Ref" charset="utf-8">
+     </head>
+	<body class="body">
+		자 이제 Locale에 대한 개념이 잡혔다면 Grails에서 Locale를 이용하기 위해서 메시지 번들을 만든다. 이 메시지 번들은 사용자에게 보여주기 위한 여러가지 다른 언어들을 담고 있다. 메시지 번들은 Grails에서 “grails-app/i18n” 디렉토리에 위치하며 간단한 Java 프로퍼티파일이다.<p class="paragraph"/>각 번들의 이름은 관례적으로 “messages”로 시작하고 Locale로 끝난다. Grails는 grails-app/i18n 디렉토리에 다양한 언어들을 위해 만들어진 메시지 번들을 가지고 있다.<p class="paragraph"/><div class="code"><pre>messages.properties
+messages_de.properties
+messages_es.properties
+etc.</pre></div><p class="paragraph"/>기본적으로 Grails는 사용자가 자신의 Locale을 지정하지 않으면 message.properties파일에서 메시지를 얻어올 것이다. 필요한 Locale 이름으로 끝나는 새로운 properties 파일을 만드는 것 만으로 간단히 새로운 메시지 번들을 만들 수 있다. 예를 들어 영국 영어를 위해서는 messages_en_GB.properties 파일을 생성하면 된다.
+
+	</body>
+</html>

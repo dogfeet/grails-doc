@@ -1,0 +1,19 @@
+<html>
+     <head>
+     	<meta http-equiv="Content-type" content="text/html; charset=utf-8">
+     	<title>4.1 Creating Gant Scripts</title>
+     	<link rel="stylesheet" href="../css/main.css" type="text/css" media="screen" title="Ref" charset="utf-8">
+     </head>
+	<body class="body">
+		현재 프로젝트의 루트에서 <a href="../ref/Command Line/create-script.html" class="commandLine">create-script</a> 명령어를 사용하여 Gant 스크립트를 만들 수 있다. 그 예로 다음과 같이 명령을 내리면<p class="paragraph"/><div class="code"><pre>grails create&#45;script compile&#45;sources</pre></div><p class="paragraph"/><code>script/CompileSources.groovy</code> 라는 스크립트가 만들어질 것이다. Gant 스크립트는 “타겟” 이라는 개념을 지원하고 그것에 의존한다는 것만 제외하면 Groovy 스크립트와 유사하다:<p class="paragraph"/><div class="code"><pre>target(<span class="java&#45;keyword">default</span>:<span class="java&#45;quote">"The <span class="java&#45;keyword">default</span> target is the one that gets executed by Grails"</span>) &#123;
+	depends(clean, compile)
+&#125;
+target(clean:<span class="java&#45;quote">"Clean out things"</span>) &#123;
+	Ant.delete(dir:<span class="java&#45;quote">"output"</span>)
+&#125;
+target(compile:<span class="java&#45;quote">"Compile some sources"</span>) &#123;
+	Ant.mkdir(dir:<span class="java&#45;quote">"mkdir"</span>)
+	Ant.javac(srcdir:<span class="java&#45;quote">"src/java"</span>, destdir:<span class="java&#45;quote">"output"</span>)
+&#125;</pre></div><p class="paragraph"/>위의 스크립트에서 보여준 예처럼 Gant 스크립트에는 암묵적으로 <a href="http://ant.apache.org/manual/index.html" target="blank">Apache Ant API</a> 에 접근 할 수 있는 Ant의 변수가 사용된다.<p class="paragraph"/>You can also "depend" on other targets using the <code>depends</code> method demonstrated in the <code>default</code> target above.
+	</body>
+</html>

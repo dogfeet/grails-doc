@@ -1,0 +1,24 @@
+<html>
+     <head>
+     	<meta http-equiv="Content-type" content="text/html; charset=utf-8">
+     	<title>6.5.5 Data Binding and Validation</title>
+     	<link rel="stylesheet" href="../css/main.css" type="text/css" media="screen" title="Ref" charset="utf-8">
+     </head>
+	<body class="body">
+		시작과 끝 상태를 다룬 절에서 첫 예제의 시작상태는 enterPersonalDetails 상태로 전이를 일으켰다. 이 상태는 뷰를 렌더링하고 사용자가 요구된 정보를 입력할 때까지 기다린다:<p class="paragraph"/><div class="code"><pre>enterPersonalDetails &#123;
+   on(<span class="java&#45;quote">"submit"</span>).to <span class="java&#45;quote">"enterShipping"</span>
+   on(<span class="java&#45;quote">"<span class="java&#45;keyword">return</span>"</span>).to <span class="java&#45;quote">"showCart"</span>
+&#125;</pre></div><p class="paragraph"/>이 뷰에는 submit 이벤트와 return 이벤트를 발생시킬 수 있는 두 개의 submit 버튼이 있다:<p class="paragraph"/><div class="code"><pre><span class="xml&#45;tag">&#60;g:form action=<span class="xml&#45;quote">"shoppingCart"</span>&#62;</span>
+    <span class="xml&#45;comment">&#60;!&#45;&#45; Other fields &#45;&#45;&#62;</span>
+    <span class="xml&#45;tag">&#60;g:submitButton name=<span class="xml&#45;quote">"submit"</span> value=<span class="xml&#45;quote">"Continue"</span>&#62;</span><span class="xml&#45;tag">&#60;/g:submitButton&#62;</span>
+    <span class="xml&#45;tag">&#60;g:submitButton name=<span class="xml&#45;quote">"return"</span> value=<span class="xml&#45;quote">"Back"</span>&#62;</span><span class="xml&#45;tag">&#60;/g:submitButton&#62;</span>
+<span class="xml&#45;tag">&#60;/g:form&#62;</span></pre></div><p class="paragraph"/>그러나 폼에 제출된 정보를 가로챌 수는 없을까? 폼의 정보를 가로 채기 위해서 플로우의 전이 액션을 사용할 수 있다:<p class="paragraph"/><div class="code"><pre>enterPersonalDetails &#123;
+   on(<span class="java&#45;quote">"submit"</span>) &#123;
+         flow.person = <span class="java&#45;keyword">new</span> Person(params)
+         !flow.person.validate() ? error() : success()
+   &#125;.to <span class="java&#45;quote">"enterShipping"</span>
+   on(<span class="java&#45;quote">"<span class="java&#45;keyword">return</span>"</span>).to <span class="java&#45;quote">"showCart"</span>
+&#125;</pre></div><p class="paragraph"/>요청 파라미터로 부터 데이터를 어떻게 바인딩할 수 있고 flow 스콥에 Person 인스턴스가 어떻게 저장되는지 알아보자. 흥미로운 것은 유효성을 검사하고 유효성 검사(<a href="../guide/single.html#7. Validation" class="guide">validation</a>)가 실패했을 때 error() 메소드를 실행시키는 것이다. 이 것은 플로우의 전이를 중지하고 enterPersonalDetails 뷰로 되돌아가야 한다는 것을 의미한다. 그 결과로 사용자는 올바른 정보만 입력할 수 있다. 실패하지 않으면 enterShipping 상태로 계속 전이할 것이다.
+
+	</body>
+</html>

@@ -1,0 +1,47 @@
+<html>
+     <head>
+     	<meta http-equiv="Content-type" content="text/html; charset=utf-8">
+     	<title>6.5.2 Action States and View States</title>
+     	<link rel="stylesheet" href="../css/main.css" type="text/css" media="screen" title="Ref" charset="utf-8">
+     </head>
+	<body class="body">
+		<h4>View states(뷰 상태)</h4><p class="paragraph"/>뷰 상태는 액션이나 리다이렉트를 정의하지 않는 상태를 말한다. 다음은 뷰 상태의 예제이다:<p class="paragraph"/><div class="code"><pre>enterPersonalDetails &#123;
+   on(<span class="java&#45;quote">"submit"</span>).to <span class="java&#45;quote">"enterShipping"</span>
+   on(<span class="java&#45;quote">"<span class="java&#45;keyword">return</span>"</span>).to <span class="java&#45;quote">"showCart"</span>
+&#125;</pre></div><p class="paragraph"/>이것은 기본적으로 grails-app/views/book/shoppingCart/enterPersonalDetails.gsp라는 뷰를 찾는다. enterPersonalDetails 상태에는 summit과 return이라는 두 개의 이벤트가 정의됐다는 것을 살펴하자. 이 이벤트들은 처리돼야(<a href="../guide/single.html#6.5.3 Flow Execution Events" class="guide">triggering</a>) 하고 만약 렌더링할 뷰를 변경하고 싶다면 render 메소드를 사용하면 된다:<p class="paragraph"/><div class="code"><pre>enterPersonalDetails &#123;
+   render(view:<span class="java&#45;quote">"enterDetailsView"</span>)
+   on(<span class="java&#45;quote">"submit"</span>).to <span class="java&#45;quote">"enterShipping"</span>
+   on(<span class="java&#45;quote">"<span class="java&#45;keyword">return</span>"</span>).to <span class="java&#45;quote">"showCart"</span>
+&#125;</pre></div><p class="paragraph"/>지금 이것은 grails-app/views/book/shoppingCart/enterDetailsView.gsp를 찾을 것이다. 만약 공유되는 뷰를 사용하고 싶다면 다음과 같이 파리미터로 넘길 뷰 이름을 ”/shared”로 시작하게 하라:<p class="paragraph"/><div class="code"><pre>enterPersonalDetails &#123;
+   render(view:<span class="java&#45;quote">"/shared/enterDetailsView"</span>)
+   on(<span class="java&#45;quote">"submit"</span>).to <span class="java&#45;quote">"enterShipping"</span>
+   on(<span class="java&#45;quote">"<span class="java&#45;keyword">return</span>"</span>).to <span class="java&#45;quote">"showCart"</span>
+&#125;</pre></div><p class="paragraph"/>이것은 grails-app/views/shared/enterDetailsView.gsp를 찾을 것이다.<p class="paragraph"/><h4>Action States(액션 상태)</h4><p class="paragraph"/>액션 상태는 뷰를 렌더링하지 않고 코드를 실행하는 상태를 말한다. 이 액션의 결과로 플로우는 전이된다. 액션 상태를 만들려면 실행할 액션를 정의해야 한다. 이 액션은 action 메소드를 호출하고 실행할 코드블럭에 넘겨서 수행된다:<p class="paragraph"/><div class="code"><pre>listBooks &#123;
+   action &#123; 
+	  &#91; bookList:Book.list() &#93;
+   &#125;
+   on(<span class="java&#45;quote">"success"</span>).to <span class="java&#45;quote">"showCatalogue"</span>
+   on(Exception).to <span class="java&#45;quote">"handleError"</span>
+&#125;</pre></div><p class="paragraph"/>컨트롤러의 액션과 매우 유사하게 생긴 액션을 볼 수 있다. 실제로 컨트롤러의 액션을 재사용할 수도 있다. 액션이 에러없이 성공적으로 반한되면 성공 이벤트가 발생한다. 이 예제에서는 맵을 반환하는데 이 맵은 “모델”로 간주되고 flow 스콥(<a href="../guide/single.html#6.5.4 Flow Scopes" class="guide">flow scope</a>)에 자동으로 저장된다.<p class="paragraph"/>추가로 이 예제에서 우리는 발생한 에러를 처리하기 위해 예외 핸들러를 사용하였다:<p class="paragraph"/><div class="code"><pre>on(Exception).to <span class="java&#45;quote">"handleError"</span></pre></div><p class="paragraph"/>이 예제에서 예외가 발생하면 플로우는 handleError라는 상태로 전이된다.<p class="paragraph"/>flow 요청 컨텍스트를 사용하는 좀 더 복잡한 액션을 작성할 수 있다:<p class="paragraph"/><div class="code"><pre>processPurchaseOrder  &#123;
+     action &#123;
+         def a =  flow.address
+         def p = flow.person
+         def pd = flow.paymentDetails
+         def cartItems = flow.cartItems
+         flow.clear()<p class="paragraph"/>         def o = <span class="java&#45;keyword">new</span> Order(person:p, shippingAddress:a, paymentDetails:pd)
+         o.invoiceNumber = <span class="java&#45;keyword">new</span> Random().nextInt(9999999)
+         cartItems.each &#123; o.addToItems(it) &#125;
+         o.save()
+         &#91;order:o&#93;
+     &#125;
+     on(<span class="java&#45;quote">"error"</span>).to <span class="java&#45;quote">"confirmPurchase"</span>
+     on(Exception).to <span class="java&#45;quote">"confirmPurchase"</span>
+     on(<span class="java&#45;quote">"success"</span>).to <span class="java&#45;quote">"displayInvoice"</span>
+&#125;</pre></div><p class="paragraph"/>이 예제에는 flow 스콥에 통합된 정보를 사용하여 Order 객체를 생성하는 좀 더 복잡한 액션이 정의돼 있다. 이 객체는 모델로 반환된다. 요청 컨텍스트와 “flow” 스콥을 사용하는 것은 매우 중요하다.<p class="paragraph"/><h4>Transition Actions(전이 액션)</h4><p class="paragraph"/>액선의 또 다른 형태로 전이 액션이라는 것이 있다. 전이 액션은 이벤트(<a href="../guide/single.html#6.5.3 Flow Execution Events" class="guide">event</a>)가 발생하면 다른 상태로 전이되기 전에 실행된다. 다음은 전이 액션의 예제이다:<p class="paragraph"/><div class="code"><pre>enterPersonalDetails &#123;
+   on(<span class="java&#45;quote">"submit"</span>) &#123;
+       log.trace <span class="java&#45;quote">"Going to enter shipping"</span>	
+   &#125;.to <span class="java&#45;quote">"enterShipping"</span>
+   on(<span class="java&#45;quote">"<span class="java&#45;keyword">return</span>"</span>).to <span class="java&#45;quote">"showCart"</span>
+&#125;</pre></div><p class="paragraph"/>우리가 단순히 전이 로그를 남기는 코드 블럭을 submit 이벤트에 어떻게 넘겼는지를 주목하라. 전이 상태는 데이터를 바인딩(<a href="../guide/single.html#6.5.5 Data Binding and Validation" class="guide">data binding and validation</a>)하고 그 유효성을 검사할 때 매우 유용하다. 유효성 검사는 나중에 다시 설명한다.<p class="paragraph"/>
+	</body>
+</html>

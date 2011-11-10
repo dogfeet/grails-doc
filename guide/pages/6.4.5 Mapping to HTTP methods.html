@@ -1,0 +1,14 @@
+<html>
+     <head>
+     	<meta http-equiv="Content-type" content="text/html; charset=utf-8">
+     	<title>6.4.5 Mapping to HTTP methods</title>
+     	<link rel="stylesheet" href="../css/main.css" type="text/css" media="screen" title="Ref" charset="utf-8">
+     </head>
+	<body class="body">
+		HTTP 메소드(GET, POST, PUT, DELETE)에 따라 URL이 다르게 매핑되도록 설정할 수 있다. 이 것은 RESTful API와 HTTP 메소드에 따라 매핑되도록 제약할 수 있기에 굉장히 유용하다.<p class="paragraph"/>다음은 BookControler에 RESTful API를 위해 URL 매핑되도록 하는 예제이다:<p class="paragraph"/><div class="code"><pre><span class="java&#45;keyword">static</span> mappings = &#123;
+   <span class="java&#45;quote">"/product/$id"</span>(controller:<span class="java&#45;quote">"product"</span>)&#123;
+       action = &#91;GET:<span class="java&#45;quote">"show"</span>, PUT:<span class="java&#45;quote">"update"</span>, DELETE:<span class="java&#45;quote">"delete"</span>, POST:<span class="java&#45;quote">"save"</span>&#93;
+   &#125;	
+&#125;</pre></div>
+	</body>
+</html>

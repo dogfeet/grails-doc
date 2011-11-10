@@ -1,0 +1,16 @@
+<html>
+     <head>
+     	<meta http-equiv="Content-type" content="text/html; charset=utf-8">
+     	<title>8.1 Declarative Transactions</title>
+     	<link rel="stylesheet" href="../css/main.css" type="text/css" media="screen" title="Ref" charset="utf-8">
+     </head>
+	<body class="body">
+		서로 다른 도메인 클래스(<a href="../guide/single.html#5. Object Relational Mapping (GORM)" class="guide">domain classes</a>)들을 결합하는(co-ordinating) 로직은 보통 서비스에 구현되고 종종 많은 오퍼레이션이 영속성을 사용한다. 이런 서비스의 특징은 트랜잭션을 관리해야만 하게 만든다. 물론 <a href="../ref/Domain Classes/withTransaction.html" class="domainClasses">withTransaction</a> 메소드로 트랜잭션을 프로그래밍할 수 있지만 이 것은 매우 소모적일 뿐만아니라 스프링의 트랜잭션 추상화의 힘을 활용한 것이 아니다.<p class="paragraph"/>서비스가 트랜잭션(transaction demarcation)을 사용해야 한다고 선언하면 트랜잭션이 활성화되고 모든 메소드는 트랜잭션을 사용한다. 모든 서비스에는 기본적으로 트랜잭션이 활성화되있고 transactional 프로퍼티의 값을 false로 설정하여 불활성화시킬 수 있다.<p class="paragraph"/><div class="code"><pre>class CountryService &#123;
+    <span class="java&#45;keyword">static</span> transactional = <span class="java&#45;keyword">false</span>
+&#125;</pre></div><p class="paragraph"/>서비스가 트랜잭션을 필요로 한다는 것을 명시하려면 단순히 이 프로퍼티의 값을 기본 값인 “true”로 설정하면 된다.<p class="paragraph"/><blockquote class="warning">
+선언적 트랜잭션을 사용하는 방법은 <a href="../guide/single.html#8.3 Dependency Injection and Services" class="guide">의존성 주입</a>하는 방법뿐이다. “new BookService()“처럼 new 연산자를 사용해서 트랜잭션 서비스로 만들 수 없다.
+</blockquote><p class="paragraph"/>
+그래서 모든 메소드들은 트랜잭션을 사용하고 메소드에서 예외가 발생하면 자동으로 롤백된다. 트랜잭션의 전파(propagation) 수준은 기본적으로 <a href="http://static.springframework.org/spring/docs/2.0.x/api/org/springframework/transaction/TransactionDefinition.html#PROPAGATION_REQUIRED" target="blank">PROPAGATION_REQUIRED</a>로 설정되어 있다.
+
+	</body>
+</html>

@@ -1,0 +1,16 @@
+<html>
+     <head>
+     	<meta http-equiv="Content-type" content="text/html; charset=utf-8">
+     	<title>6.3 Tag Libraries</title>
+     	<link rel="stylesheet" href="../css/main.css" type="text/css" media="screen" title="Ref" charset="utf-8">
+     </head>
+	<body class="body">
+		<a href="":http://java.sun.com/products/jsp/">JSP</a> 처럼 GSP는 사용자 정의 태그 라이브러리를 지원한다. 하지만 JSP랑은 다르게 Grails의 태그 라이브러리는 훨씬 간단하고 우아할 뿐만 아니라 런타임에 완벽하게 리로드될 수 있다.<p class="paragraph"/><code>Taglib</code>으로 끝나는 Groovy 클래스를 만들고 <code>grails-app/taglib</code> 디렉토리에 넣는 것만으로 간단하게 태그 라이브러리를 만들 수 있다:<p class="paragraph"/><div class="code"><pre>class SimpleTagLib &#123;<p class="paragraph"/>&#125;</pre></div><p class="paragraph"/>태그 속성와 바디 내용의 두 인자를 취하는 코드 블럭을 할당하는 것만으로 간단하게 속성을 만들 수 있다:<p class="paragraph"/><div class="code"><pre>class SimpleTagLib &#123;
+	def simple = &#123; attrs, body &#45;&#62;<p class="paragraph"/>    &#125;
+&#125;</pre></div><p class="paragraph"/><code>attrs</code> 인자는 단순히 태그 속성들이 있는 맵이다. 하지만 <code>body</code> 인자는 바디 내용을 반환하는 실행가능한 코드 블럭이다:<p class="paragraph"/><div class="code"><pre>class SimpleTagLib &#123;
+	def emoticon = &#123; attrs, body &#45;&#62;
+	   out &#60;&#60; body() &#60;&#60; attrs.happy == '<span class="java&#45;keyword">true</span>' ? <span class="java&#45;quote">" :&#45;)"</span> : <span class="java&#45;quote">" :&#45;("</span>	
+    &#125;
+&#125;</pre></div><p class="paragraph"/>이 예제에서 <code>out</code> 변수는 output Writer에 대한 참조다. 이를 이용하여 응답에 내용을 추가할 수 있다. imports문 없이도 간단하게 GSP에서 이 태그를 사용할 수 있다:<p class="paragraph"/><div class="code"><pre><span class="xml&#45;tag">&#60;g:emoticon happy=<span class="xml&#45;quote">"true"</span>&#62;</span>Hi John<span class="xml&#45;tag">&#60;/g:emoticon&#62;</span></pre></div>
+	</body>
+</html>

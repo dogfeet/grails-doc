@@ -1,0 +1,15 @@
+<html>
+     <head>
+     	<meta http-equiv="Content-type" content="text/html; charset=utf-8">
+     	<title>6.2.1.4 Expressions</title>
+     	<link rel="stylesheet" href="../css/main.css" type="text/css" media="screen" title="Ref" charset="utf-8">
+     </head>
+	<body class="body">
+		GSP에 <code>&#60;%= %&#62;</code> 문법이 초기에 도입됐지만 GSP 표현식이 있기 때문에 거의 사용되지 않는다. ASP와 JSP 개발자들은 이 것이 편안하게 느낄 것이다. GSP 표현식은 JSP의 EL 표현식, Groovy의 GString과 유사할 뿐만 아니라 <code>${표현식}</code>의 행태로 사용한다:<p class="paragraph"/><div class="code"><pre><span class="xml&#45;tag">&#60;html&#62;</span>
+  <span class="xml&#45;tag">&#60;body&#62;</span>
+    Hello $&#123;params.name&#125;
+  <span class="xml&#45;tag">&#60;/body&#62;</span>
+<span class="xml&#45;tag">&#60;/html&#62;</span></pre></div><p class="paragraph"/>그러나 JSP EL과 다르게 <code>${..}</code> 블럭 안에 모든 Groovy 표현식을 사용할 수 있다. 기본적으로 <code>${..}</code> 블럭에 있는 변수의 값에 아무일도 <strong class="bold">하지 않는다</strong>. 그래서 스트링 변수에 있는 모든 HTML은 페이지로 바로 출력된다. XSS(Cross-Site-Scripting) 공격의 위험을 줄이기 위해서 자동으로 HTML을 제거하도록 설정할 수 있다. <code>grails-app/conf/Config.groovy</code>파일의 <code>grails.views.default.codec</code>를 설정하면 된다:<p class="paragraph"/><div class="code"><pre>grails.views.<span class="java&#45;keyword">default</span>.codec='html'</pre></div><p class="paragraph"/>다른 가능한 값들로는 'none'(기본 인코딩이 없음)과 'base64'가 있다.
+
+	</body>
+</html>

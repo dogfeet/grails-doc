@@ -1,0 +1,51 @@
+<html>
+     <head>
+     	<meta http-equiv="Content-type" content="text/html; charset=utf-8">
+     	<title>13.1 REST</title>
+     	<link rel="stylesheet" href="../css/main.css" type="text/css" media="screen" title="Ref" charset="utf-8">
+     </head>
+	<body class="body">
+		REST는 사실 그 자체로는 어떠한 기술도 아니고 구조적인 형태이다. REST는 매우 간단하고 URL형태와 결합된 보통의 XML이나 JSON을 통신 매체로 사용하는 것이다. 이 URL 형태은 기존(underlying) 시스템의 “표현(representational)“과 GET, PUT, POST, DELETE와 같은 HTTP 메소드을 의미한다.<p class="paragraph"/>각 HTTP메소드는 하나의 액션에 연결된다. 예를들어 GET은 데이터를 얻어오기위해, PUT은 데이터를 생성하기위해, POST는 데이터를 수정하기위해, DELETE는 데이터를 삭제하기위해 사용한다. 이러한 점에서, REST는 <a href="../guide/single.html#16. Scaffolding" class="guide">CRUD</a>에 매우 잘 들어맞는다.<p class="paragraph"/><h4>URL patterns(URL 패턴)</h4><p class="paragraph"/>Grails로 REST를 구현하기위한 첫번째 과정은 RESTful URL 매핑(<a href="../guide/single.html#6.4 URL Mappings" class="guide">URL mappings</a>)을 제공하는것이다:<p class="paragraph"/><div class="code"><pre><span class="java&#45;keyword">static</span> mappings = &#123;
+   <span class="java&#45;quote">"/product/$id?"</span>(controller:<span class="java&#45;quote">"product"</span>)&#123;
+       action = &#91;GET:<span class="java&#45;quote">"show"</span>, PUT:<span class="java&#45;quote">"update"</span>, DELETE:<span class="java&#45;quote">"delete"</span>, POST:<span class="java&#45;quote">"save"</span>&#93;
+   &#125;	
+&#125;</pre></div><p class="paragraph"/>컨트롤러에게 RESTful API를 제공하기 위해 HTTP메소드에 매핑하는 URL 매핑(<a href="../guide/single.html#6.4.5 Mapping to HTTP methods" class="guide">map to HTTP methods</a>)의 기능을 사용했다. GET, PUT, POST, DELETE 같은 각 HTTP 메소드들은 Controller의 액션에 매핑된다.<p class="paragraph"/><h4>XML Marshaling - Reading(XML 마샬링 - 읽기)</h4><p class="paragraph"/>컨트롤러의 GET 메소드 액션은 Grail의 XML 마셜링(<a href="../guide/single.html#6.1.7 XML and JSON Responses" class="guide">XML marshaling</a>) 기능을 사용하여 구현할 수 있다:<p class="paragraph"/><div class="code"><pre><span class="java&#45;keyword">import</span> grails.converters.&#42;
+class ProductController &#123;
+	def show = &#123;
+		<span class="java&#45;keyword">if</span>(params.id &#38;&#38; Product.exists(params.id)) &#123;
+			def p = Product.findByName(params.id)
+			render p as XML
+		&#125;
+		<span class="java&#45;keyword">else</span> &#123;
+			def all = Product.list()
+			render all as XML
+		&#125;
+	&#125;
+	..
+&#125;</pre></div><p class="paragraph"/>이제 만약 좀 더 해야 할 일이 있다면 이름으로 제품의 id을 찾아 반환하거나 모든 제품을 반한하는 것이다. 이 방식에서 /products 로 간다면 모든 제품을 얻을 것이고, 아니면 /products/MacBook으로 간다면 하나의 MacBook만을 얻을 것이다.<p class="paragraph"/><h4>XML Marshalling - Updating(XMl 마샬링 - 업데이트)</h4><p class="paragraph"/>PUT과 POST 같은 업데이트를 지원하기 위해서 params 객체를 쓸 수 있다. <a href="../ref/Controllers/params.html" class="controllers">params</a> 객체는 XML로부터 들어오는 정보를 Grails가 접근하기 쉽도록 개선해놓은 것이다. 다음과 같은 들어오는 XML 패킷이 있다:<p class="paragraph"/><div class="code"><pre><span class="xml&#45;tag">&#60;?xml version=<span class="xml&#45;quote">"1.0"</span> encoding=<span class="xml&#45;quote">"ISO&#45;8859&#45;1"</span>?&#62;</span>
+<span class="xml&#45;tag">&#60;product&#62;</span>
+	<span class="xml&#45;tag">&#60;name&#62;</span>MacBook<span class="xml&#45;tag">&#60;/name&#62;</span>
+	<span class="xml&#45;tag">&#60;vendor id=<span class="xml&#45;quote">"12"</span>&#62;</span>
+		<span class="xml&#45;tag">&#60;name&#62;</span>Apple<span class="xml&#45;tag">&#60;/name&#62;</span>
+     <span class="xml&#45;tag">&#60;/vender&#62;</span>
+<span class="xml&#45;tag">&#60;/product&#62;</span></pre></div><p class="paragraph"/>데이터 바인딩 절에서 설명한 기술을 이용하는 params 객체를 통해 이 XML 패킷을 읽을 수 있다:<p class="paragraph"/><div class="code"><pre>def save = &#123;
+	def p = <span class="java&#45;keyword">new</span> Product(params&#91;'product'&#93;)<p class="paragraph"/>	<span class="java&#45;keyword">if</span>(p.save()) &#123;
+		render p as XML
+	&#125;
+	<span class="java&#45;keyword">else</span> &#123;
+		def errors = p.errors.allErrors.collect &#123; g.message(error:it) &#125;
+		render(contentType:<span class="java&#45;quote">"text/xml"</span>) &#123;
+			error &#123;
+				<span class="java&#45;keyword">for</span>(err in errors) &#123;
+					message(error:err)
+				&#125;
+			&#125;
+		&#125;
+	&#125;
+&#125;</pre></div><p class="paragraph"/>이 예제에서 params 객체속에서 'project'키를 사용하여 인덱싱함으로써 Product 클래스의 생성자를 이용하여 xml을 자동으로 생성하고 바인딩할 수 있다. 아래 코드는 그 예제이다:<p class="paragraph"/><div class="code"><pre>def p = <span class="java&#45;keyword">new</span> Product(params&#91;'product'&#93;)</pre></div><p class="paragraph"/>폼 데이터를 전송하는 코드와 XML 요청을 다루는 코드 모두 수정할 필요 없고 XML 요청 뿐만아니라 JSON 요청에도 동일한 방법을 사용할 수 있다.<p class="paragraph"/><blockquote class="note">
+만약 여러 클라이언트(REST, HTML 기타)에 대해 여러 응답이 필요하다면 컨텐츠 협상(<a href="../guide/single.html#6.8 Content Negotiation" class="guide">content negotation</a>)을 사용할 수 있음
+</blockquote><p class="paragraph"/>그래서 Product 객체는 XML로 저장되고 표현되며, 그렇지 않으면 오류 메시지가 생성된다. 오류 메시지는 Grails의 검증(<a href="../guide/single.html#7. Validation" class="guide">validation</a>)지원을 사용하여 아래와 같은 형식으로 표현된다:<p class="paragraph"/><div class="code"><pre><span class="xml&#45;tag">&#60;error&#62;</span>
+   <span class="xml&#45;tag">&#60;message&#62;</span>The property 'title' of class 'Person' must be specified<span class="xml&#45;tag">&#60;/message&#62;</span>
+<span class="xml&#45;tag">&#60;/error&#62;</span></pre></div> 
+	</body>
+</html>

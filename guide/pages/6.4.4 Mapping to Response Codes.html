@@ -1,0 +1,18 @@
+<html>
+     <head>
+     	<meta http-equiv="Content-type" content="text/html; charset=utf-8">
+     	<title>6.4.4 Mapping to Response Codes</title>
+     	<link rel="stylesheet" href="../css/main.css" type="text/css" media="screen" title="Ref" charset="utf-8">
+     </head>
+	<body class="body">
+		Grails는 HTTP 응답 코드를 컨트롤러, 액션, 뷰에 매핑할 수 있도록 허용한다. 응답 코드를 매소드에 매핑시키고 싶다면 그렇게 할 수 있다:<p class="paragraph"/><div class="code"><pre><span class="java&#45;keyword">static</span> mappings = &#123;
+   <span class="java&#45;quote">"500"</span>(controller:<span class="java&#45;quote">"errors"</span>, action:<span class="java&#45;quote">"serverError"</span>)
+   <span class="java&#45;quote">"404"</span>(controller:<span class="java&#45;quote">"errors"</span>, action:<span class="java&#45;quote">"notFound"</span>)
+   <span class="java&#45;quote">"403"</span>(controller:<span class="java&#45;quote">"errors"</span>, action:<span class="java&#45;quote">"forbidden"</span>)
+&#125;</pre></div><p class="paragraph"/>응답코드를 사용자가 정의한 에러 페이지에 매핑할 수도 있다:<p class="paragraph"/><div class="code"><pre><span class="java&#45;keyword">static</span> mappings = &#123;
+   <span class="java&#45;quote">"500"</span>(view:<span class="java&#45;quote">"/errors/serverError"</span>)
+   <span class="java&#45;quote">"404"</span>(view:<span class="java&#45;quote">"/errors/notFound"</span>)
+   <span class="java&#45;quote">"403"</span>(view:<span class="java&#45;quote">"/errors/forbidden"</span>)
+&#125;</pre></div>
+	</body>
+</html>

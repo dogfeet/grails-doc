@@ -1,0 +1,21 @@
+<html>
+     <head>
+     	<meta http-equiv="Content-type" content="text/html; charset=utf-8">
+     	<title>6.4.8 Applying Constraints</title>
+     	<link rel="stylesheet" href="../css/main.css" type="text/css" media="screen" title="Ref" charset="utf-8">
+     </head>
+	<body class="body">
+		URL 매핑은 Grails의 유효성 검사 제약조건(<a href="../guide/single.html#7.1 Declaring Constraints" class="guide">validation constraints</a>) 매커니즘과 통합돼 있다. 이것은 URL이 매핑될때 제약조건을 달 수 있게 해준다. 다음과 같이 위의 블로그 예제에 적용해 본다면:<p class="paragraph"/><div class="code"><pre><span class="java&#45;keyword">static</span> mappings = &#123;
+   <span class="java&#45;quote">"/$blog/$year?/$month?/$day?/$id?"</span>(controller:<span class="java&#45;quote">"blog"</span>, action:<span class="java&#45;quote">"show"</span>)
+&#125;</pre></div><p class="paragraph"/>다음의 URL은 매핑된다:<p class="paragraph"/><div class="code"><pre>/graemerocher/2007/01/10/my_funky_blog_entry</pre></div><p class="paragraph"/>그러나 이것은 다음의 URL도 허용할 것이다:<p class="paragraph"/><div class="code"><pre>/graemerocher/not_a_year/not_a_month/not_a_day/my_funky_blog_entry</pre></div><p class="paragraph"/>하지만 컨트롤러에서 url을 파싱해야 하는 것은 큰 문제가 아닐 수 없다. 운좋게도 URL 매핑에 제약조건을 정의해서 URL 토큰의 유효성을 검사할 수 있다.<p class="paragraph"/><div class="code"><pre><span class="java&#45;quote">"/$blog/$year?/$month?/$day?/$id?"</span> &#123;
+     controller = <span class="java&#45;quote">"blog"</span>
+     action = <span class="java&#45;quote">"show"</span>
+     constraints &#123;
+          year(matches:/&#100;&#123;4&#125;/)
+          month(matches:/&#100;&#123;2&#125;/)
+          day(matches:/&#100;&#123;2&#125;/)
+     &#125;
+&#125;</pre></div><p class="paragraph"/>이 예제에서 contraints 블럭은 year, month, day 파라미터가 특별한 형식을 따르도록 보증한다. 그래서 우리가 해야 할 일을 줄여 준다.
+
+	</body>
+</html>

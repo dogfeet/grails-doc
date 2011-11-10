@@ -1,0 +1,209 @@
+<html>
+     <head>
+     	<meta http-equiv="Content-type" content="text/html; charset=utf-8">
+     	<title>9. Testing</title>
+     	<link rel="stylesheet" href="../css/main.css" type="text/css" media="screen" title="Ref" charset="utf-8">
+     </head>
+	<body class="body">
+		<h1><a name="9. Testing">9. Testing</a></h1>테스트 자동화는 Grails의 핵심 기능중 하나이고 <a href="http://groovy.codehaus.org/Testing+Guide" target="blank">Groovy Test</a>를 이용하여 구현됐다. 그래서 Grails에서는 저 수준 유닛 테스트부터 고 수준 기능 테스트까지 쉽게 작성할 수 있다. 이 절에서는 테스트를 위해 Grails가 지원하는 것들에 대해 설명한다.<p class="paragraph"/>먼저 모든 create-* 명령어들은 명령을 마칠 때 자동으로 "통합 테스트(integration test)"를 생성한다는 것을 알아야 한다. 예를 들어 다음과 같이 <a href="../ref/Command Line/create-controller.html" class="commandLine">create-controller</a> 명령을 실행하면:<p class="paragraph"/><div class="code"><pre>grails create&#45;controller simple</pre></div><p class="paragraph"/>Grails는 grails-app/controllers/SimpleController.groovy에 컨트롤러를 생성할 뿐만 아니라 test/integration/SimpleControllerTests.groovy에 통합 테스트도 생성한다. 하지만 Grails가 테스트 로직까지 채워주지 않기 때문에 직접 해야 한다.<p class="paragraph"/>이렇게 했다면 모든 테스트를 <a href="../ref/Command Line/test-app.html" class="commandLine">test-app</a> 명령어로 테스트를 실행할 수 있다:<p class="paragraph"/><div class="code"><pre>grails test&#45;app</pre></div><p class="paragraph"/>이 명령어를 실행하면 다음과 같이 출력된다:<p class="paragraph"/><div class="code"><pre>&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;
+Running Unit Tests&#8230;
+Running test FooTests...FAILURE
+Unit Tests Completed in 464ms &#8230;
+&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;<p class="paragraph"/>Tests failed: 0 errors, 1 failures</pre></div><p class="paragraph"/>테스트 보고서는 test/reports 디렉토리에 저장될 것이다. 그리고 테스트 이름을 명시해서 테스트 별로 실행할 수도 있다(이때 테스트 접미어는 생략한다):<p class="paragraph"/><div class="code"><pre>grails test&#45;app SimpleController</pre></div><p class="paragraph"/>스페이스를 구분자로 테스트의 이름들을 나열하는 식으로 여러 테스트를 한꺼번에 실행시킬 수도 있다:<p class="paragraph"/><div class="code"><pre>grails test&#45;app SimpleController BookController</pre></div><p class="paragraph"/><h2><a name="9.1 Unit Testing">9.1 Unit Testing</a></h2>유닛 테스팅은 "유닛" 수준에서 수행하는 테스트를 말한다. 즉, 기반 구조에 대한 고려없이 각각의 메소드나 코드 블럭을 테스트하는 것이다. Grails의 유닛 테스트와 통합 테스트의 차이점을 알아야 한다. Grails는 런타임이나 통합 테스트를 할 때처럼 유닛 테스트에 어떠한 동적 메소드도 주입하지 않는다.<p class="paragraph"/>This makes sense if you consider that the methods injected by Grails typically community with the database (with GORM) or the underlying Servlet engine (with Controllers).<p class="paragraph"/>Grails가 데이터베이스(GORM)와 통신하기 위해 주입하는 메소드나 서블릿 엔진에 의해 컨트롤러에 주입되는 메소드와 함께 이해할 수 있다. 예를 들어 <code>BookController</code>에 다음과 같은 액션이 있다고 하면:<p class="paragraph"/><div class="code"><pre>class MyService &#123;
+    def otherService<p class="paragraph"/>	<span class="java&#45;object">String</span> createSomething() &#123; 
+		def stringId = otherService.newIdentifier()
+		def item = <span class="java&#45;keyword">new</span> Item(code: stringId, name: <span class="java&#45;quote">"Bangle"</span>) 
+		item.save() 
+		<span class="java&#45;keyword">return</span> stringId 
+	&#125;<p class="paragraph"/>	<span class="java&#45;object">int</span> countItems(<span class="java&#45;object">String</span> name) &#123; 
+		def items = Item.findAllByName(name) 
+		<span class="java&#45;keyword">return</span> items.size() 
+	&#125; 
+&#125;</pre></div><p class="paragraph"/>
+As you can see the service takes advantage of GORM methods. So how do you go about testing the above code in a unit test? The answer can be found in Grails' testing support classes.<p class="paragraph"/><h3>The Testing Framework</h3><p class="paragraph"/>The core of the testing plugin is the <code>grails.test.GrailsUnitTestCase</code> class. This is a sub-class of <code>GroovyTestCase</code> geared towards Grails applications and their artifacts. It provides several methods for mocking particular types as well as support for general mocking a la Groovy's MockFor and StubFor classes.<p class="paragraph"/>Normally you might look at the <code>MyService</code> example shown previously and the dependency on another service and the use of dynamic domain class methods with a bit of a groan. You can use meta-class programming and the "map as object" idiom, but these can quickly get ugly. How might we write the test with GrailsUnitTestCase ?<p class="paragraph"/><div class="code"><pre><span class="java&#45;keyword">import</span> grails.test.GrailsUnitTestCase<p class="paragraph"/>class MyServiceTests <span class="java&#45;keyword">extends</span> GrailsUnitTestCase &#123; 
+	void testCreateSomething() &#123; 
+		// Mock the domain class. 
+		def testInstances = &#91;&#93; 
+		mockDomain(Item, testInstances)<p class="paragraph"/>		// Mock the <span class="java&#45;quote">"other"</span> service. 
+		<span class="java&#45;object">String</span> testId = <span class="java&#45;quote">"NH&#45;12347686"</span> 
+		def otherControl = mockFor(OtherService) 
+		otherControl.demand.newIdentifier(1..1) &#123;&#45;&#62; <span class="java&#45;keyword">return</span> testId &#125;<p class="paragraph"/>		// 	Initialise the service and test the target method. 
+		def testService = <span class="java&#45;keyword">new</span> MyService() 
+		testService.otherService = otherControl.createMock()<p class="paragraph"/>		def retval = testService.createSomething()<p class="paragraph"/>		// Check that the method returns the identifier returned by the 
+		// mock <span class="java&#45;quote">"other"</span> service and also that a <span class="java&#45;keyword">new</span> Item instance has 
+		// been saved. 
+		assertEquals testId, retval 
+		assertEquals 1, testInstances 
+		assertTrue testInstances&#91;0&#93; <span class="java&#45;keyword">instanceof</span> Item 
+	&#125;<p class="paragraph"/>	void testCountItems() &#123; 
+		// Mock the domain class, <span class="java&#45;keyword">this</span> time providing a list of test 
+		// Item instances that can be searched. 
+		def testInstances = &#91; <span class="java&#45;keyword">new</span> Item(code: <span class="java&#45;quote">"NH&#45;4273997"</span>, name: <span class="java&#45;quote">"Laptop"</span>), 
+							  <span class="java&#45;keyword">new</span> Item(code: <span class="java&#45;quote">"EC&#45;4395734"</span>, name: <span class="java&#45;quote">"Lamp"</span>), 
+							  <span class="java&#45;keyword">new</span> Item(code: <span class="java&#45;quote">"TF&#45;4927324"</span>, name: <span class="java&#45;quote">"Laptop"</span>) &#93; 
+		mockDomain(Item, testInstances)<p class="paragraph"/>		// Initialise the service and test the target method. def testService = <span class="java&#45;keyword">new</span> MyService()<p class="paragraph"/>		assertEquals 2, testService.countItems(<span class="java&#45;quote">"Laptop"</span>) 
+		assertEquals 1, testService.countItems(<span class="java&#45;quote">"Lamp"</span>) 
+		assertEquals 0, testService.countItems(<span class="java&#45;quote">"Chair"</span>) 
+	&#125; 
+&#125;</pre></div><p class="paragraph"/>OK, so a fair bit of new stuff there, but once we break it down you should quickly see how easy it is to use the methods available to you. Take a look at the "testCreateSomething()" test method. The first thing you will probably notice is the <code>mockDomain()</code> method, which is one of several provided by <code>GrailsUnitTestCase</code>:<p class="paragraph"/><div class="code"><pre>def testInstances = &#91;&#93; 
+mockDomain(Item, testInstances)</pre></div><p class="paragraph"/>It adds all the common domain methods (both instance and static) to the given class so that any code using it sees it as a full-blown domain class. So for example, once the <code>Item</code> class has been mocked, we can safely call the <code>save()</code> method on instances of it. Speaking of which, what happens when we call that method on a mocked domain class? Simple: the new instance is added to the <code>testInstances</code> list we passed into the <code>mockDomain()</code> method.<p class="paragraph"/>The next bit we want to look at is centered on the <code>mockFor</code> method:<p class="paragraph"/><div class="code"><pre>def otherControl = mockFor(OtherService) 
+otherControl.demand.newIdentifier(1..1) &#123;&#45;&#62; <span class="java&#45;keyword">return</span> testId &#125;</pre></div><p class="paragraph"/>This is analagous to the <code>MockFor</code> and <code>StubFor</code> classes that come with Groovy and it can be used to mock any class you want. In fact, the "demand" syntax is identical to that used by Mock/StubFor, so you should feel right at home. Of course you often need to inject a mock instance as a dependency, but that is pretty straight forward with the <code>createMock()</code> method, which you simply call on the mock control as shown. For those familiar with EasyMock, the name <code>otherControl</code> highlights the role of the object returned by <code>mockFor()</code> - it is a control object rather than the mock itself.<p class="paragraph"/>The rest of the <code>testCreateSomething()</code> method should be pretty familiar, particularly as you now know that the mock <code>save()</code> method adds instances to <code>testInstances</code> list. However, there is an important technique missing from the test method. We can determine that the mock <code>newIdentifier()</code> method is called because its return value has a direct impact on the result of the <code>createSomething()</code> method. But what if that weren't the case? How would we know whether it had been called or not? With Mock/StubFor the check would be performed at the end of the <code>use()</code> closure, but that's not available here. Instead, you can call <code>verify()</code> on the control object - in this case <code>otherControl</code>. This will perform the check and throw an assertion error if it hasn't been called when it should have been.<p class="paragraph"/>Lastly, <code>testCountItems()</code> in the example demonstrates another facet of the <code>mockDomain()</code> method:<p class="paragraph"/><div class="code"><pre>def testInstances = &#91; <span class="java&#45;keyword">new</span> Item(code: <span class="java&#45;quote">"NH&#45;4273997"</span>, name: <span class="java&#45;quote">"Laptop"</span>), 
+					  <span class="java&#45;keyword">new</span> Item(code: <span class="java&#45;quote">"EC&#45;4395734"</span>, name: <span class="java&#45;quote">"Lamp"</span>), 
+					  <span class="java&#45;keyword">new</span> Item(code: <span class="java&#45;quote">"TF&#45;4927324"</span>, name: <span class="java&#45;quote">"Laptop"</span>) &#93; 
+mockDomain(Item, testInstances)</pre></div><p class="paragraph"/>It is normally quite fiddly to mock the dynamic finders manually, and you often have to set up different data sets for each invocation. On top of that, if you decide a different finder should be used then you have to update the tests to check for the new method! Thankfully the <code>mockDomain()</code> method provides a lightweight implementation of the dynamic finders backed by a list of domain instances. Simply provide the test data as the second argument of the method and the mock finders will just work.<p class="paragraph"/><h3>GrailsUnitTestCase - the mock methods</h3><p class="paragraph"/>You have already seen a couple of examples in the introduction of the <code>mock..()</code> methods provided by the <code>GrailsUnitTestCase</code> class. Here we will look at all the available methods in some detail, starting with the all-purpose <code>mockFor()</code>. But before we do, there is a very important point to make: using these methods ensures that any changes you make to the given classes do not leak into other tests! This is a common and serious problem when you try to perform the mocking yourself via meta-class programming, but that headache just disappears as long as you use at least one of <code>mock..()</code> methods on each class you want to mock.<p class="paragraph"/><div class="code"><pre>mockFor(class, loose = <span class="java&#45;keyword">false</span>)</pre></div><p class="paragraph"/>General purpose mocking that allows you to set up either strict or loose demands on a class.<p class="paragraph"/>This method is surprisingly intuitive to use. By default it will create a strict mock control object (one for which the order in which methods are called is important) that you can use to specify demands:<p class="paragraph"/><div class="code"><pre>def strictControl = mockFor(MyService)
+strictControl.demand.someMethod(0..2) &#123; <span class="java&#45;object">String</span> arg1, <span class="java&#45;object">int</span> arg2 &#45;&#62; ‚Ä¶ &#125;
+strictControl.demand.<span class="java&#45;keyword">static</span>.aStaticMethod &#123;&#45;&#62; ‚Ä¶ &#125;</pre></div><p class="paragraph"/>Notice that you can mock static methods as well as instance ones simply by using the "static" property after "demand". You then specify the name of the method that you want to mock with an optional range as its argument. This range determines how many times you expect the method to be called, so if the number of invocations falls outside of that range (either too few or too many) then an assertion error will be thrown. If no range is specified, a default of "1..1" is assumed, i.e. that the method must be called exactly once.<p class="paragraph"/>The last part of a demand is a closure representing the implementation of the mock method. The closure arguments should match the number and types of the mocked method, but otherwise you are free to add whatever you want in the body.<p class="paragraph"/>As we mentioned before, if you want an actual mock instance of the class that you are mocking, then you need to call <code>mockControl.createMock()</code>. In fact, you can call this as many times as you like to create as many mock instances as you need. And once you have executed the test method, you can call <code>mockControl.verify()</code> to check whether the expected methods were actually called or not.<p class="paragraph"/>Lastly, the call:<p class="paragraph"/><div class="code"><pre>def looseControl = mockFor(MyService, <span class="java&#45;keyword">true</span>)</pre></div><p class="paragraph"/>will create a mock control object that has only loose expectations, i.e. the order that methods are invoked does not matter.<p class="paragraph"/><h4>mockDomain(class, testInstances = )</h4><p class="paragraph"/>Takes a class and makes mock implementations of all the domain class methods (both instance- and static-level) accessible on it.<p class="paragraph"/>Mocking domain classes is one of the big wins from using the testing plugin. Manually doing it is fiddly at best, so it's great that mockDomain() takes that burden off your shoulders.<p class="paragraph"/>In effect, <code>mockDomain()</code> provides a lightweight version of domain classes in which the "database" is simply a list of domain instances held in memory. All the mocked methods ( <code>save()</code> , <code>get()</code> , <code>findBy*()</code> , etc.) work against that list, generally behaving as you would expect them to. In addition to that, both the mocked <code>save()</code> and validate() methods will perform real validation (support for the unique constraint included!) and populate an errors object on the corresponding domain instance.<p class="paragraph"/>There isn't much else to say other than that the plugin does not support the mocking of criteria or HQL queries. If you use either of those, simply mock the corresponding methods manually (for example with <code>mockFor()</code> ) or use an integration test with real data.<p class="paragraph"/><h4>mockForConstraintsTests(class, testInstances = )</h4><p class="paragraph"/>Highly specialised mocking for domain classes and command objects that allows you to check whether the constraints are behaving as you expect them to.<p class="paragraph"/>Do you test your domain constraints? If not, why not? If your answer is that they don't need testing, think again. Your constraints contain logic and that logic is highly susceptible to bugs - the kind of bugs that can be tricky to track down (particularly as save() doesn't throw an exception when it fails). If your answer is that it's too hard or fiddly, that is no longer an excuse. Enter the <code>mockForConstraintsTests()</code> method.<p class="paragraph"/>This is like a much reduced version of the <code>mockDomain()</code> method that simply adds a <code>validate()</code> method to a given domain class. All you have to do is mock the class, create an instance with field values, and then call <code>validate()</code>. You can then access the errors property on your domain instance to find out whether the validation failed or not. So if all we are doing is mocking the <code>validate()</code> method, why the optional list of test instances? That is so that we can test unique constraints as you will soon see.<p class="paragraph"/>So, suppose we have a simple domain class like so:<p class="paragraph"/><div class="code"><pre>class Book &#123;
+    <span class="java&#45;object">String</span> title
+    <span class="java&#45;object">String</span> author<p class="paragraph"/>	<span class="java&#45;keyword">static</span> constraints = &#123; 
+		title(blank: <span class="java&#45;keyword">false</span>, unique: <span class="java&#45;keyword">true</span>) 
+		author(blank: <span class="java&#45;keyword">false</span>, minSize: 5) 
+	&#125; 
+&#125;</pre></div><p class="paragraph"/>Don't worry about whether the constraints are sensible or not (they're not!), they are for demonstration only. To test these constraints we can do the following:<p class="paragraph"/><div class="code"><pre>class BookTests <span class="java&#45;keyword">extends</span> GrailsUnitTestCase &#123;
+    void testConstraints() &#123;
+        def existingBook = <span class="java&#45;keyword">new</span> Book(title: <span class="java&#45;quote">"Misery"</span>, author: <span class="java&#45;quote">"Stephen King"</span>)
+        mockForConstraintsTests(Book, &#91; existingBook &#93;)<p class="paragraph"/>		// Validation should fail <span class="java&#45;keyword">if</span> both properties are <span class="java&#45;keyword">null</span>. 
+		def book = <span class="java&#45;keyword">new</span> Book() 
+		assertFalse book.validate() 
+		assertEquals <span class="java&#45;quote">"nullable"</span>, book.errors&#91;<span class="java&#45;quote">"title"</span>&#93; 
+		assertEquals <span class="java&#45;quote">"nullable"</span>, book.errors&#91;<span class="java&#45;quote">"author"</span>&#93;<p class="paragraph"/>		// So let's demonstrate the unique and minSize constraints. 
+		book = <span class="java&#45;keyword">new</span> Book(title: <span class="java&#45;quote">"Misery"</span>, author: <span class="java&#45;quote">"JK"</span>) 
+		assertFalse book.validate() 
+		assertEquals <span class="java&#45;quote">"unique"</span>, 	book.errors&#91;<span class="java&#45;quote">"title"</span>&#93; 
+		assertEquals <span class="java&#45;quote">"minSize"</span>, book.errors&#91;<span class="java&#45;quote">"author"</span>&#93;<p class="paragraph"/>		// Validation should pass! 
+		book = <span class="java&#45;keyword">new</span> Book(title: <span class="java&#45;quote">"The Shining"</span>, author: <span class="java&#45;quote">"Stephen King"</span>) 
+		assertTrue book.validate() 
+	&#125; 
+&#125;</pre></div><p class="paragraph"/>You can probably look at that code and work out what's happening without any further explanation. The one thing we will explain is the way the errors property is used. First, it does return a real Spring <code>Errors</code> instance, so you can access all the properties and methods you would normally expect. Second, this particular <code>Errors</code> object also has map/property access as shown. Simply specify the name of the field you are interested in and the map/property access will return the name of the constraint that was violated. Note that it is the constraint name , not the message code (as you might expect).<p class="paragraph"/>That's it for testing constraints. One final thing we would like to say is that testing the constraints in this way catches a common error: typos in the "constraints" property! It is currently one of the hardest bugs to track down normally, and yet a unit test for your constraints will highlight the problem straight away.<p class="paragraph"/><h4>mockLogging(class, enableDebug = false)</h4><p class="paragraph"/>Adds a mock "log" property to a class. Any messages passed to the mock logger are echoed to the console.<p class="paragraph"/><h4>mockController(class)</h4><p class="paragraph"/>Adds mock versions of the dynamic controller properties and methods to the given class. This is typically used in conjunction with the <code>ControllerUnitTestCase</code> class.<p class="paragraph"/><h4>mockTagLib(class)</h4><p class="paragraph"/>Adds mock versions of the dynamic taglib properties and methods to the given class. This is typically used in conjunction with the <code>TagLibUnitTestCase</code> class.
+<h2><a name="9.2 Integration Testing">9.2 Integration Testing</a></h2>통합 테스트는 모든 코드를 테스트할 수 있어야 한다는 점에서 유닛 테스트와 다르다 Grails는 통합 테스트에 HSQLDB라는 메모리 데이터베이스를 사용하고 각 테스트마다 데이터베이스의 모든 데이터를 삭제할 것이다.<p class="paragraph"/><h4>Testing Controllers(컨트롤러 테스트하기)</h4><p class="paragraph"/>컨트롤러를 테스트하려면 먼저 스프링 Mock 라이브러리를 이해해야 한다.<p class="paragraph"/>Grails의 테스트에서는 내부적으로 <a href="http://static.springframework.org/spring/docs/2.5.x/api/org/springframework/mock/web/MockHttpServletRequest.html" class="api">MockHttpServletRequest</a>, <a href="http://static.springframework.org/spring/docs/2.5.x/api/org/springframework/mock/web/MockHttpServletResponse.html" class="api">MockHttpServletResponse</a>, <a href="http://static.springframework.org/spring/docs/2.5.x/api/org/springframework/mock/web/MockHttpSession.html" class="api">MockHttpSession</a>을 사용한다. 다음과 같이 이 것들을 이용해서 테스트할 수 있다:<p class="paragraph"/><div class="code"><pre>class FooController &#123;<p class="paragraph"/>	def text = &#123;
+	    render <span class="java&#45;quote">"bar"</span>
+	&#125;<p class="paragraph"/>	def someRedirect = &#123;
+		redirect(action:<span class="java&#45;quote">"bar"</span>)
+	&#125;
+&#125;</pre></div><p class="paragraph"/>다음과 같이 이 코드에 대한 테스트를 만든다:<p class="paragraph"/><div class="code"><pre>class FooControllerTests <span class="java&#45;keyword">extends</span> GroovyTestCase &#123;<p class="paragraph"/>  void testText() &#123;
+		def fc = <span class="java&#45;keyword">new</span> FooController()
+		fc.text()
+		assertEquals <span class="java&#45;quote">"bar"</span>, fc.response.contentAsString
+	&#125;<p class="paragraph"/>	void testSomeRedirect() &#123;<p class="paragraph"/>		def fc = <span class="java&#45;keyword">new</span> FooController()
+		fc.someRedirect()
+		assertEquals <span class="java&#45;quote">"/foo/bar"</span>, fc.response.redirectedUrl
+	&#125;
+&#125;</pre></div><p class="paragraph"/>이 예제에서 응답은 MockHttpServletResponse의 인스턴스이다. 응답에 쓴 결과를 contentAsString으로 결과를 확인하거나 리다이렉트된 URL을 얻어오기 위해 사용한다. Servlet API의 Mock 버전은 실제 버전과 달라서 모든 것을 변경할 수 있고 contextPath같은 요청의 속성도 설정할 수 있다.<p class="paragraph"/>통합 테스트 중에는 액션이 호출될 때 Grails가 인터셉터(<a href="../guide/single.html#6.1.5 Controller Interceptors" class="guide">interceptors</a>)를 자동으로 실행하지 않는다. 인터셉터를 테스트해야 한다면 인터셉터만 별도로 기능 테스트(<a href="../guide/single.html#9.3 Functional Testing" class="guide">functional testing</a>)를 이용해 테스트한다.<p class="paragraph"/><h4>Testing Controllers with Services(서비스와 함께 컨트롤러 테스트하기)</h4><p class="paragraph"/>만약 컨트롤러가 서비스를 참조하고 있다면 테스트에서 서비스를 명시적으로 초기화 시켜야 한다.<p class="paragraph"/>주어진 컨트롤러가 다음과 같으면:<p class="paragraph"/><div class="code"><pre>class FilmStarsController &#123;
+    def popularityService<p class="paragraph"/>    def update = &#123;
+        // <span class="java&#45;keyword">do</span> something with popularityService
+    &#125;
+&#125;</pre></div><p class="paragraph"/>테스트를 다음과 같이 만들 수 있다:<p class="paragraph"/><div class="code"><pre>class FilmStarsTests <span class="java&#45;keyword">extends</span> GroovyTestCase &#123;
+    def popularityService<p class="paragraph"/>    <span class="java&#45;keyword">public</span> void testInjectedServiceInController () &#123;
+        def fsc = <span class="java&#45;keyword">new</span> FilmStarsController()
+        fsc.popularityService = popularityService
+        fsc.update()
+    &#125;
+&#125;</pre></div><p class="paragraph"/><h4>Testing Controller Command Objects(컨트롤러의 커맨드 객체 테스트하기)</h4><p class="paragraph"/>커맨드 객체로 요청에 파라미터를 제공하는 방법이 있다. 커맨드 객체는 파라미터 없이 액션이 호출되면 자동으로 실행된다:<p class="paragraph"/>다음과 같이 커맨드 객체를 사용하는 객체가 있을 때:<p class="paragraph"/><div class="code"><pre>class AuthenticationController &#123;
+    def signup = &#123; SignupForm form &#45;&#62;
+        &#8230;
+    &#125;
+&#125;</pre></div><p class="paragraph"/>다음과 같이 테스트를 할 수 있다:<p class="paragraph"/><div class="code"><pre>def controller = <span class="java&#45;keyword">new</span> AuthenticationController()
+controller.params.login = <span class="java&#45;quote">"marcpalmer"</span>
+controller.params.password = <span class="java&#45;quote">"secret"</span>
+controller.params.passwordConfirm = <span class="java&#45;quote">"secret"</span>
+controller.signup()</pre></div><p class="paragraph"/>Grails는 마법처럼 자동으로 Mock 요청 파라미터들을 커맨드 객체에 할당시켜서 siginup 액션를 실행시킨다. 컨트롤러를 테스트 하는 동안 그레일즈가 제공하는 Mock 요청으로 params가 바뀔 수도 있다.<p class="paragraph"/><h4>Testing Controllers and the render Method(render 메소드를 사용하는 컨트롤러 테스트하기)</h4><p class="paragraph"/><a href="../ref/Controllers/render.html" class="controllers">render</a> 메소드를 사용하면 모든 액션에서 원하는 뷰를 렌더링할 수 있다. 예를 들어 다음과 같은 예제가 있을 때:<p class="paragraph"/><div class="code"><pre>def save = &#123;
+	def book = Book(params)
+	<span class="java&#45;keyword">if</span>(book.save()) &#123;
+		// handle
+	&#125;
+	<span class="java&#45;keyword">else</span> &#123;
+		render(view:<span class="java&#45;quote">"create"</span>, model:&#91;book:book&#93;)
+	&#125;
+&#125;</pre></div><p class="paragraph"/>액션 모델의 결과는 반환되지 않지만 대신에 컨트롤러의 modelAndView 속성에 저장된다. modelAndView 속성은 Spring MVC's <a href="http://static.springframework.org/spring/docs/1.2.x/api/org/springframework/web/servlet/ModelAndView.html" target="blank">ModelAndView</a> 클래스의 인스턴스이고 이 속성을 사용하여 액션의 결과를 테스트할 수 있다:<p class="paragraph"/><div class="code"><pre>def bookController = <span class="java&#45;keyword">new</span> BookController()
+bookController.save()
+def model = bookController.modelAndView.model.book</pre></div><p class="paragraph"/><h4>Simulating Request Data(요청 데이터 시뮬레이션)</h4><p class="paragraph"/>액션을 테스트하려면 REST 웹 서비스처럼 어떤 요청 데이터가 필요하다. 이를 위해 스프링의 <a href="http://static.springframework.org/spring/docs/2.5.x/api/org/springframework/mock/web/MockHttpServletRequest.html" class="api">MockHttpServletRequest</a> 객체를 사용할 수 있다. 예를 들어 다음의 액션은 들어오는 요청을 바인딩한다:<p class="paragraph"/><div class="code"><pre>def create = &#123;
+	&#91;book: <span class="java&#45;keyword">new</span> Book(params&#91;'book'&#93;) &#93;	
+&#125;</pre></div><p class="paragraph"/>다음과 같이 XML로 book 파라미터를 시뮬레이션할 수 있다:<p class="paragraph"/><div class="code"><pre>void testCreateWithXML() &#123;
+	def controller = <span class="java&#45;keyword">new</span> BookController()
+	controller.request.contentType = 'text/xml'
+	controller.request.contents = '''&#60;?xml version=<span class="java&#45;quote">"1.0"</span> encoding=<span class="java&#45;quote">"ISO&#45;8859&#45;1"</span>?&#62;
+	&#60;book&#62;
+		&#60;title&#62;The Stand&#60;/title&#62;
+		&#8230;
+	&#60;/book&#62;	
+	'''.getBytes() // note we need the bytes<p class="paragraph"/>	def model = controller.create()
+	assert model.book
+	assertEquals <span class="java&#45;quote">"The Stand"</span>, model.book.title
+&#125;</pre></div><p class="paragraph"/>JSON 요청에도 동일하게 적용할 수 있다:<p class="paragraph"/><div class="code"><pre>void testCreateWithJSON() &#123;
+	def controller = <span class="java&#45;keyword">new</span> BookController()	
+ 	controller.request.contentType = <span class="java&#45;quote">"text/json"</span>
+ 	controller.request.content = '&#123;<span class="java&#45;quote">"id"</span>:1,<span class="java&#45;quote">"class"</span>:<span class="java&#45;quote">"Book"</span>,<span class="java&#45;quote">"title"</span>:<span class="java&#45;quote">"The Stand"</span>&#125;'.getBytes()<p class="paragraph"/>	def model = controller.create()
+	assert model.book
+	assertEquals <span class="java&#45;quote">"The Stand"</span>, model.book.title<p class="paragraph"/>&#125;</pre></div><p class="paragraph"/><blockquote class="note">
+JSON을 사용할 때에는 class 속성에 바인딩할 객체의 형식을 명시해야 한다는 것을 잊으면 안된다. XML에서는 &#60;book&#62;노드의 이름에서 유추하지만 JSON에서는 JSON 패킷에 이 속성을 명시해야 한다.
+</blockquote><p class="paragraph"/>REST 웹 서비스에 대한 정보는 <a href="../guide/single.html#13.1 REST" class="guide">REST</a> 절을 보라.<p class="paragraph"/><h4>Testing Web Flows(웹 플로우 테스트하기)</h4><p class="paragraph"/>웹 플로우(<a href="../guide/single.html#6.5 Web Flow" class="guide">Web Flows</a>)를 테스팅하는 것은 grails.test.WebFlowTestCase라는 특별한 테스트 도구harness가 필요하다. 이 클래스는 스프링 웹 플로우에 포함된 <a href="http://static.springframework.org/spring/docs/2.5.x/api/org/springframework/webflow/test/execution/AbstractFlowExecutionTests.html" class="api">AbstractFlowExecutionTests</a> 서브클래스이다.<p class="paragraph"/><blockquote class="note">
+WebFlowTestCase의 서브클래스는 통합 테스트를 의미한다.
+</blockquote><p class="paragraph"/>일반적으로 다음과 같은 플로우가 있을 때:<p class="paragraph"/><div class="code"><pre>class ExampleController &#123;
+	def exampleFlow = &#123;
+		start &#123;
+			on(<span class="java&#45;quote">"go"</span>) &#123;
+				flow.hello = <span class="java&#45;quote">"world"</span>
+			&#125;.to <span class="java&#45;quote">"next"</span>
+		&#125;
+		next &#123;
+			on(<span class="java&#45;quote">"back"</span>).to <span class="java&#45;quote">"start"</span>
+			on(<span class="java&#45;quote">"go"</span>).to <span class="java&#45;quote">"end"</span>
+		&#125;
+		end()
+	&#125;	
+&#125;</pre></div><p class="paragraph"/>어떤 플로우를 사용할 것인지 테스트 도구(harness)에 알려줘야 한다. 추상 메소드를 getFlow를 오버라이딩해서 테스트 도구에 알릴 수 있다:<p class="paragraph"/><div class="code"><pre>class ExampleFlowTests <span class="java&#45;keyword">extends</span> grails.test.WebFlowTestCase &#123;
+	def getFlow() &#123; <span class="java&#45;keyword">new</span> ExampleController().exampleFlow &#125;
+	&#8230;
+&#125;</pre></div><p class="paragraph"/>만약 flow id를 명시해야 한다면 getFlowId 메소드를 오버라이딩해서 명시할 수 있다. 그렇지않으면 기본 값이 사용된다:<p class="paragraph"/><div class="code"><pre>class ExampleFlowTests <span class="java&#45;keyword">extends</span> grails.test.WebFlowTestCase &#123;
+	<span class="java&#45;object">String</span> getFlowId() &#123; <span class="java&#45;quote">"example"</span> &#125;
+	&#8230;
+&#125;</pre></div><p class="paragraph"/>이 것을 다 끝냈으면 startFlow 메소드로 flow를 시작할 수 있다다. 이 startFlow 메소드는 ViewSelection 객체를 반환한다:<p class="paragraph"/><div class="code"><pre>void testExampleFlow() &#123;
+	def viewSelection = startFlow()<p class="paragraph"/>	assertEquals <span class="java&#45;quote">"start"</span>, viewSelection.viewName
+	&#8230;
+&#125;</pre></div><p class="paragraph"/>이 예제는 viewSelection 객체의 viewName 속성를 이용하여 현재 올바른 상태에 있는지 검사할 수 있다는 것을 보여준다. 그리고 siginalEvent 메소드를 사용하여 event를 발생시킬 수 있다:<p class="paragraph"/><div class="code"><pre>void testExampleFlow() &#123;
+	&#8230;
+	viewSelection = signalEvent(<span class="java&#45;quote">"go"</span>)
+	assertEquals <span class="java&#45;quote">"next"</span>, viewSelection.viewName
+	assertEquals <span class="java&#45;quote">"world"</span>, viewSelection.model.hello
+&#125;</pre></div><p class="paragraph"/>여기서 “go” 이벤트를 실행시켜야 한다는 것을 플로우에 알렸다. 그래서 “next” 상태로 전이될 수 있다. 이 예제의 전이 액션은 flow 스콥의 hello 변수에 값을 채운다. 그리고 viewSelection의 model속성을 이용하여 변수의 값이 제대로 적용됐는지 검사할 수 있다.<p class="paragraph"/><h4>Testing Tag Libraries(태그 라이브러리 테스트하기)</h4><p class="paragraph"/>태그가 메소드 처럼 실행될 때 결과를 실질적으로 문자열로 반환하기 때문에 태그 라이브러리를 테스트하는 것은 꽤 쉽다. 만약 다음과 같은 태그 라이브러리가 있다면:<p class="paragraph"/><div class="code"><pre>class FooTagLib &#123;
+   def bar =  &#123; attrs, body &#45;&#62;
+   	   out &#60;&#60; <span class="java&#45;quote">"&#60;p&#62;Hello World!&#60;/p&#62;"</span>
+   &#125;<p class="paragraph"/>   def bodyTag =  &#123; attrs, body &#45;&#62;
+      out &#60;&#60; <span class="java&#45;quote">"&#60;$&#123;attrs.name&#125;&#62;"</span>
+           out &#60;&#60; body()
+      out &#60;&#60; <span class="java&#45;quote">"&#60;/$&#123;attrs.name&#125;&#62;"</span>   	
+   &#125;
+&#125;</pre></div><p class="paragraph"/>테스트는 다음과 같이 작성한다:<p class="paragraph"/><div class="code"><pre>class FooTagLibTests <span class="java&#45;keyword">extends</span> GroovyTestCase &#123;<p class="paragraph"/>  void testBarTag() &#123;
+	   assertEquals <span class="java&#45;quote">"&#60;p&#62;Hello World!&#60;/p&#62;"</span>, <span class="java&#45;keyword">new</span> FooTagLib().bar(<span class="java&#45;keyword">null</span>,<span class="java&#45;keyword">null</span>)
+   &#125;<p class="paragraph"/>   void testBodyTag() &#123;
+	   assertEquals <span class="java&#45;quote">"&#60;p&#62;Hello World!&#60;/p&#62;"</span>, <span class="java&#45;keyword">new</span> FooTagLib().bodyTag(name:<span class="java&#45;quote">"p"</span>) &#123;
+	       <span class="java&#45;quote">"Hello World!"</span> 
+       &#125;
+    &#125;
+&#125;</pre></div><p class="paragraph"/>두 번째 예제인 testBodyTag를 잘 살펴보자. 태그의 바디를 반환하는 블럭을 넘기는데 이 것으로 바디의 내용을 쉽게 문자열로 표현할 수 있다.<p class="paragraph"/><h4>Testing Tag Libraries with GroovyPagesTestCase(GroovyPagesTestCase로 태그 라이브러리 테스트하기)</h4><p class="paragraph"/>위의 예제를 grails.test.GroovyPagesTestCase 클래스를 사용하여 더 쉽게 테스트할 수 있다.<p class="paragraph"/>GroovyPagesTestCase 클래스는 GroovyTestCase 클래스의 서브클래스이고 GSP 렌더링의 출력을 테스팅할 수 있는 메소드들이 추가되어 있다.<p class="paragraph"/><blockquote class="note">
+GroovyPagesTestCase는 오직 통합 테스트에서만 사용할 수 있다.
+</blockquote><p class="paragraph"/>다음과 같이 날짜를 표현하는(formatting) 태그 라이브러리가 있다고 하면:<p class="paragraph"/><div class="code"><pre>class FormatTagLib &#123;
+	def dateFormat = &#123; attrs, body &#45;&#62; 
+		out &#60;&#60; <span class="java&#45;keyword">new</span> java.text.SimpleDateFormat(attrs.format) &#60;&#60; attrs.date
+	&#125;
+&#125;</pre></div><p class="paragraph"/>이 것은 다음과 같이 쉽게 태스트할 수 있다:<p class="paragraph"/><div class="code"><pre>class FormatTagLibTests <span class="java&#45;keyword">extends</span> GroovyPagesTestCase &#123;
+	void testDateFormat() &#123;
+		def template = '&#60;g:dateFormat format=<span class="java&#45;quote">"dd&#45;MM&#45;yyyy"</span> date=<span class="java&#45;quote">"$&#123;myDate&#125;"</span> /&#62;'<p class="paragraph"/>		def testDate = &#8230; // create the date
+		assertOutputEquals( '01&#45;01&#45;2008', template, &#91;myDate:testDate&#93; )
+	&#125;
+&#125;</pre></div><p class="paragraph"/>또 GroovyPagesTestCase 클래스의 applyTemplate 메소드를 사용하여 GSP의 결과를 얻을 수 있다:<p class="paragraph"/><div class="code"><pre>class FormatTagLibTests <span class="java&#45;keyword">extends</span> GroovyPagesTestCase &#123;
+	void testDateFormat() &#123;
+		def template = '&#60;g:dateFormat format=<span class="java&#45;quote">"dd&#45;MM&#45;yyyy"</span> date=<span class="java&#45;quote">"$&#123;myDate&#125;"</span> /&#62;'<p class="paragraph"/>		def testDate = &#8230; // create the date
+		def result = applyTemplate( template, &#91;myDate:testDate&#93; )<p class="paragraph"/>		assertEquals '01&#45;01&#45;2008', result
+	&#125;
+&#125;</pre></div><p class="paragraph"/><h4>Testing Domain Classes(도메인 클래스 테스트하기)</h4><p class="paragraph"/>보통 도메인 클래스를 테스트하는 것은 <a href="../guide/single.html#5. Object Relational Mapping (GORM)" class="guide">GORM API</a>의 문제이지만 먼저 알아야 하는 것들이 있다. 만약 쿼리를 테스트하고 있다면 데이터베이스에 저장돼 올바른 상태가 보장되도록 종종 “플러쉬(flush)“시켜야만 한다. 예를 들어 다음과 같은 예제가 있다면:<p class="paragraph"/>
+<div class="code"><pre>void testQuery() &#123;
+	def books = &#91; <span class="java&#45;keyword">new</span> Book(title:<span class="java&#45;quote">"The Stand"</span>), <span class="java&#45;keyword">new</span> Book(title:<span class="java&#45;quote">"The Shining"</span>)&#93;
+	books&#42;.save()<p class="paragraph"/>	assertEquals 2, Book.list().size()
+&#125;</pre></div><p class="paragraph"/>이 테스트는 <a href="../ref/Domain Classes/save.html" class="domainClasses">save</a> 메소드가 호출되면 바로 Book 인스턴스는 저장되지 않으므로 실패할 것이다. save를 호출하는 것은 단지 하이버네이트가 언젠가 인스턴스를 데이터베이스에 저장해야 한다는 것을 알리는 것뿐이다. 만약 즉시 저장되게 하고 싶다면 “플러쉬”시켜야 한다.<p class="paragraph"/><div class="code"><pre>void testQuery() &#123;
+	def books = &#91; <span class="java&#45;keyword">new</span> Book(title:<span class="java&#45;quote">"The Stand"</span>), <span class="java&#45;keyword">new</span> Book(title:<span class="java&#45;quote">"The Shining"</span>)&#93;
+	books&#42;.save(flush:<span class="java&#45;keyword">true</span>)<p class="paragraph"/>	assertEquals 2, Book.list().size()
+&#125;</pre></div><p class="paragraph"/>이 예제는 flush 인자의 값을 true로 넘기기 때문에 즉시 데이터베이스에 저장된다. 그래서 이제 데이터베이스에 질의해도 된다.
+<h2><a name="9.3 Functional Testing">9.3 Functional Testing</a></h2>기능 테스트는 어플리케이션을 실행시키는 테스트이고 보통 자동화하기 어렵다. Grails는 기본적으로 기능 테스트를 지원하지 않는다. 하지만 <a href="http://webtest.canoo.com/" target="blank">Canoo 웹 테스트 플러그인</a> 이 있다.<p class="paragraph"/>웹 테스트를 설치하기 위해서 다음과 같은 명령을 실행한다:<p class="paragraph"/><div class="code"><pre>grails install&#45;plugin webtest</pre></div><p class="paragraph"/>웹 테스트와 Grails를 함께 사용하는 방법은 <a href="http://grails.org/Functional+Testing" target="blank">위키</a>를 참조해야 한다.
+
+	</body>
+</html>

@@ -1,0 +1,11 @@
+<html>
+     <head>
+     	<meta http-equiv="Content-type" content="text/html; charset=utf-8">
+     	<title>5.3 Persistence Basics</title>
+     	<link rel="stylesheet" href="../css/main.css" type="text/css" media="screen" title="Ref" charset="utf-8">
+     </head>
+	<body class="body">
+		Grails에서 잊지 말아야 할 것이 있는데 Grails는 내부적으로 <a href="http://www.hibernate.org/" target="blank">Hibernate</a> 을 사용하여 영속성을 구현했다. <a href="http://wiki.rubyonrails.org/rails/pages/ActiveRecord" target="blank">ActiveRecord</a> 나 <a href="http://ibatis.apache.org/" target="blank">iBatis</a> 를 사용한적이 있다면 Hibernate의 "세션 모델"이 조금 어색할 수 있다.<p class="paragraph"/>Grails는 자동으로 현재 실행하는 요청을 Hibernate 세션에 바인드(bind)시킨다. 이 것은 우리가 <a href="../ref/Domain Classes/save.html" class="domainClasses">save</a>, <a href="../ref/Domain Classes/delete.html" class="domainClasses">delete</a> 등의 GORM 메소드를 투명하게 사용할 수 있게 해준다.
+
+	</body>
+</html>

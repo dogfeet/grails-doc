@@ -1,0 +1,14 @@
+<html>
+     <head>
+     	<meta http-equiv="Content-type" content="text/html; charset=utf-8">
+     	<title>13.2 SOAP</title>
+     	<link rel="stylesheet" href="../css/main.css" type="text/css" media="screen" title="Ref" charset="utf-8">
+     </head>
+	<body class="body">
+		Grails는 XFire 플러그인을 통해 SOAP를 지원한다. XFire플러그인은 많이 쓰이는 XFire SOAP스택을 사용하여 Grails에 SOAP지원을 통합시켜준다. XFire 플러그인은 expose 속성을 사용하여 Grails 서비스를 SOAP 서비스(<a href="../guide/single.html#8. The Service Layer" class="guide">services</a>)로 노출시켜준다:<p class="paragraph"/><div class="code"><pre>class BookService &#123;<p class="paragraph"/>  <span class="java&#45;keyword">static</span> expose=&#91;'xfire'&#93;<p class="paragraph"/>  Book&#91;&#93; getBooks()&#123;
+    Book.list() as Book&#91;&#93;
+  &#125;
+&#125;</pre></div><p class="paragraph"/>WSDL은 다음과 같은 URL로 접근가능하다.<p class="paragraph"/>XFire 플러그인에 대한 정보는 <a href="http://grails.org/XFire+plugin" target="blank">위키의 문서</a>를 참고하라.
+
+	</body>
+</html>

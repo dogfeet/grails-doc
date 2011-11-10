@@ -1,0 +1,869 @@
+<html>
+     <head>
+     	<meta http-equiv="Content-type" content="text/html; charset=utf-8">
+     	<title>6. The Web Layer</title>
+     	<link rel="stylesheet" href="../css/main.css" type="text/css" media="screen" title="Ref" charset="utf-8">
+     </head>
+	<body class="body">
+		<h1><a name="6. The Web Layer">6. The Web Layer</a></h1><h2><a name="6.1 Controllers">6.1 Controllers</a></h2>컨트롤러(Controller)는 요청(<a href="../ref/Controllers/request.html" class="controllers">request</a>)을 처리해 응답(response)을 생성한다. 요청이 들어올 때마다 새로운 인스턴스가 생성되고 컨트롤러는 응답을 생성하거나 뷰에 넘길 수 있다. 컨트롤러를 만드는 방법은 쉽다. <code>Controller</code>로 끝나는 클래스를 만들고 이 클래스를 <code>grails-app/controllers</code> 디렉토리에 넣으면 된다.<p class="paragraph"/>먼저 컨트롤러 이름을 URI에 매핑하고 그 다음에 컨트롤러에 정의된 액션을 URI에 매핑하는 것이 기본적으로 <a href="../guide/single.html#6.4 URL Mappings" class="guide">URL이 매핑</a>되는 방법이다.<p class="paragraph"/><h2><a name="6.1.1 Understanding Controllers and Actions">6.1.1 Understanding Controllers and Actions</a></h2><h4>Creating a controller(컨트롤러 만들기)</h4><p class="paragraph"/><a href="../ref/Command Line/create-controller.html" class="commandLine">create-controller</a> 명령(target)으로 컨트롤러를 만들 수 있다. Grails 프로젝트의 루트(root) 디렉토리에서 다음의 명령을 실행한다:<p class="paragraph"/><div class="code"><pre>grails create&#45;controller book</pre></div><p class="paragraph"/>이 명령을 실행하면 컨트롤러가 <code>grails-app/controllers/BookController.groovyv</code>파일에 만들어진다:<p class="paragraph"/>
+<div class="code"><pre>class BookController &#123; &#8230; &#125;</pre></div><p class="paragraph"/>이 <code>BookController</code>는 기본적으로 /book URI로 매핑된다(어플리케이션의 루트의 하위로).<p class="paragraph"/><blockquote class="note">
+<code>create-controller</code> 명령은 매우 편리하다. 아주 쉽게 컨트롤러를 만들고 텍스트 에디터나 IDE로 편집할 수 있다.
+</blockquote><p class="paragraph"/><h4>Creating Actions(액션 만들기)</h4><p class="paragraph"/>컨트롤러는 코드 블럭으로 구현된 많은 프로퍼티를 가질 수 있다. 각 프로퍼티는 URI에 매핑된다.<p class="paragraph"/><div class="code"><pre>class BookController &#123;
+    def list = &#123;<p class="paragraph"/>        // <span class="java&#45;keyword">do</span> controller logic
+        // create model<p class="paragraph"/>        <span class="java&#45;keyword">return</span> model
+    &#125;
+&#125;</pre></div><p class="paragraph"/>이 예제의 list 프로퍼티는 기본적으로 <code>/book/list</code>로 매핑된다.<p class="paragraph"/><h4>The Default Action(기본 액션)</h4><p class="paragraph"/>컨트롤러의 URI에 매핑하는 기본 액션이 있다. 이 경우의 기본 URI는 <code>/book</code>이고 기본 URI는 다음 규칙을 따른다.
+<ul class="star">
+<li>컨트롤러에 액션이 하나밖에 없다면 기본 URI는 그 액션에 매핑된다.</li>
+<li>/book에 명시된 액션이 없을 때 요청을 처리하는 액션은 <code>index</code> 액션이다.</li>
+<li><code>defaultAction</code> 프로퍼티를 이용해서 기본 URI에 매핑되는 액션을 설정할 수 있다:</li>
+</ul><p class="paragraph"/><div class="code"><pre>def defaultAction = <span class="java&#45;quote">"list"</span></pre></div>
+<h2><a name="6.1.2 Controllers and Scopes">6.1.2 Controllers and Scopes</a></h2><h4>Available Scopes(이용할 수 있는 스콥)</h4><p class="paragraph"/>스콥는 본질적으로 변수를 저장할 수 있는 해시 객체다. 컨트롤러에서 사용가능한 스콥은 다음과 같다.
+<ul class="star">
+<li><a href="../ref/Controllers/servletContext.html" class="controllers">servletContext</a> - 어플리케이션 스콥이라고도 한다. 이 스콥은 전체 웹 어플리케이션의 상태를 공유할 수 있게 한다. 이 servletContext는 <a href="http://java.sun.com/j2ee/1.4/docs/api/javax/servlet/ServletContext.html" class="api">javax.servlet.ServletContext</a>의 인스턴스다.</li>
+<li><a href="../ref/Controllers/session.html" class="controllers">session</a> - 이 session은 사용자의 상태와 관련돼 있다. 일반적으로 클라이언트의 세션과 연관된 쿠키를 사용한다. 이 session은 <a href="http://java.sun.com/j2ee/1.4/docs/api/javax/servlet/http/HttpSession.html" class="api">HttpSession</a>의 인스턴스다.</li>
+<li><a href="../ref/Controllers/request.html" class="controllers">request</a> - 이 request 객체에는 현재 요청과 관련된 객체들을 저장할 수 있다. 이 <strong class="bold"> </strong> request는 HttpServletRequest의 객체이다.</li>
+<li><a href="../ref/Controllers/params.html" class="controllers">params</a> - 요청(CGI) 파리미터들의 맵이다.</li>
+<li><a href="../ref/Controllers/flash.html" class="controllers">flash</a> - 나중에 설명한다.</li>
+</ul><p class="paragraph"/><h4>Accessing Scopes(스콥 사용하기)</h4><p class="paragraph"/>스콥은 변수 이름과 Groovy의 배열 인덱스 연산자를 이용하여 접근할 수 있다. 이 것은 <a href="http://java.sun.com/j2ee/1.4/docs/api/javax/servlet/http/HttpServletRequest.html" class="api">HttpServletRequest</a>같은 Servlet API에 정의돼 있는 클래스들을 사용한다.<p class="paragraph"/><div class="code"><pre>class BookController &#123;
+    def find = &#123;
+        def findBy = params&#91;<span class="java&#45;quote">"findBy"</span>&#93;
+        def appContext = request&#91;<span class="java&#45;quote">"foo"</span>&#93;
+        def loggedUser = session&#91;<span class="java&#45;quote">"logged_user"</span>&#93;<p class="paragraph"/>    &#125;
+&#125;</pre></div><p class="paragraph"/>코드을 더 명료하게 하는 역참조(de-reference) 연산자로 Scope 변수에 접근할 수도 있다:<p class="paragraph"/><div class="code"><pre>class BookController &#123;
+    def find = &#123;
+        def findBy = params.findBy
+        def appContext = request.foo
+        def loggedUser = session.logged_user<p class="paragraph"/>    &#125;
+&#125;</pre></div><p class="paragraph"/>이 방법은 Grails가 스콥들에 통일된 방법으로 접근할 수 있도록 제공하는 방법중 한 가지 방법이다.<p class="paragraph"/><h4>Using Flash Scope(Flash 스콥)</h4><p class="paragraph"/>Grails는 <a href="../ref/Controllers/flash.html" class="controllers">flash</a> 스콥을 지원한다. flash 스콥에는 현재 요청부터 다음 요청까지 전달해야 할 프로퍼티를 저장할 수 있다. 그 후 이 프로퍼티는 지워진다. 리다이렉션으로 바로 처리될 메시지를 전달하는데 유용하다. 예를 들어:<p class="paragraph"/><div class="code"><pre>def delete = &#123;
+    def b = Book.get( params.id )
+    <span class="java&#45;keyword">if</span>(!b) &#123;
+        flash.message = <span class="java&#45;quote">"User not found <span class="java&#45;keyword">for</span> id $&#123;params.id&#125;"</span>
+        redirect(action:list)
+    &#125;
+    &#8230; // remaining code
+&#125;</pre></div>
+<h2><a name="6.1.3 Models and Views">6.1.3 Models and Views</a></h2><h4>Returning the Model(모델 반환하기)</h4><p class="paragraph"/>모델은 엄밀히 렌더링할 때 뷰에서 사용하는 맵이다. 이 맵의 키는 뷰에서 접근할 수 있는 변수 이름으로 변환된다. 모델을 반환하는 방법은 두 가지이다. 하나는 명시적으로 맵 인스턴스를 반환하는 방법이다:<p class="paragraph"/><div class="code"><pre>def show = &#123;
+ 	&#91; book : Book.get( params.id ) &#93;
+&#125;</pre></div><p class="paragraph"/>명시적으로 반환하는 모델이 없으면 컨트롤러의 프로퍼티들이 모델로 사용된다. 그래서 다음과 같이 코드를 작성할 수 있다:<p class="paragraph"/><div class="code"><pre>class BookController &#123;
+    List books
+    List authors
+    def list = &#123;
+           books = Book.list()
+           authors = Author.list()
+    &#125;
+&#125;</pre></div><p class="paragraph"/><blockquote class="note">
+ 이 것은 실제로 컨트롤러도 미리정의된(prototyped) 스콥이기 때문에 가능하다. 즉, 요청마다 새로운 컨트롤러가 생성된다. 요청마다 새로운 컨트롤러가 생성되지 않으면 이 코드는 쓰레드에 안전(thread safe)하지 못하다.
+</blockquote><p class="paragraph"/>이 예제의 <code>books</code>와 <code>authors</code> 프로퍼티는 뷰에서 사용할 수 있다.<p class="paragraph"/>스프링의 <a href="http://static.springframework.org/spring/docs/2.5.x/api/org/springframework/web/servlet/ModelAndView.html" class="api">ModelAndView</a> 클래스의 인스턴스를 반환할 수도 있는데 이 것은 좀 더 고급스런 방법이다.<p class="paragraph"/><div class="code"><pre><span class="java&#45;keyword">import</span> org.springframework.web.servlet.ModelAndView<p class="paragraph"/>def index = &#123;
+	// index 페이지를 위해 선호하는 책들을 가져온다.
+    def favoriteBooks = &#8230; 
+    // 이 책들을 보여주기 위해 list 뷰로 넘긴다.
+    <span class="java&#45;keyword">return</span> <span class="java&#45;keyword">new</span> ModelAndView(<span class="java&#45;quote">"/book/list"</span>, &#91; bookList : favoriteBooks &#93;)
+&#125;</pre></div><p class="paragraph"/>
+<h4>Selecting the View(뷰 선택하기)</h4><p class="paragraph"/>여기까지 보여준 코드에서는 렌더링할 <a href="../guide/single.html#6.2 Groovy Server Pages" class="guide">view</a>를 명시하는 코드는 없었다. Grails는 어떤 뷰를 선택해야 하는지를 어떻게 알까? 해답은 '관례'에 있다. 다음과 같이 액션을 만든다:<p class="paragraph"/><div class="code"><pre>class BookController &#123;
+	def show = &#123;
+	 	&#91; book : Book.get( params.id ) &#93;
+	&#125;	
+&#125;</pre></div><p class="paragraph"/>Grails는 자동으로 <code>grails-app/views/book/show.gsp</code>라는 뷰를 찾을 것이다. 엄밀하게 Grails는 JSP 파일을 먼저 찾는다. Grails에서는 JSP도 사용할 수 있다.<p class="paragraph"/>다른 뷰를 사용하기 원한다면 다음처럼 <a href="../ref/Controllers/render.html" class="controllers">render</a> 메소드를 사용하여 변경할 수 있다.<p class="paragraph"/>
+<div class="code"><pre>def show = &#123;
+  	def map = &#91; book : Book.get( params.id ) &#93;
+    render(view:<span class="java&#45;quote">"display"</span>, model:map)
+&#125;</pre></div><p class="paragraph"/>이 예제에서 Grails는 <code>grails-app/views/book/display.gsp</code>를 렌더링하려고 할 것이다. Grails는 <code>grails-app/views</code> 디렉토리의 <code>book</code> 폴더에 있는 뷰를 사용하려 한다는 사실에 주목하라. 이 것이 관례이다. 이 관례 대신에 shared 뷰를 사용하게 하고 싶으면 다음과 같이 하라:<p class="paragraph"/><div class="code"><pre>def show = &#123;
+  	def map = &#91; book : Book.get( params.id ) &#93;
+    render(view:<span class="java&#45;quote">"/shared/display"</span>, model:map)
+&#125;</pre></div><p class="paragraph"/>이 예제에서 Grails는 <code>grails-app/views/shared/display.gsp</code>를 이용하여 렌더링할 것이다.<p class="paragraph"/><h4>Rendering a Response(응답 만들기)</h4><p class="paragraph"/>(일반적으로 Ajax 어플리케이션에서는)텍스트나 코드의 조각(snippet)을 컨트롤러에서 바로 렌더링하는 것이 더 쉬울때도 있다. 이 경우 대단히 유연한 <code>render</code> 메소드를 사용한다:<p class="paragraph"/><div class="code"><pre>render <span class="java&#45;quote">"Hello World!"</span></pre></div><p class="paragraph"/>이 코드는 "Hello World!"를 응답으로 전달할 것이다. render 메소드로 할 수 있는 다른 예도 보자:<p class="paragraph"/>
+<div class="code"><pre>// write some markup
+render &#123;
+   <span class="java&#45;keyword">for</span>(b in books) &#123;
+      div(id:b.id, b.title)
+   &#125;
+&#125;
+// 사용할 뷰를 명시한다
+render(view:'show')
+// 컬렉션의 각 아이템에 템플릿을 적용한다
+render(template:'book_template', collection:Book.list())
+// 명시한 엔코딩(encoding)과 컨텐트 타입(content type)에 따라 text를 렌더링한다
+render(text:<span class="java&#45;quote">"&#60;xml&#62;some xml&#60;/xml&#62;"</span>,contentType:<span class="java&#45;quote">"text/xml"</span>,encoding:<span class="java&#45;quote">"UTF&#45;8"</span>)</pre></div><p class="paragraph"/>
+<h2><a name="6.1.4 Redirects and Chaining">6.1.4 Redirects and Chaining</a></h2><h4>Redirects(리다이렉트)</h4><p class="paragraph"/><a href="../ref/Controllers/redirect.html" class="controllers">redirect</a> 메소드를 사용하여 액션을 리다이렉트(redirect)시킬 수 있다:<p class="paragraph"/><div class="code"><pre>class OverviewController &#123;
+    def login = &#123;&#125;<p class="paragraph"/>    def find = &#123;
+        <span class="java&#45;keyword">if</span>(!session.user)
+           redirect(action:login)
+        &#8230;
+    &#125;
+&#125;</pre></div><p class="paragraph"/>내부적으로 <a href="../ref/Controllers/redirect.html" class="controllers">redirect</a>는 <a href="http://java.sun.com/j2ee/1.4/docs/api/javax/servlet/http/HttpServletResponse.html" class="api">HttpServletResonse</a>객체의 <code>sendRedirect</code> 메소드를 사용한다:<p class="paragraph"/>
+<code>redirect</code> 메소드로 다음과 같은 일을 할 수 있다:
+<ul class="star">
+<li>동일한 컨트롤러 클래스에서 다른 클로저로 리다이렉트 시킬 수 있다:</li>
+</ul><p class="paragraph"/><div class="code"><pre>// 동일한 클래스의 login 액션을 호출한다
+redirect(action:login)</pre></div>
+<ul class="star">
+<li>다른 컨트롤러와 액션으로 리다이렉트 시킬 수 있다:</li>
+</ul><p class="paragraph"/><div class="code"><pre>// home 컨트롤러의 index 액션으로 리다이렉트된다
+redirect(controller:'home',action:'index')</pre></div>
+<ul class="star">
+<li>어플리케이션 컨텍스트 경로의 하위에 있는 리소스의 URI로 리다이렉트 시킬 수 있다:</li>
+</ul><p class="paragraph"/><div class="code"><pre>// 명시한 URI로 리다이렉트된다
+redirect(uri:<span class="java&#45;quote">"/login.html"</span>)</pre></div>        
+<ul class="star">
+<li>URL로도 가능하다:</li>
+</ul><p class="paragraph"/><div class="code"><pre>// 다른 사이트의 페이지로 리다아렉트 시킨다
+redirect(url:<span class="java&#45;quote">"http://grails.org"</span>)</pre></div><p class="paragraph"/>메소드의 <code>params</code> 인자를 사용하여 액션에 파라미터를 넘길 수 있다:<p class="paragraph"/><div class="code"><pre>redirect(action:myaction, params:&#91;myparam:<span class="java&#45;quote">"myvalue"</span>&#93;)</pre></div><p class="paragraph"/>
+이 파라미터들은 요청 파리미터에 접근할 수 있는 <a href="../ref/Controllers/params.html" class="controllers">params</a>라는 동적 프로퍼티을 통해서 이용할 수 있다. 만약 어떤 파리마티의 이름이 요청 파라미터와 동일하다면 요청 파라미터는 덮어 씌여져서(is overridden) 컨트롤러의 파라미터가 사용된다.<p class="paragraph"/><code>params</code> 객체는 맵이기 때문에 현재의 요청 파라미터를 다음 액션에 그대로 넘길 수 있다:<p class="paragraph"/><div class="code"><pre>redirect(action:<span class="java&#45;quote">"next"</span>, params:params)</pre></div><p class="paragraph"/><h4>Chaining(체이닝)</h4><p class="paragraph"/>액션은 연쇄적으로 묶일 수 있다. 체이닝은 한 액션에서 다음 액션까지 모델이 유지되도록 해준다. 다음 예제의 <code>first</code> 액션이 호출되면:<p class="paragraph"/><div class="code"><pre>class ExampleChainController &#123;
+    def first = &#123;
+        chain(action:second,model:&#91;one:1&#93;)
+    &#125;
+    def second  = &#123;
+        chain(action:third,model:&#91;two:2&#93;)
+    &#125;
+    def third = &#123;
+         &#91;three:3&#93;
+    &#125;
+&#125;</pre></div><p class="paragraph"/>
+모델의 최종결과는 다음과 같다:<p class="paragraph"/><div class="code"><pre>&#91;one:1, two:2, three:3&#93;</pre></div><p class="paragraph"/>
+모델은 <code>chainModel</code> 맵을 사용하여 다음에 실행되는 컨트롤러의 액션에서도 사용될 수 있다. 다음 예제처럼 액션에서만 이 동적 프로퍼티를 사용할 수 있고 <code>chain</code> 메소드를 호출한다:<p class="paragraph"/><div class="code"><pre>class ChainController &#123;<p class="paragraph"/>    def nextInChain = &#123;
+        def model = chainModel.myModel
+        &#8230;
+    &#125;
+&#125;</pre></div><p class="paragraph"/><code>redirect</code> 메소드처럼 <code>chain</code> 메소드에서도 파라미터를 넘길 수 있다:<p class="paragraph"/><div class="code"><pre>chain(action:<span class="java&#45;quote">"action1"</span>, model:&#91;one:1&#93;, params:&#91;myparam:<span class="java&#45;quote">"param1"</span>&#93;)</pre></div><p class="paragraph"/>
+<h2><a name="6.1.5 Controller Interceptors">6.1.5 Controller Interceptors</a></h2>인터셉터는 요청, 세션, 어플리케이션의 상태를 처리하는 중에 가로채야intercept할 때 유용하다. 인터셉터는 액션으로 구현된고 현재는 before, after 두 종류의 인터셉터가 있다<p class="paragraph"/><blockquote class="note">
+인터셉터를 하나 이상의 컨트롤러에 적용해야 한다면 <a href="../guide/single.html#6.6 Filters" class="guide">Filter</a>를 사용하는 것이 낫다. Filter는 여러 개의 컨트롤러나 URI이에 적용할 수 있고 각 컨트롤러의 로직을 변경할 필요도 없다.
+</blockquote><p class="paragraph"/><h4>Before Interception</h4><p class="paragraph"/><code>beforeInterceptor</code>는 액션이 실해되기 전에 가로챈다. 만약 인터셉터가 <code>false</code>를 반환하면 요청된 액션은 실행되지 않는다. 인터셉터는 다음의 예제처럼 모든 액션에 적용될 수 있다.<p class="paragraph"/><div class="code"><pre>def beforeInterceptor = &#123;
+       println <span class="java&#45;quote">"Tracing action $&#123;actionUri&#125;"</span>
+&#125;</pre></div><p class="paragraph"/>이 예제는 컨트롤러 안에 정의된다. 이 인터셉터는 액션이 하나도 실행되기 전에 실행될 것이다. 다음은 일반적으로 사용하는 인증 예제이다:<p class="paragraph"/><div class="code"><pre>def beforeInterceptor = &#91;action:<span class="java&#45;keyword">this</span>.&#38;auth,except:'login'&#93;
+// 보통의 메소드처럼 정의했지만 숨겨진다
+def auth() &#123;
+     <span class="java&#45;keyword">if</span>(!session.user) &#123;
+            redirect(action:'login')
+            <span class="java&#45;keyword">return</span> <span class="java&#45;keyword">false</span>
+     &#125;
+&#125;
+def login = &#123;
+     // 로그인 페이지를 보여준다
+&#125;</pre></div><p class="paragraph"/>
+이 예제에서는 <code>auth</code> 메소드를 호출하도록 정의했다. 외부에 액션이 노출되지 않았지만 메소드는 호출된다(액션이 숨겨진다). 이 <code>beforeInterceptor</code>는 login 액션을 제외(except)하고 모든 액션에 적용된다. 즉, 모든 액션이 실행되기 전에 'auth' 메소드가 실행된다. 'auth' 메소드는 Groovy의 메소드 포인터 문법을 사용하여 참조된다. 'auth' 메소드는 인증된 사용자인지를 검사하고 인증된 사용자가 아니면 login 액션으로 리다이렉트 시킨다. 그리고 이 메소드가 false를 반환하기 때문에 원래 요구된 액션은 실행되지 않는다.<p class="paragraph"/><h4>After Interception</h4><p class="paragraph"/>액션이 실행된 후에 실행되는 인터셉터는 <code>afterInterceptor</code> 프로퍼티를 이용하여 정의한다:<p class="paragraph"/><div class="code"><pre>def afterInterceptor = &#123; model &#45;&#62;
+       println <span class="java&#45;quote">"Tracing action $&#123;actionUri&#125;"</span>
+&#125;</pre></div><p class="paragraph"/>afterInterceptor는 결과 모델을 인자로 받는다. 이 인터셉터를 사용하여 액션이 실행된 후의 모델이나 응답을 관리할 수 있다.<p class="paragraph"/>afterInterceptor를 이용하면 렌더링하기 전에 Spring의 MVC <a href="http://static.springframework.org/spring/docs/2.5.x/api/org/springframework/web/servlet/ModelAndView.html" class="api">ModelAndView</a> 객체도 수정할 수 있다. 위 예제에 적용하면 다음과 같이 된다:<p class="paragraph"/><div class="code"><pre>def afterInterceptor = &#123; model, modelAndView &#45;&#62;
+       println <span class="java&#45;quote">"Current view is $&#123;modelAndView.viewName&#125;"</span>
+       <span class="java&#45;keyword">if</span>(model.someVar) modelAndView.viewName = <span class="java&#45;quote">"/mycontroller/someotherview"</span>
+       println <span class="java&#45;quote">"View is now $&#123;modelAndView.viewName&#125;"</span>
+&#125;</pre></div><p class="paragraph"/>이 것는 액션이 반환하는 모델을 사용할 뷰를 변경시키는 예제다. 액션이 가로채어지고 render나 redirect를 호출되면 <code>modelAndView</code>는 <code>null</code>이 된다는 것을 기억하라.<p class="paragraph"/><h4>Interception Conditions(인터셉터에 조건 달기)</h4><p class="paragraph"/>Rails 사용자들은 인증 예제가 친숙할 것이고 인터셉터를 실행할 때 어떻게 'except' 조건을 사용해야 하는지를 잘 알고 있을 것이다(Rails에서는 인터셉터를 필터(filter)라고 부른다. 하지만 필터는 자바의 servlet filter와 혼동된다):<p class="paragraph"/><div class="code"><pre>def beforeInterceptor = &#91;action:<span class="java&#45;keyword">this</span>.&#38;auth,except:'login'&#93;</pre></div><p class="paragraph"/>이 인터셉터은 명시한 액션을 제외하고 모든 액션에 적용된다. 다음의 예처럼 여러 개의 액션을 명시할 수도 있다:<p class="paragraph"/><div class="code"><pre>def beforeInterceptor = &#91;action:<span class="java&#45;keyword">this</span>.&#38;auth,except:&#91;'login','register'&#93;&#93;</pre></div><p class="paragraph"/>다른 조건으로 'only'도 있다. 인터셉터은 오직 명시된 액션에만 적용된다:<p class="paragraph"/><div class="code"><pre>def beforeInterceptor = &#91;action:<span class="java&#45;keyword">this</span>.&#38;auth,only:&#91;'secure'&#93;&#93;</pre></div><p class="paragraph"/><h2><a name="6.1.6 Data Binding">6.1.6 Data Binding</a></h2>데이터 바인딩은 요청 파라미터를 객체의 프로퍼티이나 객체에 "결합"시키는(binding) 행위를 말한다. 데이터 바인딩시 폼(form)을 통해서 요청되는 일반적인 파리마터들의 형 변환을 고려해야 한다. 이 파라미터들은 Groovy나 Java 객체의 프로퍼티가 아니라 항상 문자열이다.<p class="paragraph"/>Grails는 <a href="http://www.springframework.org" target="blank">Spring&#39;s</a>이 제공하는 데이터 바인딩 기능을 이용하여 데이터를 바인딩한다.<p class="paragraph"/><h4>Binding Request Data to the Model(요청 데이터를 모델에 바인딩하기)</h4><p class="paragraph"/>도메인 클래스의 프로퍼티로 요청 파라미터를 바인딩시키는 방법은 두 가지다. 먼저 도메인 클래스의 묵시적(implicit) 생성자를 사용할 수 있다.<p class="paragraph"/><div class="code"><pre>def save = &#123;
+  def b = <span class="java&#45;keyword">new</span> Book(params)
+  b.save()
+&#125;</pre></div><p class="paragraph"/><code>new Book(params)</code>에서 데이터를 바인딩 시킨다. Grails는 <a href="../ref/Controllers/params.html" class="controllers">params</a> 객체를 도메인 클래스의 생성자에 넘기면 자동으로 요청 파라미터를 바인딩해야 하는 것으로 간주한다. 만약 다음과 같은 요청이 들어온다면:<p class="paragraph"/><div class="code"><pre>/book/save?title=The%20Stand&#38;author=Stephen%20King</pre></div><p class="paragraph"/><code>title</code>과 <code>author</code>은 자동으로 도메인 클래스에 설정된다. 만약 존재하는 인스턴스로 바인딩해야 한다면 <a href="../ref/Domain Classes/properties.html" class="domainClasses">properties</a> 프로퍼티를 이용할 수 있다:<p class="paragraph"/><div class="code"><pre>def save = &#123;
+  def b = Book.get(params.id)
+  b.properties = params
+  b.save()
+&#125;</pre></div><p class="paragraph"/>이 것은 묵시적 생성자를 사용한 것과 동일하다.<p class="paragraph"/><h4>Data binding and Associations(데이터 바인딩과 관계)</h4><p class="paragraph"/>'일대일'이나 '일대다' 관계에서도 Grails가 데이터 바인딩 기능을 적용하여 관계를 업데이트할 수 있다. 다음과 같은 요청이 들어오면:<p class="paragraph"/><div class="code"><pre>/book/save?author.id=20</pre></div><p class="paragraph"/>다음의 예제처럼 데이터를 바인딩시킬 때 Grails는 자동으로 요청 파라미터의 <code>.id</code> 접미어를 해석하고 이 정보를 이용하여 <code>Author</code> 인스턴스 찾아낸다.<p class="paragraph"/><div class="code"><pre>def b = <span class="java&#45;keyword">new</span> Book(params)</pre></div><p class="paragraph"/><h4>Data binding with Multiple domain classes(데이터를 여러 개의 도메인 클래스에 바인딩하기)</h4><p class="paragraph"/><a href="../ref/Controllers/params.html" class="controllers">params</a> 객체를 이용하여 여러 개의 도메인 객체에 데이터를 바인딩 시킬 수 있다.<p class="paragraph"/>다음과 같은 요청이 들어오면:<p class="paragraph"/><div class="code"><pre>/book/save?book.title=The%20Stand&#38;author.name=Stephen%20King</pre></div><p class="paragraph"/>이 요청의 각 파라미터가 <code>author.</code>와 <code>book.</code>같은 접두어(Prefix)를 갖는다는 것에 주목해야 한다. 타입에 따라 파라미터를 분리해서 사용해야 한다. Grails의 <code>params</code> 객체는 다차원 해시같은 것이다. 바인딩 시킬 파라미터만을 분리 할 수 있다:<p class="paragraph"/><div class="code"><pre>def b = <span class="java&#45;keyword">new</span> Book(params&#91;'book'&#93;)</pre></div><p class="paragraph"/>바인드할 파라미터만을 분리하기 위해 <code>book.title</code>의 '.' 앞의 접미어만을 사용하는 것을 기억하라. 동일한 방법을 <code>Author</code> 클래스에도 적용할 수 있다:<p class="paragraph"/><div class="code"><pre>def a = <span class="java&#45;keyword">new</span> Author(params&#91;'author'&#93;)</pre></div><p class="paragraph"/><h4>Data binding and type conversion errors(데이터 바인딩과 타입 변환 에러)</h4><p class="paragraph"/>데이터를 바인딩시킬 때 문자열이 특별한 타입으로 변환되지 않는다. 이 때 타입 변환 에러가 발생하는데 Grails는 타입 변환 에러를 도메인 클래스의 <a href="../ref/Domain Classes/errors.html" class="domainClasses">errors</a> 프로퍼티에 남겨둔다. 예제를 보자:<p class="paragraph"/><div class="code"><pre>class Book &#123;
+    &#8230;
+    URL publisherURL
+&#125;</pre></div><p class="paragraph"/>여게에 Java의 <code>java.net.URL</code>을 사용하는 도메인 클래스 <code>Book</code>이 있고 요청은 다음과 같다고 할 때:<p class="paragraph"/><div class="code"><pre>/book/save?publisherURL=a&#45;bad&#45;url</pre></div><p class="paragraph"/>문자열 <code>a-bad-url</code>이 <code>publisherURL</code> 프로퍼티에 바인드되지 않고 타입 미스매치 에러가 발생한다. 에러를 다음의 예제처럼 처리할 수 있다:<p class="paragraph"/><div class="code"><pre>def b = <span class="java&#45;keyword">new</span> Book(params)<p class="paragraph"/><span class="java&#45;keyword">if</span>(b.hasErrors()) &#123;
+   println <span class="java&#45;quote">"The value $&#123;b.errors.getFieldError('publisherURL').rejectedValue&#125; is not a valid URL!"</span>
+&#125;</pre></div><p class="paragraph"/>여기서 모든 에러 코드를 다루진 않는다(자세한 정보는 유효성 검사(validation)을 봐라). 또, <code>grails-app/i18n/messages.properties</code> 파일을 사용하여 타입 변환 에러 메시지를 보여줄 수 있다. 다음과 같이 일반 에러 메시지 핸들러를 사용할 수 있다:<p class="paragraph"/><div class="code"><pre>typeMismatch.java.net.URL=The field &#123;0&#125; is not a valid URL</pre></div><p class="paragraph"/>좀 더 구체적인 핸들러도 만들 수 있다:<p class="paragraph"/><div class="code"><pre>typeMismatch.Book.publisherURL=The publisher URL you specified is not a valid URL</pre></div><p class="paragraph"/><h4>Data Binding and Security concerns(데이터 바인딩과 보안)</h4><p class="paragraph"/>요청 파라미터를 이용하여 프로퍼티을 업데이트할 때 도메인 클래스에 악성 데이터(malicious data)를 집어넣으려는 사용자를 조심해야 한다. 이 것은 데이터베이스에 저장하기 전에 처리돼야 한다.<p class="paragraph"/>이 문제를 해결하기 위해 두 가지 방법을 사용할 수 있다. 하나는 <a href="../guide/single.html#6.1.9 Command Objects" class="guide">Command Objects</a>를 사용하는 것이고 다른 하나는 유연한 <a href="../ref/Controllers/bindData.html" class="controllers">bindData</a> 메소드를 사용하는 것이다.<p class="paragraph"/><code>bindData</code> 메소드는 데이터 바인딩 기능과 동일한 일을 하지만 임의의 객체에 사용할 수 있다:<p class="paragraph"/><div class="code"><pre>def sc = <span class="java&#45;keyword">new</span> SaveCommand()
+bindData(sc, params)</pre></div><p class="paragraph"/>그리고 <code>bindData</code> 메소드는 업데이트되길 원치 않는 파라미터들을 제외시킬 수 있다:<p class="paragraph"/><div class="code"><pre>def sc = <span class="java&#45;keyword">new</span> SaveCommand()
+bindData(sc, params, &#91;'myReadOnlyProp'&#93;)</pre></div><p class="paragraph"/><p class="paragraph"/><h2><a name="6.1.7 XML and JSON Responses">6.1.7 XML and JSON Responses</a></h2><h4>Using the render method to output XML(render 메소드를 이용하여 XML 형식으로 응답하기)</h4><p class="paragraph"/>Grails가 XML과 JSON 형식으로 응답할 수 있도록 제공하는 방법은 여러가지다. 먼저 <a href="../ref/Controllers/render.html" class="controllers">render</a> 메소드를 사용하는 법부터 알아보자:<p class="paragraph"/>XML을 생성하는 코드의 블럭을 <code>render</code> 메소드에 넘길 수 있다:<p class="paragraph"/><div class="code"><pre>def list = &#123;
+	def results = Book.list()
+	render(contentType:<span class="java&#45;quote">"text/xml"</span>) &#123;
+		books &#123;
+			<span class="java&#45;keyword">for</span>(b in results) &#123;
+				book(title:b.title)
+			&#125;
+		&#125;	
+	&#125;
+&#125;</pre></div><p class="paragraph"/>이 코드의 결과는 다음과 같을 것이다:<p class="paragraph"/><div class="code"><pre><span class="xml&#45;tag">&#60;books&#62;</span>
+	  <span class="xml&#45;tag">&#60;book title=<span class="xml&#45;quote">"The Stand"</span> /&#62;</span>
+	  <span class="xml&#45;tag">&#60;book title=<span class="xml&#45;quote">"The Shining"</span> /&#62;</span>	
+<span class="xml&#45;tag">&#60;/books&#62;</span></pre></div><p class="paragraph"/>마크업을 만들 때 이름이 중복되지 않도록 주의해야 한다. 예를 들어 다음과 같은 코드는 오류가 발생한다:<p class="paragraph"/><div class="code"><pre>def list = &#123;
+	def books = Book.list()  // 변수 이름이 중복됐다
+		render(contentType:<span class="java&#45;quote">"text/xml"</span>) &#123;
+		books &#123;
+			<span class="java&#45;keyword">for</span>(b in results) &#123;
+				book(title:b.title)
+			&#125;
+		&#125;	
+	&#125;
+&#125;</pre></div><p class="paragraph"/>Groovy에서는 지역 변수 <code>books</code>를 메소드처럼 실행하려고 하기 때문이다<p class="paragraph"/><h4>Using the render method to output JSON(render 메소드를 이용하여 JSON형식으로 응답하기)</h4><p class="paragraph"/><code>render</code> 메소드를 사용하여 JSON형식으로도 출력할 수 있다:<p class="paragraph"/><div class="code"><pre>def list = &#123;
+	def results = Book.list()
+	render(contentType:<span class="java&#45;quote">"text/json"</span>) &#123;
+		books &#123;
+			<span class="java&#45;keyword">for</span>(b in results) &#123;
+				book(title:b.title)
+			&#125;
+		&#125;	
+	&#125;
+&#125;</pre></div><p class="paragraph"/>이 결과는 다음과 같다:<p class="paragraph"/><div class="code"><pre>&#91;
+	&#123;title:<span class="java&#45;quote">"The Stand"</span>&#125;, 
+	&#123;title:<span class="java&#45;quote">"The Shining"</span>&#125;
+&#93;</pre></div><p class="paragraph"/>JSON을 만들 때에도 이름이 중복되지 않게 해야 한다.<p class="paragraph"/><h4>Automatic XML Marshalling(자동 XML 마샬링)</h4><p class="paragraph"/>Grails에는 특수한 변환기를 이용해 자동으로 <a href="../guide/single.html#5. Object Relational Mapping (GORM)" class="guide">domain classes</a>를 XML 마샬링하는 기능이 있다.<p class="paragraph"/>컨트롤러에 <code>grails.converters</code> 패키지를 import한다.<p class="paragraph"/><div class="code"><pre><span class="java&#45;keyword">import</span> grails.converters.&#42;</pre></div><p class="paragraph"/>다음과 같이 굉장히 간편한 문법으로 도메인 클래스를 XML로 변환할 수 있다:<p class="paragraph"/><div class="code"><pre>render Book.list() as XML</pre></div><p class="paragraph"/>이 결과는 다음과 같다:<p class="paragraph"/><div class="code"><pre>&#60;?xml version=<span class="java&#45;quote">"1.0"</span> encoding=<span class="java&#45;quote">"ISO&#45;8859&#45;1"</span>?&#62;
+&#60;list&#62;
+  &#60;book id=<span class="java&#45;quote">"1"</span>&#62;
+    &#60;author&#62;Stephen King&#60;/author&#62;
+    &#60;title&#62;The Stand&#60;/title&#62;
+  &#60;/book&#62;
+  &#60;book id=<span class="java&#45;quote">"2"</span>&#62;
+    &#60;author&#62;Stephen King&#60;/author&#62;
+    &#60;title&#62;The Shining&#60;/title&#62;
+  &#60;/book&#62;
+&#60;/list&#62;</pre></div><p class="paragraph"/>Grails의 코덱(<a href="../guide/single.html#11.2 Encoding and Decoding Strings" class="guide">codecs</a>) 기능을 사용하도록 변환기를 사용할 수도 있다. 이 코덱 기능으로 <a href="../guide/single.html#11.2 Encoding and Decoding Strings" class="guide">encodeAsXML</a>과 <a href="../guide/single.html#11.2 Encoding and Decoding Strings" class="guide">encodeAsJSON</a> 메소드를 제공한다:<p class="paragraph"/><div class="code"><pre>def xml = Book.list().encodeAsXML()
+render xml</pre></div><p class="paragraph"/>XML 마샬링에 대한 내용은 <a href="../guide/single.html#13.1 REST" class="guide">REST</a>를 설명하는 절에서도 볼 수 있다.<p class="paragraph"/><h4>Automatic JSON Marshalling(자동 JSON 마샬링)</h4><p class="paragraph"/>Grails는 자동으로 JSON을 마샬링해주는 방법도 제공한다. XML 마샬링의 방법과 동일하다. 단지 <code>XML</code>을 <code>JSON</code>으로 바꾸기만 하면 된다.<p class="paragraph"/><div class="code"><pre>render Book.list() as JSON</pre></div><p class="paragraph"/>이 결과는 다음과 같다:<p class="paragraph"/><div class="code"><pre>&#91;
+	&#123;<span class="java&#45;quote">"id"</span>:1,
+	 <span class="java&#45;quote">"class"</span>:<span class="java&#45;quote">"Book"</span>,
+	 <span class="java&#45;quote">"author"</span>:<span class="java&#45;quote">"Stephen King"</span>,
+	 <span class="java&#45;quote">"title"</span>:<span class="java&#45;quote">"The Stand"</span>&#125;,
+	&#123;<span class="java&#45;quote">"id"</span>:2,
+	 <span class="java&#45;quote">"class"</span>:<span class="java&#45;quote">"Book"</span>,
+	 <span class="java&#45;quote">"author"</span>:<span class="java&#45;quote">"Stephen King"</span>,
+	 <span class="java&#45;quote">"releaseDate"</span>:<span class="java&#45;keyword">new</span> Date(1194127343161),
+	 <span class="java&#45;quote">"title"</span>:<span class="java&#45;quote">"The Shining"</span>&#125;
+ &#93;</pre></div><p class="paragraph"/>XML 마샬링처럼 <code>encodeAsJSON</code> 메소드를 사용할 수도 있다.
+<h2><a name="6.1.8 Uploading Files">6.1.8 Uploading Files</a></h2><h4>Programmatic File Uploads(파일 업로드 프로그래밍)</h4><p class="paragraph"/>Grails에서의 파일 업로드는 Spring의 <a href="http://static.springframework.org/spring/docs/2.5.x/api/org/springframework/web/multipart/MultipartHttpServletRequest.html" class="api">MultipartHttpServletRequest</a>를 통해서 지원된다. 파일을 업로드하기 위해서 먼저 다음의 예제같이 멀티파트 폼(multipart form)을 만든다:<p class="paragraph"/><div class="code"><pre>Upload Form: <span class="xml&#45;tag">&#60;br /&#62;</span>
+	<span class="xml&#45;tag">&#60;g:form action=<span class="xml&#45;quote">"upload"</span> method=<span class="xml&#45;quote">"post"</span> enctype=<span class="xml&#45;quote">"multipart/form&#45;data"</span>&#62;</span>
+		<span class="xml&#45;tag">&#60;input type=<span class="xml&#45;quote">"file"</span> name=<span class="xml&#45;quote">"myFile"</span> /&#62;</span>
+		<span class="xml&#45;tag">&#60;input type=<span class="xml&#45;quote">"submit"</span> /&#62;</span>
+	<span class="xml&#45;tag">&#60;/g:form&#62;</span></pre></div><p class="paragraph"/>몇 가지 방법으로 파일 업로드를 처리할 수 있다. 먼저 Spring의 <a href="http://static.springframework.org/spring/docs/2.5.x/api/org/springframework/web/multipart/MultipartFile.html" class="api">MultipartFile</a> 인스턴스를 사용하는 방법부터 살펴보자:<p class="paragraph"/><div class="code"><pre>def upload = &#123;
+    def f = request.getFile('myFile')
+    <span class="java&#45;keyword">if</span>(!f.empty) &#123;
+      f.transferTo( <span class="java&#45;keyword">new</span> File('/some/local/dir/myfile.txt') )
+      response.sendError(200,'Done');
+    &#125;    
+    <span class="java&#45;keyword">else</span> &#123;
+       flash.message = 'file cannot be empty'
+       render(view:'uploadForm')
+    &#125;
+&#125;</pre></div><p class="paragraph"/><a href="http://static.springframework.org/spring/docs/2.5.x/api/org/springframework/web/multipart/MultipartFile.html" class="api">MultipartFile</a> 인스턴스를 통해서 InputStream을 획득할 수 있기 때문에 이 방법은 다른 위치에 파일을 저장하고 직접 파일을 조작할 때 유용하다. .<p class="paragraph"/><h4>File Uploads through Data Binding(데이터 바인딩으로 파일 업로드 처리하기)</h4><p class="paragraph"/>파일 업로드는 데이터 바인딩으로도 처리할 수 있다. 다음 예제는 <code>Image</code> 도메인 클래스이다:<p class="paragraph"/><div class="code"><pre>class Image &#123;
+   <span class="java&#45;object">byte</span>&#91;&#93; myFile
+&#125;</pre></div><p class="paragraph"/>다음의 예제처럼 image 객체를 만들고 params 객체를 파라미터로 넘긴다면 Grails는 자동으로 file을 바이트(byte) 타입의 myFile 프로퍼티에 바인딩 시킬 것이다:<p class="paragraph"/><div class="code"><pre>def img = <span class="java&#45;keyword">new</span> Image(params)</pre></div><p class="paragraph"/>Image 클래스의 myFile 프로퍼티의 형식을 String 형식으로 바꾸어 파일의 내용을 String 형식으로 만드는 것도 가능하다:<p class="paragraph"/><div class="code"><pre>class Image &#123;
+   <span class="java&#45;object">String</span> myFile
+&#125;</pre></div><p class="paragraph"/><h2><a name="6.1.9 Command Objects">6.1.9 Command Objects</a></h2>Grails 컨트롤러는 Command 객체 개념을 지원한다. Command 객체는 Struts같은 것에서 form 빈을 사용하는 것과 유사하다. 이 것은 업데이트해야 하는 도메인 클래스의 프로퍼티들을 부분적으로 할당할(populate) 때 유용하다. 이 인터랙션에 요구되는 도메인 클래스는 없지만 <a href="../guide/single.html#6.1.6 Data Binding" class="guide">data binding</a>과 유효성 검사(<a href="../guide/single.html#7. Validation" class="guide">validation</a>) 같은 기능들이 필요하다.<p class="paragraph"/><h4>Declaring Command Objects(Command 객체 정의하기)</h4><p class="paragraph"/>일반적으로 컨트롤러가 정의된 소스파일의 컨트롤러 아래에 Command 객체들을 정의한다:<p class="paragraph"/><div class="code"><pre>class UserController &#123;
+	&#8230;
+&#125;
+class LoginCommand &#123;
+   <span class="java&#45;object">String</span> username
+   <span class="java&#45;object">String</span> password
+   <span class="java&#45;keyword">static</span> constraints = &#123;
+           username(blank:<span class="java&#45;keyword">false</span>, minSize:6)
+           password(blank:<span class="java&#45;keyword">false</span>, minSize:6)
+   &#125;
+&#125;</pre></div><p class="paragraph"/>이 예제는 <a href="../guide/single.html#5. Object Relational Mapping (GORM)" class="guide">domain classes</a>에 정의했던 것처럼 Command 객체에도 제약조건(<a href="../guide/single.html#7.1 Declaring Constraints" class="guide">constraints</a>)을 정의할 수 있다는 것을 보여준다.<p class="paragraph"/><h4>Using Command Objects(Command 객체 사용하기)</h4><p class="paragraph"/>Command 객체를 사용하기 위해서 컨트롤러의 액션은 Command 객체의 파라미터들을 원하는 만큼 명시할 수 있다. 파라미터의 형식은 개발자가 지정하기 때문에 Grails는 생성하고 할당(populate)하고 유효성 검사를 해야 할 객체들을 알 수 있다.<p class="paragraph"/>Grails는 컨트롤러의 액션이 실행되기 전에 Command 클래스의 인스턴스를 자동으로 생성하고 요청 파라미터를 일치하는 Command 객체의 프로퍼티에 할당한다. 마지막으로 Command 객체의 유효성도 검사한다. 예를 들어:<p class="paragraph"/><div class="code"><pre>class LoginController &#123;
+  def login = &#123; LoginCommand cmd &#45;&#62;
+         <span class="java&#45;keyword">if</span>(cmd.hasErrors()) &#123;
+                redirect(action:'loginForm')
+         &#125;
+         <span class="java&#45;keyword">else</span> &#123;
+            // <span class="java&#45;keyword">do</span> something <span class="java&#45;keyword">else</span>
+        &#125;
+  &#125;
+&#125;</pre></div><p class="paragraph"/><h4>Command Objects and Dependency Injection(Command 객체와 의존성 주입)</h4><p class="paragraph"/>Command 객체로 의존성 주입도 다룰 수 있다. 이 것은 Grails의 서비스(<a href="../guide/single.html#8. The Service Layer" class="guide">services</a>)와 상호작용해야 하는 유효성 검사 로직을 Command 객체에 구현해야 할 때 유용하다.<p class="paragraph"/><div class="code"><pre>class LoginCommand &#123;
+    def loginService<p class="paragraph"/>	<span class="java&#45;object">String</span> username
+	<span class="java&#45;object">String</span> password
+	<span class="java&#45;keyword">static</span> constraints = &#123;
+		username(validator: &#123;
+			loginService.canLogin(username, password)
+		&#125;)
+	&#125;
+&#125;</pre></div><p class="paragraph"/>이 예제의 Command 객체는 Spring의 <code>ApplicationContext</code>에서 이름으로 주입된 빈(bean)과 상호작용한다.<p class="paragraph"/><h2><a name="6.2 Groovy Server Pages">6.2 Groovy Server Pages</a></h2>GSP는 Grails의 뷰 기술이다. 이 것은 ASP와 JSP 사용자에게 친숙하도록 설계됐다. 하지만 좀 더 유연하고 직관적으로 설계하였다.<p class="paragraph"/>Grails의 GSP는 <code>grails-app/views</code> 디렉토리에 있다. 관례에 따라서 자동적으로 렌더링되도록 할 수 있고 다음과 같이 <a href="../ref/Controllers/render.html" class="controllers">render</a> 메소드를 사용할 수도 있다.<p class="paragraph"/><div class="code"><pre>render(view:<span class="java&#45;quote">"index"</span>)</pre></div><p class="paragraph"/>GSP는 뷰를 렌더링할 때 일반적으로 마크업(mark-up)과 GSP 태그를 혼합하여 사용한다.<p class="paragraph"/><blockquote class="note">
+Groovy 로직을 GSP 안에 넣을 수도 있지만 실제로 사용하지 않는 것이 좋다. 사용방법은 이 문서에서 설명할 것이다. 마크업과 코드를 혼합하는 것은 오류를 범하는 것이다. 대부분의 GSP 페이지에는 code가 한 줄도 없을 것이고 필요하지도 않다.
+</blockquote><p class="paragraph"/>GSP는 일반적으로 뷰를 렌더링하는데 사용하는 변수들의 집합인 "model"을 하나 가지고 있다. 이 모델은 컨트롤러에서 GSP 뷰로 전달된다. 예를 들어 다음과 같이 컨트롤러의 액션을 만든다:<p class="paragraph"/><div class="code"><pre>def show = &#123;
+	&#91;book: Book.get(params.id)&#93;
+&#125;</pre></div><p class="paragraph"/>이 액션은 <code>Book</code> 인스턴스를 찾아서 <code>book</code>으로 참조될 수 있도록 모델을 만든다. 이 키는 GSP 뷰에서 <code>book</code>이라는 이름으로 참조될 수 있다.<p class="paragraph"/><div class="code"><pre>&#60;%=book.title%&#62;</pre></div>
+<h2><a name="6.2.1 GSP Basics">6.2.1 GSP Basics</a></h2>이 장에서는 GSP의 기초와 무엇을 이용할 수 있는지에 대해서 살펴본다. 먼저 기본 문법에 대해서 살펴보자. JSP나 ASP 사용자라면 매우 친숙할 것이다.<p class="paragraph"/>GSP는 Groovy 코드를 넣을 수 있도록 <code>&#60;% %&#62;</code> 블럭을 지원한다(다시 한번 강조하지만 권장하지 않는다):<p class="paragraph"/><div class="code"><pre><span class="xml&#45;tag">&#60;html&#62;</span>
+   <span class="xml&#45;tag">&#60;body&#62;</span>
+     <span class="xml&#45;tag">&#60;% out &#60;&#60; <span class="xml&#45;quote">"Hello GSP!"</span> %&#62;</span>
+   <span class="xml&#45;tag">&#60;/body&#62;</span>
+<span class="xml&#45;tag">&#60;/html&#62;</span></pre></div><p class="paragraph"/>또한 값을 출락하기 위해 <code>&#60;%= %&#62;</code> 문법을 사용할 수도 있다:<p class="paragraph"/><div class="code"><pre><span class="xml&#45;tag">&#60;html&#62;</span>
+   <span class="xml&#45;tag">&#60;body&#62;</span>
+     <span class="xml&#45;tag">&#60;%=<span class="xml&#45;quote">"Hello GSP!"</span> %&#62;</span>
+   <span class="xml&#45;tag">&#60;/body&#62;</span>
+<span class="xml&#45;tag">&#60;/html&#62;</span></pre></div><p class="paragraph"/>GSP는 JSP 스타일의 주석도 지원한다. 다음 예제를 보자:<p class="paragraph"/><div class="code"><pre><span class="xml&#45;tag">&#60;html&#62;</span>
+   <span class="xml&#45;tag">&#60;body&#62;</span>
+	 <span class="xml&#45;tag">&#60;%&#45;&#45; This is my comment &#45;&#45;%&#62;</span>
+     <span class="xml&#45;tag">&#60;%=<span class="xml&#45;quote">"Hello GSP!"</span> %&#62;</span>
+   <span class="xml&#45;tag">&#60;/body&#62;</span>
+<span class="xml&#45;tag">&#60;/html&#62;</span></pre></div>
+<h2><a name="6.2.1.1 Variables and Scopes">6.2.1.1 Variables and Scopes</a></h2>당연히 <code>&#60;% %&#62;</code> 블럭에 변수를 정의 할 수 있다:<p class="paragraph"/><div class="code"><pre><span class="xml&#45;tag">&#60;% now = new Date() %&#62;</span></pre></div><p class="paragraph"/>그리고 정의한 부분 이후부터 이 변수를 재사용할 수 있다:<p class="paragraph"/><div class="code"><pre><span class="xml&#45;tag">&#60;%=now%&#62;</span></pre></div><p class="paragraph"/>그러나 GSP에서 사용할 수 있도록 미리 정의된 변수들이 많이 있다:
+<ul class="star">
+<li><code>application</code> - <a href="http://java.sun.com/j2ee/1.4/docs/api/javax/servlet/ServletContext.html" class="api">javax.servlet.ServletContext</a> 인스턴스</li>
+<li><code>applicationContext</code> - Spring의 <a href="http://static.springframework.org/spring/docs/2.5.x/api/org/springframework/context/ApplicationContext.html" class="api">ApplicationContext</a> 인스턴스</li>
+<li><code>flash</code> - <a href="../ref/Controllers/flash.html" class="controllers">flash</a> 객체</li>
+<li><code>grailsApplication</code> - <a href="../api/org/codehaus/groovy/grails/commons/GrailsApplication.html" class="api">GrailsApplication</a> 인스턴스</li>
+<li><code>out</code> - 출력 스트림에 쓸 수 있는 응답 writer</li>
+<li><code>params</code> - 요청 파라미터들을 얻을 수 있는 <a href="../ref/Controllers/params.html" class="controllers">params</a> 객체</li>
+<li><code>request</code> - <a href="http://java.sun.com/j2ee/1.4/docs/api/javax/servlet/http/HttpServletRequest.html" class="api">HttpServletRequest</a> 인스턴스</li>
+<li><code>response</code> - <a href="http://java.sun.com/j2ee/1.4/docs/api/javax/servlet/http/HttpServletResponse.html" class="api">HttpServletResponse</a> 인스턴스</li>
+<li><code>session</code> - <a href="http://java.sun.com/j2ee/1.4/docs/api/javax/servlet/http/HttpSession.html" class="api">HttpSession</a> 인스턴스</li>
+<li><code>webRequest</code> - <a href="../api/org/codehaus/groovy/grails/web/servlet/mvc/GrailsWebRequest.html" class="api">GrailsWebRequest</a> 인스턴스</li>
+</ul><p class="paragraph"/><h2><a name="6.2.1.2 Logic and Iteration">6.2.1.2 Logic and Iteration</a></h2>물론 다음과 같이 &#60;% %&#62; 문법을 이용하여 loop을 구현할수도 있다:<p class="paragraph"/><div class="code"><pre><span class="xml&#45;tag">&#60;html&#62;</span>
+   <span class="xml&#45;tag">&#60;body&#62;</span>
+      <span class="xml&#45;tag">&#60;% &#91;1,2,3,4&#93;.each &#123; num &#45;&#62;</span> %&#62;
+         <span class="xml&#45;tag">&#60;p&#62;</span><span class="xml&#45;tag">&#60;%=<span class="xml&#45;quote">"Hello $&#123;num&#125;!"</span> %&#62;</span><span class="xml&#45;tag">&#60;/p&#62;</span>
+      <span class="xml&#45;tag">&#60;%&#125;%&#62;</span>
+   <span class="xml&#45;tag">&#60;/body&#62;</span>
+<span class="xml&#45;tag">&#60;/html&#62;</span></pre></div><p class="paragraph"/>또한 조건분기문도 사용할 수 있다:<p class="paragraph"/><div class="code"><pre><span class="xml&#45;tag">&#60;html&#62;</span>
+   <span class="xml&#45;tag">&#60;body&#62;</span>
+      <span class="xml&#45;tag">&#60;% if(params.hello == 'true' )%&#62;</span>	
+      <span class="xml&#45;tag">&#60;%=<span class="xml&#45;quote">"Hello!"</span>%&#62;</span>
+      <span class="xml&#45;tag">&#60;% else %&#62;</span>
+      <span class="xml&#45;tag">&#60;%=<span class="xml&#45;quote">"Goodbye!"</span>%&#62;</span>
+   <span class="xml&#45;tag">&#60;/body&#62;</span>
+<span class="xml&#45;tag">&#60;/html&#62;</span></pre></div><h2><a name="6.2.1.3 Page Directives">6.2.1.3 Page Directives</a></h2>GSP는 JSP 스타일의 페이지 지시자를 지원한다.<p class="paragraph"/>import 지시자는 페이지에 클래스를 import할 수 있게 해준다. 하지만 Groovy가 기본적으로 import해주는 것들과 <a href="../guide/single.html#6.2.2 GSP Tags" class="guide">GSP Tags</a>가 있기 때문에 거의 필요 없다.<p class="paragraph"/><div class="code"><pre><span class="xml&#45;tag">&#60;%@ page import=<span class="xml&#45;quote">"java.awt.&#42;"</span> %&#62;</span></pre></div><p class="paragraph"/>GSP는 contentType 지시자도 지원한다:<p class="paragraph"/><div class="code"><pre><span class="xml&#45;tag">&#60;%@ page contentType=<span class="xml&#45;quote">"text/json"</span> %&#62;</span></pre></div><p class="paragraph"/>contentType 지시자는 GSP를 사용하여 다른 형식으로 렌더링할 수 있도록 해준다.
+<h2><a name="6.2.1.4 Expressions">6.2.1.4 Expressions</a></h2>GSP에 <code>&#60;%= %&#62;</code> 문법이 초기에 도입됐지만 GSP 표현식이 있기 때문에 거의 사용되지 않는다. ASP와 JSP 개발자들은 이 것이 편안하게 느낄 것이다. GSP 표현식은 JSP의 EL 표현식, Groovy의 GString과 유사할 뿐만 아니라 <code>${표현식}</code>의 행태로 사용한다:<p class="paragraph"/><div class="code"><pre><span class="xml&#45;tag">&#60;html&#62;</span>
+  <span class="xml&#45;tag">&#60;body&#62;</span>
+    Hello $&#123;params.name&#125;
+  <span class="xml&#45;tag">&#60;/body&#62;</span>
+<span class="xml&#45;tag">&#60;/html&#62;</span></pre></div><p class="paragraph"/>그러나 JSP EL과 다르게 <code>${..}</code> 블럭 안에 모든 Groovy 표현식을 사용할 수 있다. 기본적으로 <code>${..}</code> 블럭에 있는 변수의 값에 아무일도 <strong class="bold">하지 않는다</strong>. 그래서 스트링 변수에 있는 모든 HTML은 페이지로 바로 출력된다. XSS(Cross-Site-Scripting) 공격의 위험을 줄이기 위해서 자동으로 HTML을 제거하도록 설정할 수 있다. <code>grails-app/conf/Config.groovy</code>파일의 <code>grails.views.default.codec</code>를 설정하면 된다:<p class="paragraph"/><div class="code"><pre>grails.views.<span class="java&#45;keyword">default</span>.codec='html'</pre></div><p class="paragraph"/>다른 가능한 값들로는 'none'(기본 인코딩이 없음)과 'base64'가 있다.
+<h2><a name="6.2.2 GSP Tags">6.2.2 GSP Tags</a></h2>매력적인 JSP의 유산들을 다루었다. 이제부터는 GSP 페이지를 편리하게 만들 수 있는 GSP의 빌트인 태그들을 다룬다.<p class="paragraph"/><blockquote class="note">
+태그 라이브러리(<a href="../guide/single.html#6.3 Tag Libraries" class="guide">Tag Libraries</a>)절에서는 테그 라이브러리를 만드는 방법에 대해서 다룬다.
+</blockquote><p class="paragraph"/>빌트인 GSP 태그들은 <code>g:</code>로 시작한다. JSP와는 다르게 어떤 태그 라이브러리를 사용할 것인지를 명시해야 한다. 만약 태그가 <code>g:</code>로 시작한다면 GSP 태그로 간주한다. GSP를 사용한 예제를 보자:<p class="paragraph"/><div class="code"><pre><span class="xml&#45;tag">&#60;g:example /&#62;</span></pre></div><p class="paragraph"/>GSP 태그는 다음과 같이 바디를 가질 수 있다:<p class="paragraph"/><div class="code"><pre><span class="xml&#45;tag">&#60;g:example&#62;</span>
+   Hello world
+<span class="xml&#45;tag">&#60;/g:example&#62;</span></pre></div><p class="paragraph"/>GSP 표현식은 GSP 태그 속성에도 사용할 수 있다. 만약 표현식이 아니라 다른 것이 사용된다면 문자열이라고 간주한다:<p class="paragraph"/><div class="code"><pre><span class="xml&#45;tag">&#60;g:example attr=<span class="xml&#45;quote">"$&#123;new Date()&#125;"</span>&#62;</span>
+   Hello world
+<span class="xml&#45;tag">&#60;/g:example&#62;</span></pre></div><p class="paragraph"/>맵도 GSP 태그 속성에 사용될 수 있고 네임드 파라미터 형식으로 자주 사용된다:<p class="paragraph"/><div class="code"><pre><span class="xml&#45;tag">&#60;g:example attr=<span class="xml&#45;quote">"$&#123;new Date()&#125;"</span> attr2=<span class="xml&#45;quote">"&#91;one:1, two:2, three:3&#93;"</span>&#62;</span>
+   Hello world
+<span class="xml&#45;tag">&#60;/g:example&#62;</span></pre></div><p class="paragraph"/>속성의 값들로 문자열을 정의할 때 작은 따옴표를 사용한다:<p class="paragraph"/><div class="code"><pre><span class="xml&#45;tag">&#60;g:example attr=<span class="xml&#45;quote">"$&#123;new Date()&#125;"</span> attr2=<span class="xml&#45;quote">"&#91;one:'one', two:'two'&#93;"</span>&#62;</span>
+   Hello world
+<span class="xml&#45;tag">&#60;/g:example&#62;</span></pre></div><p class="paragraph"/>기본 문법은 이제 끝났다. 다음 절에서는 빌트인 태그들을 살펴볼 것이다.<p class="paragraph"/><h2><a name="6.2.2.1 Variables and Scopes">6.2.2.1 Variables and Scopes</a></h2>GSP에서 <a href="../ref/Tags/set.html" class="tags">set</a> 태그를 이용하여 변수를 정의할 수 있다.<p class="paragraph"/><div class="code"><pre><span class="xml&#45;tag">&#60;g:set var=<span class="xml&#45;quote">"now"</span> value=<span class="xml&#45;quote">"$&#123;new Date()&#125;"</span> /&#62;</span></pre></div><p class="paragraph"/>간단하게 <code>java.util.Date</code> 인스턴스를 만들어서 GSP표현식을 이용하여 변수에 현재시간을 할당한다. 변수의 값을 <code>&#60;g:set&#62;</code> 태그의 바디에 정의할 수도 있다.<p class="paragraph"/><div class="code"><pre><span class="xml&#45;tag">&#60;g:set var=<span class="xml&#45;quote">"myHTML"</span>&#62;</span>
+   Some re&#45;usable code on: $&#123;new Date()&#125;
+<span class="xml&#45;tag">&#60;/g:set&#62;</span></pre></div><p class="paragraph"/>변수의 스콥는 다음과 같다:
+<ul class="star">
+<li><code>page</code> - 현재 페이지에서만(기본).</li>
+<li><code>request</code> - 현재 요청에서만</li>
+<li><code>flash</code> - <a href="../ref/Controllers/flash.html" class="controllers">flash</a> 스콥에 저장되므로 다음 요청까지 살아남는다.</li>
+<li><code>session</code> - 사용자의 세션에서</li>
+<li><code>application</code> - 어플리케이션 어디에서나 살아남는다.</li>
+</ul><p class="paragraph"/>변수의 스콥를 결정하기 위해서 <code>scope</code> 속성을 이용한다.<p class="paragraph"/><div class="code"><pre><span class="xml&#45;tag">&#60;g:set var=<span class="xml&#45;quote">"now"</span> value=<span class="xml&#45;quote">"$&#123;new Date()&#125;"</span> scope=<span class="xml&#45;quote">"request"</span> /&#62;</span></pre></div><h2><a name="6.2.2.2 Logic and Iteration">6.2.2.2 Logic and Iteration</a></h2>GSP는 조건과 반복을 위한 태그도 지원한다. 일반적인 분기 시나리오를 위해 <a href="../ref/Tags/if.html" class="tags">if</a>, <a href="../ref/Tags/else.html" class="tags">else</a>, <a href="../ref/Tags/elseif.html" class="tags">elseif</a> 같은 태그를 다음과 같이 사용할 수 있다:<p class="paragraph"/><div class="code"><pre><span class="xml&#45;tag">&#60;g:if test=<span class="xml&#45;quote">"$&#123;session.role == 'admin'&#125;"</span>&#62;</span>
+   <span class="xml&#45;tag">&#60;%&#45;&#45; show administrative functions &#45;&#45;%&#62;</span>
+<span class="xml&#45;tag">&#60;/g:if&#62;</span>
+<span class="xml&#45;tag">&#60;g:else&#62;</span>
+   <span class="xml&#45;tag">&#60;%&#45;&#45; show basic functions &#45;&#45;%&#62;</span>
+<span class="xml&#45;tag">&#60;/g:else&#62;</span></pre></div><p class="paragraph"/><a href="../ref/Tags/each.html" class="tags">each</a>와 <a href="../ref/Tags/while.html" class="tags">while</a> 태그로 GSP에서 반복 시나리오도 작성할 수 있다:<p class="paragraph"/><div class="code"><pre><span class="xml&#45;tag">&#60;g:each in=<span class="xml&#45;quote">"$&#123;&#91;1,2,3&#93;&#125;"</span> var=<span class="xml&#45;quote">"num"</span>&#62;</span>
+   <span class="xml&#45;tag">&#60;p&#62;</span>Number $&#123;num&#125;<span class="xml&#45;tag">&#60;/p&#62;</span>
+<span class="xml&#45;tag">&#60;/g:each&#62;</span><p class="paragraph"/><span class="xml&#45;tag">&#60;g:set var=<span class="xml&#45;quote">"num"</span> value=<span class="xml&#45;quote">"$&#123;1&#125;"</span> /&#62;</span>
+<span class="xml&#45;tag">&#60;g:while test=<span class="xml&#45;quote">"$&#123;num &#60; 5 &#125;"</span>&#62;</span>
+    <span class="xml&#45;tag">&#60;p&#62;</span>Number $&#123;num++&#125;<span class="xml&#45;tag">&#60;/p&#62;</span>
+<span class="xml&#45;tag">&#60;/g:while&#62;</span></pre></div><h2><a name="6.2.2.3 Search and Filtering">6.2.2.3 Search and Filtering</a></h2>종종 객체의 컬랙션을 정렬하고 필터링이 필요할 때가 있다. GSP는 이 것을 위해 <a href="../ref/Tags/findAll.html" class="tags">findAll</a>과 <a href="../ref/Tags/grep.html" class="tags">grep</a>을 지원한다.<p class="paragraph"/><div class="code"><pre>Stephen King's Books:
+<span class="xml&#45;tag">&#60;g:findAll in=<span class="xml&#45;quote">"$&#123;books&#125;"</span> expr=<span class="xml&#45;quote">"it.author == 'Stephen King'"</span>&#62;</span>
+     <span class="xml&#45;tag">&#60;p&#62;</span>Title: $&#123;it.title&#125;<span class="xml&#45;tag">&#60;/p&#62;</span>
+<span class="xml&#45;tag">&#60;/g:findAll&#62;</span></pre></div><p class="paragraph"/>필터링하기 위해 <code>expr</code> 속성에 Groovy 표현식을 사용한다. <a href="../ref/Tags/grep.html" class="tags">grep</a> 태그를 이용하여 클래스로 필터링할 수도 있다.<p class="paragraph"/><div class="code"><pre><span class="xml&#45;tag">&#60;g:grep in=<span class="xml&#45;quote">"$&#123;books&#125;"</span> filter=<span class="xml&#45;quote">"NonFictionBooks.class"</span>&#62;</span>
+     <span class="xml&#45;tag">&#60;p&#62;</span>Title: $&#123;it.title&#125;<span class="xml&#45;tag">&#60;/p&#62;</span>
+<span class="xml&#45;tag">&#60;/g:grep&#62;</span></pre></div><p class="paragraph"/>정규 표현식도 사용할 수 있다:<p class="paragraph"/><div class="code"><pre><span class="xml&#45;tag">&#60;g:grep in=<span class="xml&#45;quote">"$&#123;books.title&#125;"</span> filter=<span class="xml&#45;quote">"~/.&#42;?Groovy.&#42;?/"</span>&#62;</span>
+     <span class="xml&#45;tag">&#60;p&#62;</span>Title: $&#123;it&#125;<span class="xml&#45;tag">&#60;/p&#62;</span>
+<span class="xml&#45;tag">&#60;/g:grep&#62;</span></pre></div><p class="paragraph"/>이 예제에서는 GPath가 사용됐다. GPath는 Groovy가 지원하는 XPath같은 언어이다. 구체적으로 설명하자면 <code>books</code> 컬랙션은 <code>Book</code> 인스턴스들의 컬랙션이다. 그리고 <code>Book</code>이 <code>title</code>을 가지고 있다고 가정하면 <code>books.title</code> 표현식을 사용하여 <code>Book</code>의 <code>title</code>들을 리스트로 얻어올 수 있다. Groovy는 자동으로 Book 인스턴스들의 리스트를 이용하여 title의 리스트를 만들어 반환한다!
+<h2><a name="6.2.2.4 Links and Resources">6.2.2.4 Links and Resources</a></h2>GSP는 컨트롤러와 액션을 쉽게 연결 할 수 있는 태그도 지원한다. <a href="../ref/Tags/link.html" class="tags">link</a> 태그에 컨트롤러와 액션 이름을 명시하여 링크를 만들 수 있다. 이 것은 URL 매핑(<a href="../guide/single.html#6.4 URL Mappings" class="guide">URL Mappings</a>)에 의존하여 자동으로 행해진다(매핑을 변경하지 않으면). 다음은 <a href="../ref/Tags/link.html" class="tags">link</a> 태그를 사용한 예제이다:<p class="paragraph"/><div class="code"><pre><span class="xml&#45;tag">&#60;g:link action=<span class="xml&#45;quote">"show"</span> id=<span class="xml&#45;quote">"1"</span>&#62;</span>Book 1<span class="xml&#45;tag">&#60;/g:link&#62;</span>
+<span class="xml&#45;tag">&#60;g:link action=<span class="xml&#45;quote">"show"</span> id=<span class="xml&#45;quote">"$&#123;currentBook.id&#125;"</span>&#62;</span>$&#123;currentBook.name&#125;<span class="xml&#45;tag">&#60;/g:link&#62;</span>
+<span class="xml&#45;tag">&#60;g:link controller=<span class="xml&#45;quote">"book"</span>&#62;</span>Book Home<span class="xml&#45;tag">&#60;/g:link&#62;</span>
+<span class="xml&#45;tag">&#60;g:link controller=<span class="xml&#45;quote">"book"</span> action=<span class="xml&#45;quote">"list"</span>&#62;</span>Book List<span class="xml&#45;tag">&#60;/g:link&#62;</span>
+<span class="xml&#45;tag">&#60;g:link url=<span class="xml&#45;quote">"&#91;action:'list',controller:'book'&#93;"</span>&#62;</span>Book List<span class="xml&#45;tag">&#60;/g:link&#62;</span>
+<span class="xml&#45;tag">&#60;g:link action=<span class="xml&#45;quote">"list"</span> params=<span class="xml&#45;quote">"&#91;sort:'title',order:'asc',author:currentBook.author&#93;"</span>&#62;</span>
+     Book List
+<span class="xml&#45;tag">&#60;/g:link&#62;</span></pre></div>
+<h2><a name="6.2.2.5 Forms and Fields">6.2.2.5 Forms and Fields</a></h2><h4>Form Basics(폼의 기초)</h4><p class="paragraph"/>GSP에는 HTML 폼과 필드를 다루는 많은 태그들이 있다. <code>form</code> 태그가 가장 기초적인 것이다. <a href="../ref/Tags/form.html" class="tags">form</a> 태그는 단지 HTML의 form 태그에 컨트롤러/액션을 이해할 수 있도록 한 것에 불과하다. <code>url</code> 속성에 컨트롤러와 액션을 명시한다:<p class="paragraph"/><div class="code"><pre><span class="xml&#45;tag">&#60;g:form name=<span class="xml&#45;quote">"myForm"</span> url=<span class="xml&#45;quote">"&#91;controller:'book',action:'list'&#93;"</span>&#62;</span>...<span class="xml&#45;tag">&#60;/g:form&#62;</span></pre></div><p class="paragraph"/>이 경우에 우리는 <code>BookController</code>의 <code>list</code>액션에 전송하는 <code>myForm</code>이라고 불리는 폼 태그를 만들었다. 나머지는 HTML의 속성와 모두 동일하다.<p class="paragraph"/><h4>Form Fields(폼 필드)</h4><p class="paragraph"/>GSP는 폼 필드와 관련된 다양한 태그를 지원하기 때문에 폼을 쉽게 만들 수 있다.<p class="paragraph"/>textField - 'text' 타입을 위한 입력 필드
+checkBox - 'checkbox' 타입을 위한 입력 필드
+radio - 'radio' 타입을 위한 입력 필드
+hiddenField - 'hidden' 타입을 위한 입력 필드
+select - HTML의 select 박스를 위한 태그<p class="paragraph"/>이 태그들의 value 속성에 GSP 표현식을 사용할 수 있다:<p class="paragraph"/><div class="code"><pre><span class="xml&#45;tag">&#60;g:textField name=<span class="xml&#45;quote">"myField"</span> value=<span class="xml&#45;quote">"$&#123;myValue&#125;"</span> /&#62;</span></pre></div><p class="paragraph"/>GSP는 <a href="../ref/Tags/radioGroup.html" class="tags">radioGroup</a>, <a href="../ref/Tags/localeSelect.html" class="tags">localeSelect</a>, <a href="../ref/Tags/currencySelect.html" class="tags">currencySelect</a>, <a href="../ref/Tags/timeZoneSelect.html" class="tags">timeZoneSelect</a>처럼 위에 설명한 태그들을 확장한 태그들도 지원한다. radioGroup은 <a href="../ref/Tags/radio.html" class="tags">radio</a> 태그를 그룹으로 묶기 위함이고 localeSelect는 로케일을, currencySelect는 화페 단위를, timezoneSelect는 timezone을 선택을 단순화 해준다.<p class="paragraph"/><h4>Multiple Submit Buttons(여러 개의 Submit 버튼)</h4><p class="paragraph"/>Grails는 여러 개의 Submit 버튼을 다루어야하는 역사 깊은 문제도 우아하게 처리할 수 있도록 <a href="../ref/Tags/actionSubmit.html" class="tags">actionSubmit</a> 태그를 지원한다. 이 것은 일반 submit과 동일하지만 action을 명시할 수 있다:<p class="paragraph"/><div class="code"><pre><span class="xml&#45;tag">&#60;g:actionSubmit value=<span class="xml&#45;quote">"Some update label"</span> action=<span class="xml&#45;quote">"update"</span> /&#62;</span></pre></div><p class="paragraph"/><h2><a name="6.2.2.6 Tags as Method Calls">6.2.2.6 Tags as Method Calls</a></h2>이 것이 GSP 태그와 다른 태그 기술들과의 중요한 차이점이다. GSP 태그는 <a href="../guide/single.html#6.1 Controllers" class="guide">controllers</a>, <a href="../guide/single.html#6.3 Tag Libraries" class="guide">tag libraries</a>, GSP 뷰에서 일반 태그처럼 사용할 수도 있고 메소드를 호출하듯이 사용할 수도 있다.<p class="paragraph"/><h4>Tags as method calls from GSPs(GSP에서 태그 호출하기)</h4><p class="paragraph"/>태그를 호출하면 그 결과는 바로 응답에 쓰여지는 것이 아니라 문자열로 반환된다. 예를 들어 <a href="../ref/Tags/createLinkTo.html" class="tags">createLinkTo</a> 태그는 메소드처럼 호출 될 수 있다:<p class="paragraph"/><div class="code"><pre>Static Resource: $&#123;createLinkTo(dir:<span class="xml&#45;quote">"images"</span>, file:<span class="xml&#45;quote">"logo.jpg"</span>)&#125;</pre></div><p class="paragraph"/>이 것은 속성에 태그를 사용해야 할때 매우 유용하다:<p class="paragraph"/><div class="code"><pre><span class="xml&#45;tag">&#60;img src=<span class="xml&#45;quote">"$&#123;createLinkTo(dir:'images', file:'logo.jpg')&#125;"</span> /&#62;</span></pre></div><p class="paragraph"/>이 기능을 지원하지 않는 뷰 기술에서는 태그 안에 GSP 태그를 네스트(nest)시켜야 한다. 이 방법은 코드를 매우 지져분하게 만들고 마크업을 엉터리로(not well-formed) 렌더링하는 Dreamweaver같은 WSYWIG 도구를 사용하기 어렵게 만든다(an adverse effect of WYSWIG tools).<p class="paragraph"/><div class="code"><pre><span class="xml&#45;tag">&#60;img src=<span class="xml&#45;quote">"&#60;g:createLinkTo dir="</span>images<span class="xml&#45;quote">" file="</span>logo.jpg<span class="xml&#45;quote">" /&#62;</span>"</span> /&#62;</pre></div><p class="paragraph"/><h4>Tags as method calls from Controllers and Tag Libraries(컨트롤러와 태그 라이브러리에서 태그 호출 하기)</h4><p class="paragraph"/>컨트롤러와 태그 라이브러리에서도 태그를 호출할 수 있다. <code>g:</code>로 시작하는 태그들은 접두어(<a href="../guide/single.html#6.3.4 Tag Namespaces" class="guide">namespace</a>, 역자주 - <code>g:</code>) 없이 실행 가능할 수 있고 결과는 문자열로 반환된다:<p class="paragraph"/><div class="code"><pre>def imageLocation = createLinkTo(dir:<span class="java&#45;quote">"images"</span>, file:<span class="java&#45;quote">"logo.jpg"</span>)</pre></div><p class="paragraph"/>그리고 이름이 충돌되지 않게 하기 위해 접두어를 사용할 수 있다:<p class="paragraph"/><div class="code"><pre>def imageLocation = g.createLinkTo(dir:<span class="java&#45;quote">"images"</span>, file:<span class="java&#45;quote">"logo.jpg"</span>)</pre></div><p class="paragraph"/>Grails 네임스페이스가 아니라면(<a href="../guide/single.html#6.3.4 Tag Namespaces" class="guide">custom namespace</a>) 접두어를 사용해야 한다(<a href="http://grails.org/FCK+editor+plugin" target="blank">FCK Editor plugin</a> 을 사용하는 예제를 보면):<p class="paragraph"/><div class="code"><pre>def editor = fck.editor()</pre></div><p class="paragraph"/><p class="paragraph"/><h2><a name="6.2.3 Views and Templates">6.2.3 Views and Templates</a></h2>Grails는 뷰뿐만 아니라 템플릿도 지원한다. 템플릿은 뷰를 쉽게 관리할 수 있게 만들기 때문에 유용하고 구조적인 뷰를 위해 훌륭한 재사용 매커니즘을 제공하는 <a href="../guide/single.html#6.2.4 Layouts with Sitemesh" class="guide">Layouts</a>과 함께 사용할 수 있다.<p class="paragraph"/><h4>Template Basics(템플릿의 기초)</h4><p class="paragraph"/>Grails는 템플릿을 식별하기 위해서 뷰의 이름 앞에 '_'를 붙이는 관례를 사용한다. 예를 들어 Book을 렌더링하는 템플릿은 <code>grails-app/views/book/_bookTemplate.gsp</code>에 위치한다:<p class="paragraph"/><div class="code"><pre><span class="xml&#45;tag">&#60;div class=<span class="xml&#45;quote">"book"</span> id=<span class="xml&#45;quote">"$&#123;book?.id&#125;"</span>&#62;</span>
+   <span class="xml&#45;tag">&#60;div&#62;</span>Title: $&#123;book?.title&#125;<span class="xml&#45;tag">&#60;/div&#62;</span>
+   <span class="xml&#45;tag">&#60;div&#62;</span>Author: $&#123;book?.author?.name&#125;<span class="xml&#45;tag">&#60;/div&#62;</span>
+<span class="xml&#45;tag">&#60;/div&#62;</span></pre></div><p class="paragraph"/><code>grails-app/views/book</code>에 있는 뷰에서 템플릿을 렌더링하려면 <a href="../ref/Tags/render.html" class="tags">render</a> 태그를 사용해야 한다:<p class="paragraph"/><div class="code"><pre><span class="xml&#45;tag">&#60;g:render template=<span class="xml&#45;quote">"bookTemplate"</span> model=<span class="xml&#45;quote">"&#91;book:myBook&#93;"</span> /&#62;</span></pre></div><p class="paragraph"/><code>render</code> 태그의 <code>model</code> 속성이 어떻게 사용되고 있는지 기억하라. <code>Book</code> 인스턴스가 많을 때 <code>render</code> 태그와 템플릿을 사용하여 Book 인스턴스들을 렌더링할 수 있다:<p class="paragraph"/><div class="code"><pre><span class="xml&#45;tag">&#60;g:render template=<span class="xml&#45;quote">"bookTemplate"</span> var=<span class="xml&#45;quote">"book"</span> collection=<span class="xml&#45;quote">"$&#123;bookList&#125;"</span> /&#62;</span></pre></div><p class="paragraph"/><h4>Shared Templates(템플릿 공유하기)</h4><p class="paragraph"/>위의 예제에서 우리는 템플릿을 BookController와 grails-app/views/book에서만 사용했다. 그러나 템플릿을 어플리케에션 전체에서 공유할 수도 있다.<p class="paragraph"/>이 경우에 뷰들의 루트 디렉토리인 grails-app/views나 그 하위 디렉토리에 템플릿을 위치시킨다. 그리고 template 속성에 템플릿 이름 앞에 '/'과 상대경로를 더해서 명시한다. grails-app/views/shared/_mySharedTemplate.gsp라는 템플릿이 있으면 다음과 같이 사용할 수 있다:<p class="paragraph"/><div class="code"><pre><span class="xml&#45;tag">&#60;g:render template=<span class="xml&#45;quote">"/shared/mySharedTemplate"</span> /&#62;</span></pre></div><p class="paragraph"/>뷰와 컨트롤러의 디렉토리에 있는 템플릿도 사용할 수 있다:<p class="paragraph"/><div class="code"><pre><span class="xml&#45;tag">&#60;g:render template=<span class="xml&#45;quote">"/book/bookTemplate"</span> model=<span class="xml&#45;quote">"&#91;book:myBook&#93;"</span> /&#62;</span></pre></div><p class="paragraph"/><h4>Templates in Controllers and Tag Libraries(컨트롤러와 테그 라이브러리에서 템플릿 사용하기)</h4><p class="paragraph"/>컨트롤러에서도 <a href="../ref/Controllers/render.html" class="controllers">render</a> 메소드를 사용하여 템플릿을 렌더링할 수 있다. 이 것은 <a href="../guide/single.html#6.7 Ajax" class="guide">Ajax</a> 어플리케이션에 유용하다:<p class="paragraph"/><div class="code"><pre>def show = &#123;
+    def b = Book.get(params.id)
+	render(template:<span class="java&#45;quote">"bookTemplate"</span>, model:&#91;book:b&#93;)
+&#125;</pre></div><p class="paragraph"/>컨트롤러에서 <a href="../ref/Controllers/render.html" class="controllers">render</a> 메소드를 사용하면 응답에 바로 씌여진다. 이 것이 가장 일반적인 용법이지만 템플릿의 결과를 알고 싶다면 다음과 같이 <a href="../ref/Tags/render.html" class="tags">render</a> 태그를 사용할 수 있다:<p class="paragraph"/><div class="code"><pre>def show = &#123;
+    def b = Book.get(params.id)
+	<span class="java&#45;object">String</span> content = g.render(template:<span class="java&#45;quote">"bookTemplate"</span>, model:&#91;book:b&#93;)
+	render content
+&#125;</pre></div><p class="paragraph"/><code>g.</code> 네임스페이스를 사용하면 Grails는 <a href="../ref/Controllers/render.html" class="controllers">render</a> 메소드가 아니라 <a href="../guide/single.html#6.2.2.6 Tags as Method Calls" class="guide">render 태그</a>를 사용하는 것이라고 해석한다.
+<h2><a name="6.2.4 Layouts with Sitemesh">6.2.4 Layouts with Sitemesh</a></h2><h4>Creating Layouts(레이아웃 만들기)</h4><p class="paragraph"/>Grails는 데코레이터 엔진인 <a href="http://www.opensymphony.com/sitemesh/" target="blank">Sitemesh</a>에 기반한 레이아웃을 지원한다. 레이아웃은 <code>grails-app/views/layouts</code> 디렉토리에 위치한다. 일반적인 레이아웃은 다음과 같다:<p class="paragraph"/><div class="code"><pre><span class="xml&#45;tag">&#60;html&#62;</span>
+      <span class="xml&#45;tag">&#60;head&#62;</span>
+          <span class="xml&#45;tag">&#60;title&#62;</span><span class="xml&#45;tag">&#60;g:layoutTitle default=<span class="xml&#45;quote">"An example decorator"</span> /&#62;</span><span class="xml&#45;tag">&#60;/title&#62;</span>
+          <span class="xml&#45;tag">&#60;g:layoutHead /&#62;</span>
+      <span class="xml&#45;tag">&#60;/head&#62;</span>
+      <span class="xml&#45;tag">&#60;body onload=<span class="xml&#45;quote">"$&#123;pageProperty(name:'body.onload')&#125;"</span>&#62;</span>
+            <span class="xml&#45;tag">&#60;div class=<span class="xml&#45;quote">"menu"</span>&#62;</span><span class="xml&#45;comment">&#60;!&#45;&#45;my common menu goes here&#45;&#45;&#62;</span><span class="xml&#45;tag">&#60;/menu&#62;</span>
+                 <span class="xml&#45;tag">&#60;div class=<span class="xml&#45;quote">"body"</span>&#62;</span>
+                      <span class="xml&#45;tag">&#60;g:layoutBody /&#62;</span>
+                 <span class="xml&#45;tag">&#60;/div&#62;</span>
+            <span class="xml&#45;tag">&#60;/div&#62;</span>
+      <span class="xml&#45;tag">&#60;/body&#62;</span>
+<span class="xml&#45;tag">&#60;/html&#62;</span></pre></div><p class="paragraph"/>핵심은 <a href="../ref/Tags/layoutHead.html" class="tags">layoutHead</a>, <a href="../ref/Tags/layoutTitle.html" class="tags">layoutTitle</a>, <a href="../ref/Tags/layoutBody.html" class="tags">layoutBody</a> 태그를 사용한 것이다. 각각의 태그의 의미는 다음과 같다:
+<ul class="star">
+<li><code>layoutTitle</code> - 대상 페이지의 제목을 출력</li>
+<li><code>layoutHead</code> - 대상 페이지의 head 태그의 내용을 출력</li>
+<li><code>layoutBody</code> - 대상 페이지의 body 태그의 내용을 출력</li>
+</ul><p class="paragraph"/>위의 예제의 <a href="../ref/Tags/pageProperty.html" class="tags">pageProperty</a> 태그는 대상 페이지의 모습(aspect)를 검사하고(inspect) 반환하기 위해 사용했다.<p class="paragraph"/><h4>Triggering Layouts(레이아웃 사용하기)</h4><p class="paragraph"/>레이아웃을 사용하는 방법은 여러가지이다. 가장 단순한 방법은 meta 태그를 뷰에 삽입하는 것이다:<p class="paragraph"/><div class="code"><pre><span class="xml&#45;tag">&#60;html&#62;</span>
+    <span class="xml&#45;tag">&#60;head&#62;</span>
+	    <span class="xml&#45;tag">&#60;title&#62;</span>An Example Page<span class="xml&#45;tag">&#60;/title&#62;</span>
+        <span class="xml&#45;tag">&#60;meta name=<span class="xml&#45;quote">"layout"</span> content=<span class="xml&#45;quote">"main"</span>&#62;</span><span class="xml&#45;tag">&#60;/meta&#62;</span>
+    <span class="xml&#45;tag">&#60;/head&#62;</span>
+    <span class="xml&#45;tag">&#60;body&#62;</span>This is my content!<span class="xml&#45;tag">&#60;/body&#62;</span>
+<span class="xml&#45;tag">&#60;/html&#62;</span></pre></div><p class="paragraph"/>이 경우에는 grails-app/views/layouts/main.gsp라는 레이아웃이 사용된다. 위에서 설명한 레이아웃에 적용한다면 다음과 같은 결과를 얻게될 것이다:<p class="paragraph"/><div class="code"><pre><span class="xml&#45;tag">&#60;html&#62;</span>
+      <span class="xml&#45;tag">&#60;head&#62;</span>
+          <span class="xml&#45;tag">&#60;title&#62;</span>An Example Page<span class="xml&#45;tag">&#60;/title&#62;</span>
+      <span class="xml&#45;tag">&#60;/head&#62;</span>
+      <span class="xml&#45;tag">&#60;body onload=<span class="xml&#45;quote">""</span>&#62;</span>
+        <span class="xml&#45;tag">&#60;div class=<span class="xml&#45;quote">"menu"</span>&#62;</span><span class="xml&#45;comment">&#60;!&#45;&#45;my common menu goes here&#45;&#45;&#62;</span><span class="xml&#45;tag">&#60;/div&#62;</span>
+                 <span class="xml&#45;tag">&#60;div class=<span class="xml&#45;quote">"body"</span>&#62;</span>
+					This is my content!
+                 <span class="xml&#45;tag">&#60;/div&#62;</span>
+      <span class="xml&#45;tag">&#60;/body&#62;</span>
+<span class="xml&#45;tag">&#60;/html&#62;</span></pre></div><p class="paragraph"/><h4>Layout by Convention(관례에 따르는 레이아웃)</h4><p class="paragraph"/>레이아웃을 사용하는 두번째 방법은 관례를 따르는 것이다. 예를 들어 다음과 같은 컨트롤러를 가지고 있다면:<p class="paragraph"/><div class="code"><pre>class BookController &#123;
+    def list = &#123;  &#8230; &#125;
+&#125;</pre></div><p class="paragraph"/>grails-app/views/layouts/book.gsp이라는 레이아웃을 만들면 관례에 따라 BookController와 관련된 모든 뷰에 적용될 것이다.<p class="paragraph"/>BookController의 list 액션에만 적용되는 레이아웃은 grails-app/views/layouts/book/list.gsp에 만들면 된다.<p class="paragraph"/>list 액션이 실행될 때 여기에서 언급한 레이아웃이 모두 존재한다면 액션의 레이아웃이 적용될 것이다.<p class="paragraph"/><h4>Inline Layouts(인라인 레이아웃)</h4><p class="paragraph"/>Grails는 applyLayout 태그를 통해 Sitemesh의 인라인 레이아웃의 개념도 지원한다. <a href="../ref/Tags/applyLayout.html" class="tags">applyLayout</a> 태그는 템플릿, URL, 내용중 일부에만 레이아웃을 적용하는데 사용한다. 근본적으로 이 것은 템플릿과 함께 뷰 구조를 모듈화할 수 있게 해준다.<p class="paragraph"/>다음은 이 것을 보여주는 몇 가지 예제들이다:<p class="paragraph"/><div class="code"><pre><span class="xml&#45;tag">&#60;g:applyLayout name=<span class="xml&#45;quote">"myLayout"</span> template=<span class="xml&#45;quote">"bookTemplate"</span> collection=<span class="xml&#45;quote">"$&#123;books&#125;"</span> /&#62;</span><p class="paragraph"/><span class="xml&#45;tag">&#60;g:applyLayout name=<span class="xml&#45;quote">"myLayout"</span> url=<span class="xml&#45;quote">"http://www.google.com"</span> /&#62;</span><p class="paragraph"/><span class="xml&#45;tag">&#60;g:applyLayout name=<span class="xml&#45;quote">"myLayout"</span>&#62;</span>
+The content to apply a layout to
+<span class="xml&#45;tag">&#60;/g:applyLayout&#62;</span></pre></div><p class="paragraph"/><h2><a name="6.3 Tag Libraries">6.3 Tag Libraries</a></h2><a href="":http://java.sun.com/products/jsp/">JSP</a> 처럼 GSP는 사용자 정의 태그 라이브러리를 지원한다. 하지만 JSP랑은 다르게 Grails의 태그 라이브러리는 훨씬 간단하고 우아할 뿐만 아니라 런타임에 완벽하게 리로드될 수 있다.<p class="paragraph"/><code>Taglib</code>으로 끝나는 Groovy 클래스를 만들고 <code>grails-app/taglib</code> 디렉토리에 넣는 것만으로 간단하게 태그 라이브러리를 만들 수 있다:<p class="paragraph"/><div class="code"><pre>class SimpleTagLib &#123;<p class="paragraph"/>&#125;</pre></div><p class="paragraph"/>태그 속성와 바디 내용의 두 인자를 취하는 코드 블럭을 할당하는 것만으로 간단하게 속성을 만들 수 있다:<p class="paragraph"/><div class="code"><pre>class SimpleTagLib &#123;
+	def simple = &#123; attrs, body &#45;&#62;<p class="paragraph"/>    &#125;
+&#125;</pre></div><p class="paragraph"/><code>attrs</code> 인자는 단순히 태그 속성들이 있는 맵이다. 하지만 <code>body</code> 인자는 바디 내용을 반환하는 실행가능한 코드 블럭이다:<p class="paragraph"/><div class="code"><pre>class SimpleTagLib &#123;
+	def emoticon = &#123; attrs, body &#45;&#62;
+	   out &#60;&#60; body() &#60;&#60; attrs.happy == '<span class="java&#45;keyword">true</span>' ? <span class="java&#45;quote">" :&#45;)"</span> : <span class="java&#45;quote">" :&#45;("</span>	
+    &#125;
+&#125;</pre></div><p class="paragraph"/>이 예제에서 <code>out</code> 변수는 output Writer에 대한 참조다. 이를 이용하여 응답에 내용을 추가할 수 있다. imports문 없이도 간단하게 GSP에서 이 태그를 사용할 수 있다:<p class="paragraph"/><div class="code"><pre><span class="xml&#45;tag">&#60;g:emoticon happy=<span class="xml&#45;quote">"true"</span>&#62;</span>Hi John<span class="xml&#45;tag">&#60;/g:emoticon&#62;</span></pre></div><h2><a name="6.3.1 Simple Tags">6.3.1 Simple Tags</a></h2>이전 예제에서 설명한 것처럼 바디도 없고 단순히 내용을 출력하는 태그를 작성하는 일은 아무일도 아니다. 여기에 <code>dateFormat</code> 형식의 태그에 대한 예제도 살펴보자:<p class="paragraph"/><div class="code"><pre>def dateFormat = &#123; attrs, body &#45;&#62;
+	out &#60;&#60; <span class="java&#45;keyword">new</span> java.text.SimpleDateFormat(attrs.format).format(attrs.date)
+&#125;</pre></div><p class="paragraph"/>날자형식을 위해서 Java의 <code>SimpleDateFormat</code> 클래스를 사용했고 그 것을 응답에 출력했다. GSP에서 다음과 같이 이 태그를 사용할 수 있다:<p class="paragraph"/><div class="code"><pre><span class="xml&#45;tag">&#60;g:dateFormat format=<span class="xml&#45;quote">"dd&#45;MM&#45;yyyy"</span> date=<span class="xml&#45;quote">"$&#123;new Date()&#125;"</span> /&#62;</span></pre></div><p class="paragraph"/>HTML 마크업을 응답에 출력해야 하는 태그를 작성해야 할 수도 있다. 출력할 내용을 바로 삽입하는 방법이 있다:<p class="paragraph"/><div class="code"><pre>def formatBook = &#123; attrs, body &#45;&#62;
+    out &#60;&#60; <span class="java&#45;quote">"&#60;div id=&#34;$&#123;attrs.book.id&#125;&#34;&#62;"</span>	
+    out &#60;&#60; <span class="java&#45;quote">"Title : $&#123;attrs.book.title&#125;"</span>	
+	out &#60;&#60; <span class="java&#45;quote">"&#60;/div&#62;"</span>
+&#125;</pre></div><p class="paragraph"/>이 방법은 실제로 사용하기엔 너무 지저분하다. <a href="../ref/Tags/render.html" class="tags">render</a> 태그를 사용하여 더 낫게 할 수 있다:<p class="paragraph"/><div class="code"><pre>def formatBook = &#123; attrs, body &#45;&#62;
+    out &#60;&#60; render(template:<span class="java&#45;quote">"bookTemplate"</span>, model:&#91;book:attrs.book&#93;)	
+&#125;</pre></div><p class="paragraph"/>이제 실제로 렌더링되는 GSP 템플릿을 만들었다.<p class="paragraph"/><h2><a name="6.3.2 Logical Tags">6.3.2 Logical Tags</a></h2>특정 조건이 만족돼야만 결과를 출력하는 논리 태그를 만들 수도 있다. 다음의 예제는 보안 태그를 만들어 본 것이다:<p class="paragraph"/><div class="code"><pre>def isAdmin = &#123; attrs, body &#45;&#62;
+     def user = attrs&#91;'user'&#93;
+     <span class="java&#45;keyword">if</span>(user != <span class="java&#45;keyword">null</span> &#38;&#38; checkUserPrivs(user)) &#123;
+           out &#60;&#60; body()
+     &#125;
+&#125;</pre></div><p class="paragraph"/>이 태그는 사용자가 관리자인지를 검사하고 오직 접근권한이 있을 때만 body의 내용을 출력한다:<p class="paragraph"/><div class="code"><pre><span class="xml&#45;tag">&#60;g:isAdmin user=<span class="xml&#45;quote">"$&#123;myUser&#125;"</span>&#62;</span>
+    // some restricted content
+<span class="xml&#45;tag">&#60;/g:isAdmin&#62;</span></pre></div><p class="paragraph"/>
+<h2><a name="6.3.3 Iterative Tags">6.3.3 Iterative Tags</a></h2>반복 태그도 역시 간단한다. 다음과 같이 body를 여러번 실행하게 할 수 있다.<p class="paragraph"/><div class="code"><pre>def repeat = &#123; attrs, body &#45;&#62;
+    attrs.times?.toInteger().times &#123; num &#45;&#62;
+        out &#60;&#60; body(num)
+    &#125;
+&#125;</pre></div><p class="paragraph"/>이 예제에서는 <code>times</code> 속성을 검사하고 만약 숫자로 변환되면 Groovy의 <code>times</code> 메소드를 사용하여 명시된 횟수만큼 반복한다:<p class="paragraph"/><div class="code"><pre><span class="xml&#45;tag">&#60;g:repeat times=<span class="xml&#45;quote">"3"</span>&#62;</span>
+<span class="xml&#45;tag">&#60;p&#62;</span>Repeat this 3 times! Current repeat = $&#123;it&#125;<span class="xml&#45;tag">&#60;/p&#62;</span>
+<span class="xml&#45;tag">&#60;/g:repeat&#62;</span></pre></div><p class="paragraph"/>이 예제의 <code>it</code> 변수가 어떻게 현재 반복 횟수를 의미되었는지를 기억하라. 이 것은 반복 코드에 현재 반복 횟수를 인자로 넘겨줬기 때문에 가능한 일이다:<p class="paragraph"/><div class="code"><pre>out &#60;&#60; body(num)</pre></div><p class="paragraph"/>이 값은 태그에서 사용할 수 있는 변수 <code>it</code>으로 넘겨진다. 만약 중첩하여 태그를 사용하면 충돌을 일으킬 수 있다. 따라서 바디에서 사용할 변수이름을 지정해야 한다:<p class="paragraph"/><div class="code"><pre>def repeat = &#123; attrs, body &#45;&#62;
+	def <span class="java&#45;keyword">var</span> = attrs.<span class="java&#45;keyword">var</span> ? attrs.<span class="java&#45;keyword">var</span> : <span class="java&#45;quote">"num"</span>
+    attrs.times?.toInteger().times &#123; num &#45;&#62;
+        out &#60;&#60; body((<span class="java&#45;keyword">var</span>):num)
+    &#125;
+&#125;</pre></div><p class="paragraph"/><code>var</code> 속성이 있는지 검사하고 만약 속성이 존재하면 바디를 호출하는 줄에서 파라미터로 사용한다:<p class="paragraph"/><div class="code"><pre>out &#60;&#60; body((<span class="java&#45;keyword">var</span>):num)</pre></div><p class="paragraph"/><blockquote class="note">
+변수 이름에 괄호를 사용한 것을 기억하라. 괄호를 생략하면 Groovy는 var 변수를 사용하는 것이 아니라 문자열 키를 사용한다고 간주한다.
+</blockquote><p class="paragraph"/>이제 다음과 같이 태그를 사용할 수 있다:<p class="paragraph"/><div class="code"><pre><span class="xml&#45;tag">&#60;g:repeat times=<span class="xml&#45;quote">"3"</span> var=<span class="xml&#45;quote">"j"</span>&#62;</span>
+<span class="xml&#45;tag">&#60;p&#62;</span>Repeat this 3 times! Current repeat = $&#123;j&#125;<span class="xml&#45;tag">&#60;/p&#62;</span>
+<span class="xml&#45;tag">&#60;/g:repeat&#62;</span></pre></div><p class="paragraph"/>변수 <code>j</code>를 정의하기 위해서 <code>var</code> 속성을 어떻게 사용했는지를 기억하라. 이제 태그의 바디에서 이 변수를 참조할 수 있다.
+<h2><a name="6.3.4 Tag Namespaces">6.3.4 Tag Namespaces</a></h2>태그는 자동으로 Grails의 기본 네임스페이스에 추가되고 GSP 페이지에서 'g:' 접두어로 태그를 사용할 수 있다. 그러나 TagLib 클래스에 static namespace 프로퍼티에 사용해서 다른 네임스페이스를 명시할 수 있다:<p class="paragraph"/><div class="code"><pre>class SimpleTagLib &#123;
+    <span class="java&#45;keyword">static</span> namespace = <span class="java&#45;quote">"my"</span><p class="paragraph"/>    def example = &#123; attrs &#45;&#62;
+        &#8230;
+    &#125;
+&#125;</pre></div><p class="paragraph"/>이 예제에서 “my” 네임스페이스를 명시했다. 이 태그 라이브러리의 태그는 GSP 페이지에서 다음과 같이 사용해야 한다:<p class="paragraph"/><div class="code"><pre><span class="xml&#45;tag">&#60;my:example name=<span class="xml&#45;quote">"..."</span> /&#62;</span></pre></div><p class="paragraph"/>이 접두어는 static namespace 프로퍼티에 명시한 값이다. 네임스페이스는 플러그인에 특히 유용하다.<p class="paragraph"/>네임스페이스를 접두어로 사용해서 네임스페이스의 태그를 매소드처럼 호출할 수 있다:
+<div class="code"><pre>out &#60;&#60; my.example(name:<span class="java&#45;quote">"foo"</span>)</pre></div><p class="paragraph"/>이 것은 GSP, 컨트롤러, 태그 라이브러리에서 잘 동작한다.
+<h2><a name="6.4 URL Mappings">6.4 URL Mappings</a></h2>지금까지 이 문서에서는 URL을 /controller/action/id라는 관례에 따라서만 사용했다. 그러나 이 관례는 Grails에서 고정된 것(hard wired)이 아니고 실제로 URL 매핑 클래스를 grails-app/conf/UrlMappings.groovy에 구현하여 제어할 수 있다.<p class="paragraph"/>UrlMappings 클래스는 코드의 블럭을 할당할 수 있는 mappings이라는 프로퍼티 하나만 가진다:<p class="paragraph"/><div class="code"><pre>class UrlMappings &#123;
+    <span class="java&#45;keyword">static</span> mappings = &#123;
+    &#125;	
+&#125;</pre></div><p class="paragraph"/><h2><a name="6.4.1 Mapping to Controllers and Actions">6.4.1 Mapping to Controllers and Actions</a></h2>쉽게 매핑을 정의하려면 메소드 이름으로 하위 URL을 만들고 매핑할 컨트롤러와 액션을 네임드 파라미터를 사용하여 명시한다:<p class="paragraph"/><div class="code"><pre><span class="java&#45;quote">"/product"</span>(controller:<span class="java&#45;quote">"product"</span>, action:<span class="java&#45;quote">"list"</span>)</pre></div><p class="paragraph"/>이 예제는 ProductController의 list 액션에 /product URL이 매핑된다는 의미이다. 물론 action을 생략하여 컨트롤러의 기본 액션에 매핑되도록 할 수 있다:<p class="paragraph"/><div class="code"><pre><span class="java&#45;quote">"/product"</span>(controller:<span class="java&#45;quote">"product"</span>)</pre></div><p class="paragraph"/>메소드에 넘기는 블력 안에 컨트롤러와 액션을 명시하는 방법도 있다:<p class="paragraph"/><div class="code"><pre><span class="java&#45;quote">"/product"</span> &#123;
+	controller = <span class="java&#45;quote">"product"</span>
+	action = <span class="java&#45;quote">"list"</span>
+&#125;</pre></div><p class="paragraph"/>'어떤 방법을 사용하는 가?'는 전적으로 개인의 취향에 달려있다.<p class="paragraph"/><h2><a name="6.4.2 Embedded Variables">6.4.2 Embedded Variables</a></h2><h4>Simple Variables(간단한 변수)</h4><p class="paragraph"/>위의 절에서는 평범한 URL을 명확한 “토근”으로 매핑하는 방법을 설명했다. URL 매핑에서 말하는 토큰은 ”/” 문자 사이에 있는 문자열이다. 명확한 토큰은 /product처럼 고정된 것을 말한다. 그러나 실행할 때까지 토큰을 알 수 없는 경우도 많다. 이 경우에 다음과 같이 URL에 대치 가능한 변수를 사용한다:<p class="paragraph"/><div class="code"><pre><span class="java&#45;keyword">static</span> mappings = &#123;
+  <span class="java&#45;quote">"/product/$id"</span>(controller:<span class="java&#45;quote">"product"</span>)
+&#125;</pre></div><p class="paragraph"/>여기서는 $id 변수를 두번째 토큰으로 내장시키므로써 Grails는 자동으로 두번째 토큰을 파라미터로 매핑한다. 이 토근은 params 객체의 id 프로퍼티로 접근될 수 있다. 예를 들어 /product/MacBook이라는 URL 있다면 다음 코드는 MacBook을 출력한다:<p class="paragraph"/><div class="code"><pre>class ProductController &#123;
+     def index = &#123; render params.id &#125;
+&#125;</pre></div><p class="paragraph"/>
+물론 좀더 복잡한 매핑도 정의할 수 있다. 예를 들어 전통적인 블로그의 URL을 매핑하는 것을 정의하면 다음과 같다:<p class="paragraph"/><div class="code"><pre><span class="java&#45;keyword">static</span> mappings = &#123;
+   <span class="java&#45;quote">"/$blog/$year/$month/$day/$id"</span>(controller:<span class="java&#45;quote">"blog"</span>, action:<span class="java&#45;quote">"show"</span>)
+&#125;</pre></div><p class="paragraph"/>이 예제에서 다음과 같은 URL이 매핑될 수 있다.<p class="paragraph"/><div class="code"><pre>/graemerocher/2007/01/10/my_funky_blog_entry</pre></div><p class="paragraph"/>URL의 각 토큰들은 <a href="../ref/Controllers/params.html" class="controllers">params</a> 객체의 year, month, day, id 등의 변수로 매핑된다:<p class="paragraph"/>
+<h4>Dynamic Controller and Action Names(동적 컨트롤러와 액션 이름)</h4><p class="paragraph"/>변수는 동적으로 컨트롤러와 액션의 이름을 매핑하는 데에도 사용할 수 있다. 다음과 같이 Grails의 기본적은 매핑 규칙을 표현할 수 있다.:<p class="paragraph"/><div class="code"><pre><span class="java&#45;keyword">static</span> mappings = &#123;
+    <span class="java&#45;quote">"/$controller/$action?/$id?"</span>()
+&#125;</pre></div><p class="paragraph"/>이 예제에서는 URL에 포함된 컨트롤러, 액션, id의 이름을 controller, action, id 변수를 통해서 쉽게 얻을 수 있다.<p class="paragraph"/><h4>Optional Variables(필수가 아닌 변수)</h4><p class="paragraph"/>기본 매핑의 다른 특징은 토큰이 생략될 수 있도록 변수 이름의 끝에 ”?”를 사용했다는 것이다. 이 기술을 적용하여 좀 더 유연한 블로그 URL 매핑도 정의할 수 있다:<p class="paragraph"/><div class="code"><pre><span class="java&#45;keyword">static</span> mappings = &#123;
+   <span class="java&#45;quote">"/$blog/$year?/$month?/$day?/$id?"</span>(controller:<span class="java&#45;quote">"blog"</span>, action:<span class="java&#45;quote">"show"</span>)
+&#125;</pre></div><p class="paragraph"/>다음 URL들은 모두 이 매핑을 따라 적절한 파라미터로 매핑되어 <a href="../ref/Controllers/params.html" class="controllers">params</a> 객체에 할당된다.<p class="paragraph"/><div class="code"><pre>/graemerocher/2007/01/10/my_funky_blog_entry
+/graemerocher/2007/01/10
+/graemerocher/2007/01
+/graemerocher/2007
+/graemerocher</pre></div><p class="paragraph"/><h4>Arbitrary Variables(임의 변수)</h4><p class="paragraph"/>URL이 매핑될 때 임의의 파라미터를 넘기도록 할 수 있다. 단지 매핑시 넘겨지는 블럭에 임의의 파라미터들을 설정하면 된다:<p class="paragraph"/><div class="code"><pre><span class="java&#45;quote">"/holiday/win"</span> &#123;
+     id = <span class="java&#45;quote">"Marrakech"</span>
+     year = 2007
+&#125;</pre></div><p class="paragraph"/>이 변수들은 컨트롤러에 넘겨진 <a href="../ref/Controllers/params.html" class="controllers">params</a> 객체를 통해서 사용할 수 있다:<p class="paragraph"/>
+<h4>Dynamically Resolved Variables(동적으로 변수 이름 결정하기)</h4><p class="paragraph"/>하드코딩된 임의의 변수도 유용하지만 때때로 변수의 이름을 런타임에 결정해야 할 때도 있다. 이 것은 변수 이름에 블럭을 할당함으로써 가능하다:<p class="paragraph"/><div class="code"><pre><span class="java&#45;quote">"/holiday/win"</span> &#123;
+     id = &#123; params.id &#125; 
+     isEligible = &#123; session.user != <span class="java&#45;keyword">null</span> &#125; // 로그인해야 한다
+&#125;</pre></div><p class="paragraph"/>블럭 안에 있는 코드는 URL이 매핑될때 실행되기 때문에 다양한 로직을 결합하여 사용할 수 있다.<h2><a name="6.4.3 Mapping to Views">6.4.3 Mapping to Views</a></h2>URL을 컨트롤러나 액션 없이 뷰에 매핑하고 싶다면 그렇게 할 수 있다. 예를 들어 루트 URL ”/“를 grails-app/views/index.gsp에 바로 매핑하고 싶다면 다음과 같이 할 수 있다:<p class="paragraph"/><div class="code"><pre><span class="java&#45;keyword">static</span> mappings = &#123;
+      <span class="java&#45;quote">"/"</span>(view:<span class="java&#45;quote">"/index"</span>)  // // 루트 URL이 매핑된다.
+&#125;</pre></div><p class="paragraph"/>뷰뿐만 아니라 컨트롤러도 명시하고 싶다면 다음과 같이 할 수 있다:<p class="paragraph"/><div class="code"><pre><span class="java&#45;keyword">static</span> mappings = &#123;
+   <span class="java&#45;quote">"/help"</span>(controller:<span class="java&#45;quote">"site"</span>,view:<span class="java&#45;quote">"help"</span>) // to a view <span class="java&#45;keyword">for</span> a controller
+&#125;</pre></div><h2><a name="6.4.4 Mapping to Response Codes">6.4.4 Mapping to Response Codes</a></h2>Grails는 HTTP 응답 코드를 컨트롤러, 액션, 뷰에 매핑할 수 있도록 허용한다. 응답 코드를 매소드에 매핑시키고 싶다면 그렇게 할 수 있다:<p class="paragraph"/><div class="code"><pre><span class="java&#45;keyword">static</span> mappings = &#123;
+   <span class="java&#45;quote">"500"</span>(controller:<span class="java&#45;quote">"errors"</span>, action:<span class="java&#45;quote">"serverError"</span>)
+   <span class="java&#45;quote">"404"</span>(controller:<span class="java&#45;quote">"errors"</span>, action:<span class="java&#45;quote">"notFound"</span>)
+   <span class="java&#45;quote">"403"</span>(controller:<span class="java&#45;quote">"errors"</span>, action:<span class="java&#45;quote">"forbidden"</span>)
+&#125;</pre></div><p class="paragraph"/>응답코드를 사용자가 정의한 에러 페이지에 매핑할 수도 있다:<p class="paragraph"/><div class="code"><pre><span class="java&#45;keyword">static</span> mappings = &#123;
+   <span class="java&#45;quote">"500"</span>(view:<span class="java&#45;quote">"/errors/serverError"</span>)
+   <span class="java&#45;quote">"404"</span>(view:<span class="java&#45;quote">"/errors/notFound"</span>)
+   <span class="java&#45;quote">"403"</span>(view:<span class="java&#45;quote">"/errors/forbidden"</span>)
+&#125;</pre></div><h2><a name="6.4.5 Mapping to HTTP methods">6.4.5 Mapping to HTTP methods</a></h2>HTTP 메소드(GET, POST, PUT, DELETE)에 따라 URL이 다르게 매핑되도록 설정할 수 있다. 이 것은 RESTful API와 HTTP 메소드에 따라 매핑되도록 제약할 수 있기에 굉장히 유용하다.<p class="paragraph"/>다음은 BookControler에 RESTful API를 위해 URL 매핑되도록 하는 예제이다:<p class="paragraph"/><div class="code"><pre><span class="java&#45;keyword">static</span> mappings = &#123;
+   <span class="java&#45;quote">"/product/$id"</span>(controller:<span class="java&#45;quote">"product"</span>)&#123;
+       action = &#91;GET:<span class="java&#45;quote">"show"</span>, PUT:<span class="java&#45;quote">"update"</span>, DELETE:<span class="java&#45;quote">"delete"</span>, POST:<span class="java&#45;quote">"save"</span>&#93;
+   &#125;	
+&#125;</pre></div><h2><a name="6.4.6 Mapping Wildcards">6.4.6 Mapping Wildcards</a></h2>Grails의 URL 매핑 메커니즘은 와일드카드도 지원한다. 다음과 같이 사용할 수 있다:<p class="paragraph"/><div class="code"><pre><span class="java&#45;keyword">static</span> mappings = &#123;
+	<span class="java&#45;quote">"/images/&#42;.jpg"</span>(controllers:<span class="java&#45;quote">"image"</span>)
+&#125;</pre></div><p class="paragraph"/>이 예제에서는 /image/logo.jpg처럼 이미지에 대한 모든 경로가 매핑될 것이다. 물론 변수를 사용해서 동일한 결과를 얻을 수도 있다:<p class="paragraph"/><div class="code"><pre><span class="java&#45;keyword">static</span> mappings = &#123;
+	<span class="java&#45;quote">"/images/$name.jpg"</span>(controllers:<span class="java&#45;quote">"image"</span>)
+&#125;</pre></div><p class="paragraph"/>한 단계 이상의 것들이 매핑되도록 와일드카드를 두 개 사용할 수도 있다:<p class="paragraph"/><div class="code"><pre><span class="java&#45;keyword">static</span> mappings = &#123;
+	<span class="java&#45;quote">"/images/&#42;&#42;.jpg"</span>(controllers:<span class="java&#45;quote">"image"</span>)
+&#125;</pre></div><p class="paragraph"/>이 경우에 /image/logo.jpg 뿐만아니라 /image/other/logo.jpg도 매핑된다. 와일드카드와 변수를 함께 사용할 수 있다:<p class="paragraph"/><div class="code"><pre><span class="java&#45;keyword">static</span> mappings = &#123;
+	// will match /image/logo.jpg and /image/other/logo.jpg 
+	<span class="java&#45;quote">"/images/$name&#42;&#42;.jpg"</span>(controllers:<span class="java&#45;quote">"image"</span>)
+&#125;</pre></div><p class="paragraph"/>와일드카드로 매핑된 경로가 <a href="../ref/Controllers/params.html" class="controllers">params</a> 객체에서 얻을 수 있는 name 파라미터에 저장될 것이다:<p class="paragraph"/><div class="code"><pre>def name = params.name
+println name // <span class="java&#45;quote">"logo.jpg"</span>나 <span class="java&#45;quote">"other/logo.jpg"</span>가 출력된다</pre></div><p class="paragraph"/><p class="paragraph"/>
+<h2><a name="6.4.7 Automatic Link Re-Writing">6.4.7 Automatic Link Re-Writing</a></h2>URL 매핑의 강력한 기능이 하나 더 있다. 이 기능은 자동으로 <a href="../ref/Tags/link.html" class="tags">link</a>를 수정한다. mapping 프로퍼티을 수정하지 않고서도 모든 링크를 수정할 수 있다.<p class="paragraph"/>이것은 URL 매핑시 링크를 리버스엔지니어링하는 URL rewrite 기술을 통해 이루어진다. 다음과 같이 위에서 설명한 블로그 매핑이 있다면:<p class="paragraph"/><div class="code"><pre><span class="java&#45;keyword">static</span> mappings = &#123;
+   <span class="java&#45;quote">"/$blog/$year?/$month?/$day?/$id?"</span>(controller:<span class="java&#45;quote">"blog"</span>, action:<span class="java&#45;quote">"show"</span>)
+&#125;</pre></div><p class="paragraph"/>다음과 같이 link 태그를 사용할 수 있다:<p class="paragraph"/><div class="code"><pre><span class="xml&#45;tag">&#60;g:link controller=<span class="xml&#45;quote">"blog"</span> action=<span class="xml&#45;quote">"show"</span> params=<span class="xml&#45;quote">"&#91;blog:'fred', year:2007&#93;"</span>&#62;</span>My Blog<span class="xml&#45;tag">&#60;/g:link&#62;</span>
+<span class="xml&#45;tag">&#60;g:link controller=<span class="xml&#45;quote">"blog"</span> action=<span class="xml&#45;quote">"show"</span> params=<span class="xml&#45;quote">"&#91;blog:'fred', year:2007, month:10&#93;"</span>&#62;</span>My Blog &#45; October 2007 Posts<span class="xml&#45;tag">&#60;/g:link&#62;</span></pre></div><p class="paragraph"/>자동으로 올바른 URL로 rewrite될 것이다:<p class="paragraph"/><div class="code"><pre><span class="xml&#45;tag">&#60;a href=<span class="xml&#45;quote">"/fred/2007"</span>&#62;</span>My Blog<span class="xml&#45;tag">&#60;/a&#62;</span>
+<span class="xml&#45;tag">&#60;a href=<span class="xml&#45;quote">"/fred/2007/10"</span>&#62;</span>My Blog &#45; October 2007 Posts<span class="xml&#45;tag">&#60;/a&#62;</span></pre></div><h2><a name="6.4.8 Applying Constraints">6.4.8 Applying Constraints</a></h2>URL 매핑은 Grails의 유효성 검사 제약조건(<a href="../guide/single.html#7.1 Declaring Constraints" class="guide">validation constraints</a>) 매커니즘과 통합돼 있다. 이것은 URL이 매핑될때 제약조건을 달 수 있게 해준다. 다음과 같이 위의 블로그 예제에 적용해 본다면:<p class="paragraph"/><div class="code"><pre><span class="java&#45;keyword">static</span> mappings = &#123;
+   <span class="java&#45;quote">"/$blog/$year?/$month?/$day?/$id?"</span>(controller:<span class="java&#45;quote">"blog"</span>, action:<span class="java&#45;quote">"show"</span>)
+&#125;</pre></div><p class="paragraph"/>다음의 URL은 매핑된다:<p class="paragraph"/><div class="code"><pre>/graemerocher/2007/01/10/my_funky_blog_entry</pre></div><p class="paragraph"/>그러나 이것은 다음의 URL도 허용할 것이다:<p class="paragraph"/><div class="code"><pre>/graemerocher/not_a_year/not_a_month/not_a_day/my_funky_blog_entry</pre></div><p class="paragraph"/>하지만 컨트롤러에서 url을 파싱해야 하는 것은 큰 문제가 아닐 수 없다. 운좋게도 URL 매핑에 제약조건을 정의해서 URL 토큰의 유효성을 검사할 수 있다.<p class="paragraph"/><div class="code"><pre><span class="java&#45;quote">"/$blog/$year?/$month?/$day?/$id?"</span> &#123;
+     controller = <span class="java&#45;quote">"blog"</span>
+     action = <span class="java&#45;quote">"show"</span>
+     constraints &#123;
+          year(matches:/&#100;&#123;4&#125;/)
+          month(matches:/&#100;&#123;2&#125;/)
+          day(matches:/&#100;&#123;2&#125;/)
+     &#125;
+&#125;</pre></div><p class="paragraph"/>이 예제에서 contraints 블럭은 year, month, day 파라미터가 특별한 형식을 따르도록 보증한다. 그래서 우리가 해야 할 일을 줄여 준다.
+<h2><a name="6.5 Web Flow">6.5 Web Flow</a></h2><h4>Overview(소개)</h4><p class="paragraph"/>Grails는 <a href="http://opensource.atlassian.com/confluence/spring/display/WEBFLOW" target="blank">Spring의 웹 플로우</a> 프로젝트에 기반하여 웹 플로우를 지원한다. 하나의 웹 플로우는 다양한 요구와 상태를 유지하는 컨버세이션(conversation)이라고 할 수 있다. 웹 플로우는 시작과 끝 상태를 가진다.<p class="paragraph"/>웹 플로우는 HTTP 세션을 요구하지 않지만 대신 상태를 저장할 때 직렬화시킨다. 이 방법은 Grails가 차례대로 넘기는 요청 파라미터인 플로우 실행 키를 사용하여 복원된다. 이 것은 HttpSession이나 메모리나 클러스터링에 상주시키는 기술을 사용하는 것보다 상태가 있는 어플리케이션의 플로우를 좀 더 쉽게 확장할 수 있게 만들어 준다.<p class="paragraph"/>웹 플로우는 본질적으로 고급 상태 머신이다. 이 것은 한 상태에서 다음 상태로 전이되는 실행의 “플로우”을 관장한다. 웹 플로우가 대신 관리함으로써 상태는 자동으로 관리되기 때문에 진행중에 사용자의 액션을 관리하는 일을 덜어 준다. 이것은 쇼핑 카트, 호텔 예약등의 여러개의 페이지를 가진 웍 플로우(work flow)들의 유즈 케이스를 위한 웹 플로우를 완벽하게 만들어 준다.<p class="paragraph"/><h4>Creating a Flow(플로우 만들기)</h4><p class="paragraph"/>플로우를 만들면 다음과 같이 평범한 Grails 컨트롤러가 생성되고 관례에 따라 Flow로 끝나는 액션이 추가된다:<p class="paragraph"/><div class="code"><pre>class BookController &#123;
+   def index = &#123;
+      redirect(action:<span class="java&#45;quote">"shoppingCart"</span>)
+   &#125;
+   def shoppingCartFlow = &#123;
+        &#8230;
+   &#125;
+&#125;</pre></div><p class="paragraph"/>Flow 접미어를 생락한 채로 액션에서 플로우를 참조시키거나 리다이렉트시킨다는 것을 기억하라. 다시 말해서 위의 플로우 액션의 이름은 shoppingCart이다.<h2><a name="6.5.1 Start and End States">6.5.1 Start and End States</a></h2>플로우는 시작과 끝 상태를 갖는 다고 언급했었다. 시작 상태는 사용자가 컨버세이션(혹은 플로우)를 초기화 시키는 첫 상태를 의미한다. Grails 플로우의 시작 상태는 블럭에서 제일 처음 호출하는 메소드이다. 예를 들어:<p class="paragraph"/><div class="code"><pre>class BookController &#123;
+   &#8230;
+   def shoppingCartFlow = &#123;
+       showCart &#123;
+           on(<span class="java&#45;quote">"checkout"</span>).to <span class="java&#45;quote">"enterPersonalDetails"</span>           
+           on(<span class="java&#45;quote">"continueShopping"</span>).to <span class="java&#45;quote">"displayCatalogue"</span>
+       &#125;
+       &#8230;
+       displayCatalogue &#123;
+            redirect(controller:<span class="java&#45;quote">"catalogue"</span>, action:<span class="java&#45;quote">"show"</span>)
+       &#125;
+       displayInvoice()
+   &#125;
+&#125;</pre></div><p class="paragraph"/>showCart 노드는 플로우의 시작 상태이다. showCart 플로우는 액션을 정의하거나 리다이렉트 시키지 않았기 때문에 관례에 따라 뷰 상태(<a href="../guide/single.html#6.5.2 Action States and View States" class="guide">view state</a>)로 간주되고 grails-app/views/book/shoppingCart/showCart.gsp라는 뷰를 참조한다.<p class="paragraph"/>다른 컨트롤러의 액션들과는 다르게 이 뷰는 플로우의 이름과 동일한 디렉토리에 저장된다는 것을 기억하라.<p class="paragraph"/>이 shoppingCart 플로우는 두 가지 끝 상태를 가지고 있다. 먼저 displayCatalogue는 다른 컨트롤러의 액션으로 리다이렉트 시킨다. 둘째로 displayInvoice는 아무것도 없는 끝 상태이기 때문에 즉시 플로우를 종료시키고 바로 grails-app/views/book/shoppingCart/displayInvoice.gsp라는 뷰가 렌더링될 것이다.<p class="paragraph"/>이 showCart 플로우는 한번 끝나면 시작 상태를 통해서만 다시 시작될 수 있다. 다른 상태를 통해서는 진입될 수 없다.<h2><a name="6.5.2 Action States and View States">6.5.2 Action States and View States</a></h2><h4>View states(뷰 상태)</h4><p class="paragraph"/>뷰 상태는 액션이나 리다이렉트를 정의하지 않는 상태를 말한다. 다음은 뷰 상태의 예제이다:<p class="paragraph"/><div class="code"><pre>enterPersonalDetails &#123;
+   on(<span class="java&#45;quote">"submit"</span>).to <span class="java&#45;quote">"enterShipping"</span>
+   on(<span class="java&#45;quote">"<span class="java&#45;keyword">return</span>"</span>).to <span class="java&#45;quote">"showCart"</span>
+&#125;</pre></div><p class="paragraph"/>이것은 기본적으로 grails-app/views/book/shoppingCart/enterPersonalDetails.gsp라는 뷰를 찾는다. enterPersonalDetails 상태에는 summit과 return이라는 두 개의 이벤트가 정의됐다는 것을 살펴하자. 이 이벤트들은 처리돼야(<a href="../guide/single.html#6.5.3 Flow Execution Events" class="guide">triggering</a>) 하고 만약 렌더링할 뷰를 변경하고 싶다면 render 메소드를 사용하면 된다:<p class="paragraph"/><div class="code"><pre>enterPersonalDetails &#123;
+   render(view:<span class="java&#45;quote">"enterDetailsView"</span>)
+   on(<span class="java&#45;quote">"submit"</span>).to <span class="java&#45;quote">"enterShipping"</span>
+   on(<span class="java&#45;quote">"<span class="java&#45;keyword">return</span>"</span>).to <span class="java&#45;quote">"showCart"</span>
+&#125;</pre></div><p class="paragraph"/>지금 이것은 grails-app/views/book/shoppingCart/enterDetailsView.gsp를 찾을 것이다. 만약 공유되는 뷰를 사용하고 싶다면 다음과 같이 파리미터로 넘길 뷰 이름을 ”/shared”로 시작하게 하라:<p class="paragraph"/><div class="code"><pre>enterPersonalDetails &#123;
+   render(view:<span class="java&#45;quote">"/shared/enterDetailsView"</span>)
+   on(<span class="java&#45;quote">"submit"</span>).to <span class="java&#45;quote">"enterShipping"</span>
+   on(<span class="java&#45;quote">"<span class="java&#45;keyword">return</span>"</span>).to <span class="java&#45;quote">"showCart"</span>
+&#125;</pre></div><p class="paragraph"/>이것은 grails-app/views/shared/enterDetailsView.gsp를 찾을 것이다.<p class="paragraph"/><h4>Action States(액션 상태)</h4><p class="paragraph"/>액션 상태는 뷰를 렌더링하지 않고 코드를 실행하는 상태를 말한다. 이 액션의 결과로 플로우는 전이된다. 액션 상태를 만들려면 실행할 액션를 정의해야 한다. 이 액션은 action 메소드를 호출하고 실행할 코드블럭에 넘겨서 수행된다:<p class="paragraph"/><div class="code"><pre>listBooks &#123;
+   action &#123; 
+	  &#91; bookList:Book.list() &#93;
+   &#125;
+   on(<span class="java&#45;quote">"success"</span>).to <span class="java&#45;quote">"showCatalogue"</span>
+   on(Exception).to <span class="java&#45;quote">"handleError"</span>
+&#125;</pre></div><p class="paragraph"/>컨트롤러의 액션과 매우 유사하게 생긴 액션을 볼 수 있다. 실제로 컨트롤러의 액션을 재사용할 수도 있다. 액션이 에러없이 성공적으로 반한되면 성공 이벤트가 발생한다. 이 예제에서는 맵을 반환하는데 이 맵은 “모델”로 간주되고 flow 스콥(<a href="../guide/single.html#6.5.4 Flow Scopes" class="guide">flow scope</a>)에 자동으로 저장된다.<p class="paragraph"/>추가로 이 예제에서 우리는 발생한 에러를 처리하기 위해 예외 핸들러를 사용하였다:<p class="paragraph"/><div class="code"><pre>on(Exception).to <span class="java&#45;quote">"handleError"</span></pre></div><p class="paragraph"/>이 예제에서 예외가 발생하면 플로우는 handleError라는 상태로 전이된다.<p class="paragraph"/>flow 요청 컨텍스트를 사용하는 좀 더 복잡한 액션을 작성할 수 있다:<p class="paragraph"/><div class="code"><pre>processPurchaseOrder  &#123;
+     action &#123;
+         def a =  flow.address
+         def p = flow.person
+         def pd = flow.paymentDetails
+         def cartItems = flow.cartItems
+         flow.clear()<p class="paragraph"/>         def o = <span class="java&#45;keyword">new</span> Order(person:p, shippingAddress:a, paymentDetails:pd)
+         o.invoiceNumber = <span class="java&#45;keyword">new</span> Random().nextInt(9999999)
+         cartItems.each &#123; o.addToItems(it) &#125;
+         o.save()
+         &#91;order:o&#93;
+     &#125;
+     on(<span class="java&#45;quote">"error"</span>).to <span class="java&#45;quote">"confirmPurchase"</span>
+     on(Exception).to <span class="java&#45;quote">"confirmPurchase"</span>
+     on(<span class="java&#45;quote">"success"</span>).to <span class="java&#45;quote">"displayInvoice"</span>
+&#125;</pre></div><p class="paragraph"/>이 예제에는 flow 스콥에 통합된 정보를 사용하여 Order 객체를 생성하는 좀 더 복잡한 액션이 정의돼 있다. 이 객체는 모델로 반환된다. 요청 컨텍스트와 “flow” 스콥을 사용하는 것은 매우 중요하다.<p class="paragraph"/><h4>Transition Actions(전이 액션)</h4><p class="paragraph"/>액선의 또 다른 형태로 전이 액션이라는 것이 있다. 전이 액션은 이벤트(<a href="../guide/single.html#6.5.3 Flow Execution Events" class="guide">event</a>)가 발생하면 다른 상태로 전이되기 전에 실행된다. 다음은 전이 액션의 예제이다:<p class="paragraph"/><div class="code"><pre>enterPersonalDetails &#123;
+   on(<span class="java&#45;quote">"submit"</span>) &#123;
+       log.trace <span class="java&#45;quote">"Going to enter shipping"</span>	
+   &#125;.to <span class="java&#45;quote">"enterShipping"</span>
+   on(<span class="java&#45;quote">"<span class="java&#45;keyword">return</span>"</span>).to <span class="java&#45;quote">"showCart"</span>
+&#125;</pre></div><p class="paragraph"/>우리가 단순히 전이 로그를 남기는 코드 블럭을 submit 이벤트에 어떻게 넘겼는지를 주목하라. 전이 상태는 데이터를 바인딩(<a href="../guide/single.html#6.5.5 Data Binding and Validation" class="guide">data binding and validation</a>)하고 그 유효성을 검사할 때 매우 유용하다. 유효성 검사는 나중에 다시 설명한다.<p class="paragraph"/><h2><a name="6.5.3 Flow Execution Events">6.5.3 Flow Execution Events</a></h2>플로우의 상태를 다른 상태로 전이 시키기 위해서 플로우가 무슨 상태로 전이 해야 하는지를 알리는 이벤트를 발생시켜야 한다. 이벤트는 뷰 상태와 액션 상태에서 발생시킬 수 있다.<p class="paragraph"/><h4>Triggering Events from a View State(뷰 상태에서 이벤트 발생시키키)</h4><p class="paragraph"/>위에서 다뤘던 플로우의 시작 상태는 checkout과 continueShopping이라는 두 가지 이벤트를 처리할 수 있었다:<p class="paragraph"/><div class="code"><pre>def shoppingCartFlow = &#123;
+    showCart &#123;
+        on(<span class="java&#45;quote">"checkout"</span>).to <span class="java&#45;quote">"enterPersonalDetails"</span>           
+        on(<span class="java&#45;quote">"continueShopping"</span>).to <span class="java&#45;quote">"displayCatalogue"</span>
+    &#125;
+    &#8230;
+&#125;</pre></div><p class="paragraph"/>showCart는 뷰 상태이기 때문에 grails-app/book/shoppingCart/showCart.gsp를 렌더링할 것이다. 이 뷰에는 플로우를 실행하는 요소가 포함돼야 한다. 폼에 <a href="../ref/Tags/submitButton.html" class="tags">submitButton</a> 태그를 사용하여 플로우를 실행시킨다:<p class="paragraph"/><div class="code"><pre><span class="xml&#45;tag">&#60;g:form action=<span class="xml&#45;quote">"shoppingCart"</span>&#62;</span>
+    <span class="xml&#45;tag">&#60;g:submitButton name=<span class="xml&#45;quote">"continueShopping"</span> value=<span class="xml&#45;quote">"Continue Shopping"</span>&#62;</span><span class="xml&#45;tag">&#60;/g:submitButton&#62;</span>
+    <span class="xml&#45;tag">&#60;g:submitButton name=<span class="xml&#45;quote">"checkout"</span> value=<span class="xml&#45;quote">"Checkout"</span>&#62;</span><span class="xml&#45;tag">&#60;/g:submitButton&#62;</span>
+<span class="xml&#45;tag">&#60;/g:form&#62;</span></pre></div><p class="paragraph"/>이 폼은 shoppingCart 플로우에 전송(submit)된다. 각 <a href="../ref/Tags/submitButton.html" class="tags">submitButton</a> 태그의 name 속성은 발생되는 이벤트를 의미한다. <a href="../ref/Tags/link.html" class="tags">link</a> 태그를 사용하여 폼없이 이벤트를 발생시킬 수 있다.<p class="paragraph"/><div class="code"><pre><span class="xml&#45;tag">&#60;g:link action=<span class="xml&#45;quote">"shoppingCart"</span> event=<span class="xml&#45;quote">"checkout"</span> /&#62;</span></pre></div><p class="paragraph"/><h4>Triggering Events from an Action(액션에서 이벤트 발생시키기)</h4><p class="paragraph"/>액션에서 이벤트를 발생시키려면 메소드를 실행해야 한다. 예를 들어 error()와 success()라는 빌트인 메소드가 있다. 다음 예제는 전이 액션에서 유효성 감사에 실패했을 때 error() 이벤트를 발생시킨다:<p class="paragraph"/><div class="code"><pre>enterPersonalDetails &#123;
+   on(<span class="java&#45;quote">"submit"</span>) &#123;
+         def p = <span class="java&#45;keyword">new</span> Person(params)
+         flow.person = p
+         <span class="java&#45;keyword">if</span>(!p.validate())<span class="java&#45;keyword">return</span> error()
+   &#125;.to <span class="java&#45;quote">"enterShipping"</span>
+   on(<span class="java&#45;quote">"<span class="java&#45;keyword">return</span>"</span>).to <span class="java&#45;quote">"showCart"</span>
+&#125;</pre></div><p class="paragraph"/>전이 액션에서 에러가 발생하면 플로우를 enterPersonalDetails 상태로 되돌아 가게 만들 것이다.<p class="paragraph"/>액션 상태에서 플로우를 리다이렉트 시키기위해 이벤트를 발생시킬 수 있다:<p class="paragraph"/><div class="code"><pre>shippingNeeded &#123;
+   action &#123;
+       <span class="java&#45;keyword">if</span>(params.shippingRequired) yes()
+       <span class="java&#45;keyword">else</span> no()
+   &#125;
+   on(<span class="java&#45;quote">"yes"</span>).to <span class="java&#45;quote">"enterShipping"</span>
+   on(<span class="java&#45;quote">"no"</span>).to <span class="java&#45;quote">"enterPayment"</span>
+&#125;</pre></div><p class="paragraph"/><h2><a name="6.5.4 Flow Scopes">6.5.4 Flow Scopes</a></h2><h4>Scope Basics(스콥의 기초)</h4><p class="paragraph"/>이전 예제에서 플로우 스콥에 객체를 저장하기 위해 “flow”라고 불리는 특별한 객체를 사용했던 것을 기억할 것이다. Grails의 플로우에서는 유용한 다섯 개의 스콥를 사용할 수 있다.
+<ul class="star">
+<li>request - 현재 요청에서 사용할 객체를 저장한다.</li>
+<li>flash - 현재 요청과 다음 요청에서 사용할 객체를 저장한다.</li>
+<li>flow - 현 플로우에서 사용할 객체를 저장한다. 플로우가 끝 상태에 도달해야 저장된 객체들이 제거된다.</li>
+<li>conversation - 루트 플로우와 네스티드(nested) 서브플로우에서 사용할 객체를 저장한다.</li>
+<li>session - 사용자의 세션에서 사용할 객체를 저장한다.</li>
+</ul><p class="paragraph"/><blockquote class="note">
+Grails의 서비스 클래스는 자동으로 웹 플로우 스콥에 포함된다. 더 자세한 정보는 <a href="../guide/single.html#8. The Service Layer" class="guide">Services</a>에 대한 문서를 참고하라.
+</blockquote><p class="paragraph"/>액션에서 반환하는 모델 맵은 자동으로 flow 스콥의 모델이 될 것이다. 다음과 같이 전이 액션에서 반환한 맵은 자동으로 flow 스콥에 저장된다:<p class="paragraph"/><div class="code"><pre>enterPersonalDetails &#123;
+   on(<span class="java&#45;quote">"submit"</span>) &#123;
+         &#91;person:<span class="java&#45;keyword">new</span> Person(params)&#93;
+   &#125;.to <span class="java&#45;quote">"enterShipping"</span>
+   on(<span class="java&#45;quote">"<span class="java&#45;keyword">return</span>"</span>).to <span class="java&#45;quote">"showCart"</span>
+&#125;</pre></div><p class="paragraph"/>각 생태마다 새로운 request가 만들어짐에 유의해야 한다. 액션 상태에서의 request 스콥에 저장된 객체는 뒤에 이어지는 뷰 상태에서 이용할 수 없다. 다른 상태로 전이할 때 다른 스콥으로 객체를 넘겨라. 또 웹 플로우에서 다음과 같은 것을 기억해야 한다:
+<ol>
+<li>상태를 전이시킬 때 flash 스콥에서 request 스콥로 객체를 이동시킨다.</li>
+<li>렌더링하기 전에 flow 스콥과 conversation 스콥에서 view 모델로 객체를 합친다(GSP 페이지 같은 뷰에서 객체를 참조할 때 스콥 접두어를 포함시키지 않는 것이 좋다).</li>
+</ol><p class="paragraph"/><h4>Flow Scopes and Serialization(플로우 스콥과 직렬화)</h4><p class="paragraph"/>flash, flow, converstion 스콥에 객체를 저장하려면 그 객체들은 java.io.Serializable을 구현해야 한다. 그렇지 않으면 에러가 발생한다. 이것은 스콥에 저장될 <a href="../guide/single.html#5. Object Relational Mapping (GORM)" class="guide">domain classes</a>에 영향을 주고 뷰에서 렌더링할 수 있게 만든다. 예를 들어 다음과 같은 도메인 클래스를 살펴보자:<p class="paragraph"/>When placing objects in <code>flash</code>, <code>flow</code> or <code>conversation</code> scope they must implement <code>java.io.Serializable</code> otherwise you will get an error. This has an impact on <a href="../guide/single.html#5. Object Relational Mapping (GORM)" class="guide">domain classes</a> in that domain classes are typically placed within a scope so that they can be rendered in a view. For example consider the following domain class:<p class="paragraph"/><div class="code"><pre>class Book &#123;
+	<span class="java&#45;object">String</span> title
+&#125;</pre></div><p class="paragraph"/>flow 스콥에 Book 클래스의 인스턴스를 저장하기 위해 다음과 같이 이 클래스를 수정해야 한다:<p class="paragraph"/><div class="code"><pre>class Book <span class="java&#45;keyword">implements</span> Serializable &#123;
+	<span class="java&#45;object">String</span> title
+&#125;</pre></div><p class="paragraph"/>이 것은 도메인 클래스에 정의한 관계(association)와 클로저에도 영향을 끼친다. 다음의 예제를 보면:<p class="paragraph"/><div class="code"><pre>class Book <span class="java&#45;keyword">implements</span> Serializable &#123;
+	<span class="java&#45;object">String</span> title
+	Author author
+&#125;</pre></div><p class="paragraph"/>만약 Author 클래스에 Serializable을 구현하지 않았다면 에러가 발생한다. onLoad, onSave, 등과 같은 <a href="../guide/single.html#5.5.1 Events and Auto Timestamping" class="guide">GORM events</a>에서 사용한 클로저에도 영향을 끼친다. 다음의 도메인 클래스의 인스턴스가 flow 스콥에 저장되면 에러가 발생한다:<p class="paragraph"/><div class="code"><pre>class Book <span class="java&#45;keyword">implements</span> Serializable &#123;
+	<span class="java&#45;object">String</span> title
+	def onLoad = &#123;
+		println <span class="java&#45;quote">"I'm loading"</span>
+	&#125;
+&#125;</pre></div><p class="paragraph"/>onload 이벤트에 할당된 블럭은 직렬화될 수 없기 때문이다. 이 것을 방지하기 위해 모든 이벤트는 transient로 정의돼야 한다:<p class="paragraph"/><div class="code"><pre>class Book <span class="java&#45;keyword">implements</span> Serializable &#123;
+	<span class="java&#45;object">String</span> title
+	<span class="java&#45;keyword">transient</span> onLoad = &#123;
+		println <span class="java&#45;quote">"I'm loading"</span>
+	&#125;
+&#125;</pre></div>
+<h2><a name="6.5.5 Data Binding and Validation">6.5.5 Data Binding and Validation</a></h2>시작과 끝 상태를 다룬 절에서 첫 예제의 시작상태는 enterPersonalDetails 상태로 전이를 일으켰다. 이 상태는 뷰를 렌더링하고 사용자가 요구된 정보를 입력할 때까지 기다린다:<p class="paragraph"/><div class="code"><pre>enterPersonalDetails &#123;
+   on(<span class="java&#45;quote">"submit"</span>).to <span class="java&#45;quote">"enterShipping"</span>
+   on(<span class="java&#45;quote">"<span class="java&#45;keyword">return</span>"</span>).to <span class="java&#45;quote">"showCart"</span>
+&#125;</pre></div><p class="paragraph"/>이 뷰에는 submit 이벤트와 return 이벤트를 발생시킬 수 있는 두 개의 submit 버튼이 있다:<p class="paragraph"/><div class="code"><pre><span class="xml&#45;tag">&#60;g:form action=<span class="xml&#45;quote">"shoppingCart"</span>&#62;</span>
+    <span class="xml&#45;comment">&#60;!&#45;&#45; Other fields &#45;&#45;&#62;</span>
+    <span class="xml&#45;tag">&#60;g:submitButton name=<span class="xml&#45;quote">"submit"</span> value=<span class="xml&#45;quote">"Continue"</span>&#62;</span><span class="xml&#45;tag">&#60;/g:submitButton&#62;</span>
+    <span class="xml&#45;tag">&#60;g:submitButton name=<span class="xml&#45;quote">"return"</span> value=<span class="xml&#45;quote">"Back"</span>&#62;</span><span class="xml&#45;tag">&#60;/g:submitButton&#62;</span>
+<span class="xml&#45;tag">&#60;/g:form&#62;</span></pre></div><p class="paragraph"/>그러나 폼에 제출된 정보를 가로챌 수는 없을까? 폼의 정보를 가로 채기 위해서 플로우의 전이 액션을 사용할 수 있다:<p class="paragraph"/><div class="code"><pre>enterPersonalDetails &#123;
+   on(<span class="java&#45;quote">"submit"</span>) &#123;
+         flow.person = <span class="java&#45;keyword">new</span> Person(params)
+         !flow.person.validate() ? error() : success()
+   &#125;.to <span class="java&#45;quote">"enterShipping"</span>
+   on(<span class="java&#45;quote">"<span class="java&#45;keyword">return</span>"</span>).to <span class="java&#45;quote">"showCart"</span>
+&#125;</pre></div><p class="paragraph"/>요청 파라미터로 부터 데이터를 어떻게 바인딩할 수 있고 flow 스콥에 Person 인스턴스가 어떻게 저장되는지 알아보자. 흥미로운 것은 유효성을 검사하고 유효성 검사(<a href="../guide/single.html#7. Validation" class="guide">validation</a>)가 실패했을 때 error() 메소드를 실행시키는 것이다. 이 것은 플로우의 전이를 중지하고 enterPersonalDetails 뷰로 되돌아가야 한다는 것을 의미한다. 그 결과로 사용자는 올바른 정보만 입력할 수 있다. 실패하지 않으면 enterShipping 상태로 계속 전이할 것이다.
+<h2><a name="6.5.6 Subflows and Conversations">6.5.6 Subflows and Conversations</a></h2>Grails의 웹 플로우는 서브플로우를 지원한다. 서브플로우는 플로우안에 있는 플로우를 말한다. 검색 플로우의 예를 보면:<p class="paragraph"/><div class="code"><pre>def searchFlow = &#123;
+            displaySearchForm &#123;
+                on(<span class="java&#45;quote">"submit"</span>).to <span class="java&#45;quote">"executeSearch"</span>
+            &#125;
+            executeSearch &#123;
+                action &#123;
+                    &#91;results:searchService.executeSearch(params.q)&#93;
+                &#125;
+                on(<span class="java&#45;quote">"success"</span>).to <span class="java&#45;quote">"displayResults"</span>
+                on(<span class="java&#45;quote">"error"</span>).to <span class="java&#45;quote">"displaySearchForm"</span>
+            &#125;
+            displayResults &#123;
+                on(<span class="java&#45;quote">"searchDeeper"</span>).to <span class="java&#45;quote">"extendedSearch"</span>
+                on(<span class="java&#45;quote">"searchAgain"</span>).to <span class="java&#45;quote">"displaySearchForm"</span>
+            &#125;
+            extendedSearch &#123;
+                subflow(extendedSearchFlow)   // &#60;&#45;&#45;&#45; 확장된 검색 서브플로우
+                on(<span class="java&#45;quote">"moreResults"</span>).to <span class="java&#45;quote">"displayMoreResults"</span>
+                on(<span class="java&#45;quote">"noResults"</span>).to <span class="java&#45;quote">"displayNoMoreResults"</span>
+            &#125;
+            displayMoreResults()
+            displayNoMoreResults()
+&#125;</pre></div><p class="paragraph"/>이 것은 extendedSearch 상태에 있는 서브플로우를 참조한다. 서브플로우는 다른 플로우와 완전히 동일하다:<p class="paragraph"/><div class="code"><pre>def extendedSearchFlow = &#123;
+       startExtendedSearch &#123;
+           on(<span class="java&#45;quote">"findMore"</span>).to <span class="java&#45;quote">"searchMore"</span>
+           on(<span class="java&#45;quote">"searchAgain"</span>).to <span class="java&#45;quote">"noResults"</span>
+       &#125;
+       searchMore &#123;
+           action &#123;
+              def results = searchService.deepSearch(ctx.conversation.query)
+              <span class="java&#45;keyword">if</span>(!results)<span class="java&#45;keyword">return</span> error()
+              conversation.extendedResults = results
+           &#125;
+           on(<span class="java&#45;quote">"success"</span>).to <span class="java&#45;quote">"moreResults"</span>
+           on(<span class="java&#45;quote">"error"</span>).to <span class="java&#45;quote">"noResults"</span>
+       &#125;
+       moreResults()
+       noResults()
+&#125;</pre></div><p class="paragraph"/>extendedResults가 conversation 스콥에 어떻게 저장되는지 살펴보자. 이 스콥는 conversation 전체에 걸친 모든 상태에 공유되므로 flow 스콥와 다르다. 서브플로우의 끝 상태인 noResults와 moreResults는 이벤트를 주 플로우에 발생킨다:<p class="paragraph"/><div class="code"><pre>extendedSearch &#123;
+         subflow(extendedSearchFlow)   // &#60;&#45;&#45;&#45; extended search subflow
+         on(<span class="java&#45;quote">"moreResults"</span>).to <span class="java&#45;quote">"displayMoreResults"</span>
+         on(<span class="java&#45;quote">"noResults"</span>).to <span class="java&#45;quote">"displayNoMoreResults"</span>
+&#125;</pre></div><p class="paragraph"/><h2><a name="6.6 Filters">6.6 Filters</a></h2>Grails 컨트롤러(<a href="../guide/single.html#6.1 Controllers" class="guide">controllers</a>)는 잘 만드러진 인터셉터를 지원한다. 인터셉터는 적은 수의 컨트롤러에는 정말 유용하지만 대형 어플리케이션에서 관리하는 것은 매우 어렵다. 반면에 필터는 컨트롤러, URI 공간(space), 액션들의 그룹에 적용될 수 있다. 필터는 주 컨트롤러 로직과 분리하여 쉽게 끼워넣고plug-in 관리할 수 있고 보안, 로깅, 등에 필요한 크로스커팅(cross cutting)을 지원한다.<p class="paragraph"/><h2><a name="6.6.1 Applying Filters">6.6.1 Applying Filters</a></h2>필터를 만드는 방법은 관례에 따라 grails-app/conf 디렉토리에 “Filters”로 끝나는 클래스를 만들면 된다. 이 클래스 안에 filters라고 불리는 코드 블럭을 만들고 이 블럭에 필터의 내용을 정의한다:<p class="paragraph"/><div class="code"><pre>class ExampleFilters &#123;
+   def filters = &#123;
+        // 여기에 필터를 정의한다
+   &#125;
+&#125;</pre></div><p class="paragraph"/>filters 블럭안의 필터들에는 이름과 스콥을 지정할 수 있다. 이름은 메소드 이름이고 스콥는 네임드 파라미터를 사용하여 정의할 수 있다. 예를 들어 모든 컨트롤러와 액션에 적용되는 필터를 정의하고 싶다면 다음과 같이 와일드카드를 사용한다:<p class="paragraph"/><div class="code"><pre>sampleFilter(controller:'&#42;', action:'&#42;') &#123;
+  // interceptor definitions
+&#125;</pre></div><p class="paragraph"/>가능한 이 필터의 스콥은 다음과 같다:
+<ul class="star">
+<li>생략가능한 와일드카드를 사용한 컨트롤러나 액션 이름</li>
+<li>Ant의 매칭 문법으로 표현한 URI</li>
+</ul><p class="paragraph"/>필터의 예제들:
+<ul class="star">
+<li>모든 컨트롤러와 액션에 적용되는 필터</li>
+</ul><p class="paragraph"/><div class="code"><pre>all(controller:'&#42;', action:'&#42;') &#123;<p class="paragraph"/>&#125;</pre></div>
+<ul class="star">
+<li>BookController에만 적용되는 필터</li>
+</ul><p class="paragraph"/><div class="code"><pre>justBook(controller:'book', action:'&#42;') &#123;<p class="paragraph"/>&#125;</pre></div>
+<ul class="star">
+<li>URI에 적용되는 필터</li>
+</ul><p class="paragraph"/><div class="code"><pre>someURIs(uri:'/book/&#42;&#42;') &#123;<p class="paragraph"/>&#125;</pre></div>
+<ul class="star">
+<li>모든 URI에 적용되는 필터</li>
+</ul><p class="paragraph"/><div class="code"><pre>allURIs(uri:'/&#42;&#42;') &#123;<p class="paragraph"/>&#125;</pre></div><p class="paragraph"/>필터들은 정의한 순서대로 실행된다.
+<h2><a name="6.6.2 Filter Types">6.6.2 Filter Types</a></h2>필터의 바디에 정의할 수 있는 인터셉터의 타입은 다음과 같다:
+<ul class="star">
+<li><code>before</code> - 액션이 실행되기 전에 실행된다. false를 반환하면 뒤따르는 모든 필터와 액션이 실행되지 않음</li>
+<li><code>after</code> - 액션이 실행된 후에 실행된다. 첫번째 파라미터로 뷰 모델을 넘겨 받음</li>
+<li><code>afterView</code> - 뷰가 렌더링된 후에 실행</li>
+</ul><p class="paragraph"/>예를 들어 보통의 인증 유즈 케이스를 구현하기 위해서 다음과 같이 정의한다:<p class="paragraph"/><div class="code"><pre>class SecurityFilters &#123;
+   def filters = &#123;
+       loginCheck(controller:'&#42;', action:'&#42;') &#123;
+           before = &#123;
+              <span class="java&#45;keyword">if</span>(!session.user &#38;&#38; !actionName.equals('login')) &#123;
+                  redirect(action:'login')
+                  <span class="java&#45;keyword">return</span> <span class="java&#45;keyword">false</span>
+               &#125;
+           &#125;<p class="paragraph"/>       &#125;
+   &#125;
+&#125;</pre></div><p class="paragraph"/>
+이 예제의 loginCheck 필터는 before 인터셉터를 사용한다. 이 인터셉터는 사용자의 세션이 열려있고 login 액션으로 리다이렉트시켜야 하는지를 검사한다. false가 반환되면 액션이 실행되지 않는다는 것을 기억하라.
+<h2><a name="6.6.3 Filter Capabilities">6.6.3 Filter Capabilities</a></h2>필터는 <a href="../guide/single.html#6.1 Controllers" class="guide">controllers</a>, 태그 라이브러리(<a href="../guide/single.html#6.3 Tag Libraries" class="guide">tag libraries</a>), 어플리케이션 컨텍스트에서 사용되는 모든 프로퍼티들을 지원한다:
+<ul class="star">
+<li><a href="../ref/Controllers/request.html" class="controllers">request</a> - HttpServletRequest 객체</li>
+<li><a href="../ref/Controllers/response.html" class="controllers">response</a> - HttpServletResponse 객체</li>
+<li><a href="../ref/Controllers/session.html" class="controllers">session</a> - HttpSession 객체</li>
+<li><a href="../ref/Controllers/servletContext.html" class="controllers">servletContext</a> - ServletContext 객체</li>
+<li><a href="../ref/Controllers/flash.html" class="controllers">flash</a> - flash 객체</li>
+<li><a href="../ref/Controllers/params.html" class="controllers">params</a> - 요청 파라미터 객체</li>
+<li><a href="../ref/Controllers/actionName.html" class="controllers">actionName</a> - 가로챈 액션의 이름</li>
+<li><a href="../ref/Controllers/controllerName.html" class="controllers">controllerName</a> - 가로챈 컨트롤러의 이름</li>
+<li><a href="../ref/Controllers/grailsApplication.html" class="controllers">grailsApplication</a> - 현재 실행중인 Grails 어플리케이션</li>
+<li><a href="http://static.springframework.org/spring/docs/2.5.x/api/org/springframework/context/ApplicationContext.html" class="api">applicationContext</a> -  ApplicationContext 객체</li>
+</ul><p class="paragraph"/>하지만 필터는 컨트롤러나 태그 라이브러리들에서 사용 가능한 모든 메소드들이 아니라 일부분만 지원한다:
+<ul class="star">
+<li><a href="../ref/Controllers/redirect.html" class="controllers">redirect</a> - 컨트롤러와 다른 액션으로 리다이렉트시키기 위해 사용</li>
+<li><a href="../ref/Controllers/render.html" class="controllers">render</a> - 사용자 정의 응답을 렌더링하기 위해 사용한다</li>
+</ul><p class="paragraph"/><h2><a name="6.7 Ajax">6.7 Ajax</a></h2>Ajax는 Asynchronous Javascript and XML의 약어이고 좀 더 풍부한(rich) 웹 어플리케이션을 만들 수 있게 해주었다. 일반적으로 이런 형태의 어플리케이션에는 <a href="http://www.ruby-lang.org/나" target="blank">Ruby</a> <a href="http://groovy.codehaus.org" target="blank">Groovy</a> 같은 언어를 사용하는 애자일하고 동적인 프레임웍이 더 적합하다. Grails는 Ajax 태그 라이브러리를 통해서 Ajax 어플리케이션을 쉽게 만들 수 있도록 돕는다. 이에 대한 모든 정보는 태그 라이브러리 레퍼런스를 참고하라.
+<h2><a name="6.7.1 Ajax using Prototype">6.7.1 Ajax using Prototype</a></h2>Grails에는 기본적으로 <a href="http://www.prototypejs.org/" target="blank">Prototype</a> 라이브러리가 탑재되어 있다. 그러나 플러그인 시스템(<a href="../guide/single.html#12. Plug-ins" class="guide">Plug-in system</a>)을 통해서 <a href="http://dojotoolkit.org/," target="blank">Dojo</a> <a href="http://developer.yahoo.com/yui/," target="blank">Yahoo UI</a> <a href="http://code.google.com/webtoolkit/" target="blank">Google Web Toolkit</a> 같은 다른 프레임웍도 지원한다.<p class="paragraph"/>이 절에서는 Prototype을 위해 Grails가 지원하는 것들에 대해 다룬다. 페이지의 &#60;head&#62; 태그에 다음의 라인을 추가하는 것으로 시작한다:<p class="paragraph"/><div class="code"><pre><span class="xml&#45;tag">&#60;g:javascript library=<span class="xml&#45;quote">"prototype"</span> /&#62;</span></pre></div><p class="paragraph"/><a href="../ref/Tags/javascript.html" class="tags">javascript</a> 태그를 사용하면 자동으로 올바른 Prototype을 사용할 수 있다. 만약 <a href="http://script.aculo.us/" target="blank">Scriptaculous</a> 도 필요하면 다음과 같이 할 수 있다:<p class="paragraph"/><div class="code"><pre><span class="xml&#45;tag">&#60;g:javascript library=<span class="xml&#45;quote">"scriptaculous"</span> /&#62;</span></pre></div><p class="paragraph"/>
+<h2><a name="6.7.1.1 Remoting Linking">6.7.1.1 Remoting Linking</a></h2>원격에 있는 내용을 로드하는 방법은 매우 다양하다. <a href="../ref/Tags/remoteLink.html" class="tags">remoteLink</a> 태그를 사용하는 것이 가장 일반적인 방법이다. 이 태그는 HTML anchor 태그를 생성하고 비동기적으로 요청한다. 추가적으로 엘리먼트에 응답도 설정한다. remote link를 만드는 가장 단순한 방법은 다음과 같다:<p class="paragraph"/><div class="code"><pre><span class="xml&#45;tag">&#60;g:remoteLink action=<span class="xml&#45;quote">"delete"</span> id=<span class="xml&#45;quote">"1"</span>&#62;</span>Delete Book<span class="xml&#45;tag">&#60;/g:remoteLink&#62;</span></pre></div><p class="paragraph"/>이 링크는 현 컨트롤러의 delete 액션에 값이 “1”인 id를 비동기적으로 요청을 보낸다.
+<h2><a name="6.7.1.2 Updating Content">6.7.1.2 Updating Content</a></h2>이 것은 굉장하지만 보통 무슨 일이 일어났는지에 대한 피드백을 사용자에게 주는 것이 필요하다:<p class="paragraph"/><div class="code"><pre>def delete = &#123;
+      def b = Book.get( params.id )
+      b.delete()
+      render <span class="java&#45;quote">"Book $&#123;b.id&#125; was deleted"</span>
+&#125;</pre></div><p class="paragraph"/>GSP 코드:<p class="paragraph"/><div class="code"><pre><span class="xml&#45;tag">&#60;div id=<span class="xml&#45;quote">"message"</span>&#62;</span><span class="xml&#45;tag">&#60;/div&#62;</span>
+<span class="xml&#45;tag">&#60;g:remoteLink action=<span class="xml&#45;quote">"delete"</span> id=<span class="xml&#45;quote">"1"</span> update=<span class="xml&#45;quote">"message"</span>&#62;</span>Delete Book<span class="xml&#45;tag">&#60;/g:remoteLink&#62;</span></pre></div><p class="paragraph"/>이 예제는 액션을 호출하고 “Book 1 was deleted”라는 응답을 message div 태그의 내용으로 설정할 것이다. 이 것은 태그의 update 속성이 해주는 일이고 실패했을 때 업데이트돼야 하는 것도 명시할 수 있다:<p class="paragraph"/>
+<div class="code"><pre><span class="xml&#45;tag">&#60;div id=<span class="xml&#45;quote">"message"</span>&#62;</span><span class="xml&#45;tag">&#60;/div&#62;</span>
+<span class="xml&#45;tag">&#60;div id=<span class="xml&#45;quote">"error"</span>&#62;</span><span class="xml&#45;tag">&#60;/div&#62;</span>
+<span class="xml&#45;tag">&#60;g:remoteLink action=<span class="xml&#45;quote">"delete"</span> id=<span class="xml&#45;quote">"1"</span>
+              update=<span class="xml&#45;quote">"&#91;success:'message',failure:'error'&#93;"</span>&#62;</span>Delete Book<span class="xml&#45;tag">&#60;/g:remoteLink&#62;</span></pre></div><p class="paragraph"/>이 예제의 error div는 요청이 실패하면 업데이트된다.
+<h2><a name="6.7.1.3 Remote Form Submission">6.7.1.3 Remote Form Submission</a></h2>HTML 폼을 비동기적으로 제출하는 방법도 두 가지이다. 첫째는 <a href="../ref/Tags/formRemote.html" class="tags">formRemote</a> 태그를 사용하는 것이다. 이 태그는 <a href="../ref/Tags/remoteLink.html" class="tags">remoteLink</a> 태그의 속성과 유사한 속성들을 가지고 있다:<p class="paragraph"/><div class="code"><pre><span class="xml&#45;tag">&#60;g:formRemote url=<span class="xml&#45;quote">"&#91;controller:'book',action:'delete'&#93;"</span> update=<span class="xml&#45;quote">"&#91;success:'message',failure:'error'&#93;"</span>&#62;</span>
+       <span class="xml&#45;tag">&#60;input type=<span class="xml&#45;quote">"hidden"</span> name=<span class="xml&#45;quote">"id"</span> value=<span class="xml&#45;quote">"1"</span> /&#62;</span>
+       <span class="xml&#45;tag">&#60;input type=<span class="xml&#45;quote">"submit"</span> value=<span class="xml&#45;quote">"Delete Book!"</span> /&#62;</span>
+<span class="xml&#45;tag">&#60;/g:formRemote &#62;</span></pre></div><p class="paragraph"/>둘째로 <a href="../ref/Tags/submitToRemote.html" class="tags">submitToRemote</a> 태그를 사용하여 submit 버튼을 만들 수 있다. 이 태그의 버튼을 클릭하면 원격에 제출되지만 액션을 사용하지 않는 버튼도 만들 수 있다:<p class="paragraph"/><div class="code"><pre><span class="xml&#45;tag">&#60;form action=<span class="xml&#45;quote">"delete"</span>&#62;</span>
+       <span class="xml&#45;tag">&#60;input type=<span class="xml&#45;quote">"hidden"</span> name=<span class="xml&#45;quote">"id"</span> value=<span class="xml&#45;quote">"1"</span> /&#62;</span>
+       <span class="xml&#45;tag">&#60;g:submitToRemote action=<span class="xml&#45;quote">"delete"</span> update=<span class="xml&#45;quote">"&#91;success:'message',failure:'error'&#93;"</span> /&#62;</span>
+<span class="xml&#45;tag">&#60;/form&#62;</span></pre></div><p class="paragraph"/><h2><a name="6.7.1.4 Ajax Events">6.7.1.4 Ajax Events</a></h2>이벤트가 발생하면 자바스크립트가 호출되도록 할 수 있다. 모든 이벤트는 "on"으로 시작하고 적당한 유저에게 피드백을 주거나 다른 액션이 실행되도록 한다:<p class="paragraph"/><div class="code"><pre><span class="xml&#45;tag">&#60;g:remoteLink action=<span class="xml&#45;quote">"show"</span> 
+              id=<span class="xml&#45;quote">"1"</span> 
+              update=<span class="xml&#45;quote">"success"</span> 
+              onLoading=<span class="xml&#45;quote">"showProgress()"</span> 
+              onComplete=<span class="xml&#45;quote">"hideProgress()"</span>&#62;</span>Show Book 1<span class="xml&#45;tag">&#60;/g:remoteLink&#62;</span></pre></div><p class="paragraph"/>이 예제는 진행 바가 보여지도록 "showProgress()" 함수를 실행하거나 다른 적절한 함수가 실행할 것이다. 가능한 이벤트들은 다음과 같다:
+<ul class="star">
+<li><code>onSuccess</code>  - 성공하면 호출되는 자바스크립트 함수</li>
+<li><code>onFailure</code>  - 실패하면 호출되는 자바스크립트 함수</li>
+<li><code>on_ERROR_CODE</code>  - 명시한 에러 코드(예 - on404=“alert('not found!')”)를 처리하기 하기위한 자바스크립트 함수</li>
+<li><code>onUninitialized</code>  - Ajax 엔진이 초기화하는데 실패하면 호출되는 자바스크립트 함수</li>
+<li><code>onLoading</code>  - 원격 함수(remote function)가 응답을 로딩하기 시작하면 호출되는 자바스크립트 함수</li>
+<li><code>onLoaded</code>  - 원격 함수가 응답을 모두 로딩하면 호출되는 자바스크립트 함수</li>
+<li><code>onComplete</code>  - 원격 함수가 업데이트를 포함한 모든 일을 완료하면 호출되는 자바스크립트 함수</li>
+</ul><p class="paragraph"/>XmlHttpRequest 객체를 참조해야 한다면 암묵적 event 파라미터 e를 사용할 수 있다:<p class="paragraph"/><div class="code"><pre><span class="xml&#45;tag">&#60;g:javascript&#62;</span>
+   function fireMe(e) &#123;
+	   alert(<span class="xml&#45;quote">"XmlHttpRequest = "</span> + e)
+   &#125;
+&#125;
+<span class="xml&#45;tag">&#60;/g:javascript&#62;</span>
+<span class="xml&#45;tag">&#60;g:remoteLink action=<span class="xml&#45;quote">"example"</span> 
+              update=<span class="xml&#45;quote">"success"</span> 
+              onSuccess=<span class="xml&#45;quote">"fireMe(e)"</span>&#62;</span>Ajax Link<span class="xml&#45;tag">&#60;/g:remoteLink&#62;</span></pre></div><p class="paragraph"/><h2><a name="6.7.2 Ajax with Dojo">6.7.2 Ajax with Dojo</a></h2><a href="http://dojotoolkit.org/" target="blank">Dojo</a> 플러그인을 Grails에 추가하여 사용한다. 터미널 윈도우를 띄우고 프로젝트 루트 디렉토리에서 다음과 같은 명령어를 사용하여 플러그인을 설치한다:<p class="paragraph"/><div class="code"><pre>grails install&#45;plugin dojo</pre></div><p class="paragraph"/>이 것은 현재 지원하는 Dojo버전을 다운로드하고 Grails 프로젝트에 설치할 것이다. 그리고 페이지에 다음과 같이 참조 태그를 추가해서 사용할 수 있다:<p class="paragraph"/><div class="code"><pre><span class="xml&#45;tag">&#60;g:javascript library=<span class="xml&#45;quote">"dojo"</span> /&#62;</span></pre></div><p class="paragraph"/>현재 <a href="../ref/Tags/remoteLink.html" class="tags">remoteLink</a>, <a href="../ref/Tags/formRemote.html" class="tags">formRemote</a>, <a href="../ref/Tags/submitToRemote.html" class="tags">submitToRemote</a>같은 모든 Grails 태그는 Dojo에서도 잘 동작한다.
+<h2><a name="6.7.3 Ajax with GWT">6.7.3 Ajax with GWT</a></h2>Grails는 <a href="http://code.google.com/webtoolkit/" target="blank">Google Web Toolkit</a> 도 지원한다. Grails wiki에서 이 플러그인에 대한 문서(<a href="http://grails.org/GWT+Plugin" target="blank">documentation</a>)를 찾을 수 있다.
+<h2><a name="6.7.4 Ajax on the Server">6.7.4 Ajax on the Server</a></h2>Ajax의 X는 XML을 의미하고 Ajax를 구현하는 방법은 매우 다양하지만 일반적으로 다음과 같이 나눌 수 있다:
+<ul class="star">
+<li>내용을 위한 Ajax(Content Centric Ajax) - 단지 페이지를 업데이트하기 위해 HTML의 결과만을 사용한다.</li>
+<li>데이터를 위한 Ajax(Data Centric Ajax) - 서버에서는 XML이나 JSON형식의 응답을 보내고 페이지를 프로그램적으로 업데이트한다.</li>
+<li>스크립트를 위한 Ajax(Script Centric Ajax) - 서버는 바로 실행될 자바스크립트를 보낸다.</li>
+</ul><p class="paragraph"/><a href="../guide/single.html#6.7 Ajax" class="guide">Ajax</a> 절의 예제들은 대부분 페이지를 업데이트하는 내용을 위한 Ajax에 대해 다룬다. 그러나 데이터나 스크립트를 위한 Ajax도 필요할 것이다. 이 문서는 그런 스타일의 Ajax도 다룬다.<p class="paragraph"/><h4>Content Centric Ajax(내용을 위한 Ajax)</h4><p class="paragraph"/>내용을 위한 Ajax는 서버에서 HTML을 전송하는 것을 말한다. 이 것은 일반적으로 <a href="../ref/Controllers/render.html" class="controllers">render</a> 메소드로 템플릿을 렌더링함으로써 이루어진다:<p class="paragraph"/><div class="code"><pre>def showBook = &#123;
+	def b = Book.get(params.id)<p class="paragraph"/>	render(template:<span class="java&#45;quote">"bookTemplate"</span>, model:&#91;book:b&#93;)
+&#125;</pre></div><p class="paragraph"/>클라이언트에서는 <a href="../ref/Tags/remoteLink.html" class="tags">remoteLink</a> 태그로 이 속성을 호출한다:<p class="paragraph"/><div class="code"><pre><span class="xml&#45;tag">&#60;g:remoteLink action=<span class="xml&#45;quote">"showBook"</span> id=<span class="xml&#45;quote">"$&#123;book.id&#125;"</span> update=<span class="xml&#45;quote">"book$&#123;book.id&#125;"</span>&#62;</span>Update Book<span class="xml&#45;tag">&#60;/g:remoteLink&#62;</span>
+<span class="xml&#45;tag">&#60;div id=<span class="xml&#45;quote">"book$&#123;book.id&#125;"</span>&#62;</span>
+   <span class="xml&#45;comment">&#60;!&#45;&#45;existing book mark&#45;up &#45;&#45;&#62;</span>
+<span class="xml&#45;tag">&#60;/div&#62;</span></pre></div><p class="paragraph"/><h4>Data Centric Ajax with JSON(Ajax 데이터에 JSON 사용하기)</h4><p class="paragraph"/>데이터를 위한 Ajax는 일반적으로 클라이언트에서 이 응답을 처리한 후 프로그램으로 페이지를 업데이트 하는 것을 말한다. Grails에서 JSON 응답을 사용하기 위해 Grails의 JSON 마샬링(<a href="../guide/single.html#6.1.7 XML and JSON Responses" class="guide">JSON marshaling</a>) 기능을 사용 할 수 있다:<p class="paragraph"/><div class="code"><pre><span class="java&#45;keyword">import</span> grails.converters.&#42;<p class="paragraph"/>def showBook = &#123;
+	def b = Book.get(params.id)<p class="paragraph"/>    render b as JSON	
+&#125;</pre></div><p class="paragraph"/>그리고 클라이언트에서는 Ajax 이벤트 핸들러를 사용하여 JSON 요청을 파싱한다:<p class="paragraph"/><div class="code"><pre><span class="xml&#45;tag">&#60;g:javascript&#62;</span>
+function updateBook(e) &#123;
+	var book = eval(<span class="xml&#45;quote">"("</span>+e.responseText+<span class="xml&#45;quote">")"</span>) // evaluate the JSON
+	$(<span class="xml&#45;quote">"book"</span>+book.id+<span class="xml&#45;quote">"_title"</span>).innerHTML = book.title
+&#125;
+<span class="xml&#45;tag">&#60;g:javascript&#62;</span>
+<span class="xml&#45;tag">&#60;g:remoteLink action=<span class="xml&#45;quote">"test"</span> update=<span class="xml&#45;quote">"foo"</span> onSuccess=<span class="xml&#45;quote">"updateBook(e)"</span>&#62;</span>Update Book<span class="xml&#45;tag">&#60;/g:remoteLink&#62;</span>
+<span class="xml&#45;tag">&#60;g:set var=<span class="xml&#45;quote">"bookId"</span>&#62;</span>book$&#123;book.id&#125;<span class="xml&#45;tag">&#60;/g:set&#62;</span>
+<span class="xml&#45;tag">&#60;div id=<span class="xml&#45;quote">"$&#123;bookId&#125;"</span>&#62;</span>
+	<span class="xml&#45;tag">&#60;div id=<span class="xml&#45;quote">"$&#123;bookId&#125;_title"</span>&#62;</span>The Stand<span class="xml&#45;tag">&#60;/div&#62;</span>
+<span class="xml&#45;tag">&#60;/div&#62;</span></pre></div><p class="paragraph"/><h4>Data Centric Ajax with XML(Ajax 데이터에 XML 사용하기)</h4><p class="paragraph"/>서버에서 XML을 사용하는 것도 매우 쉽다:<p class="paragraph"/><div class="code"><pre><span class="java&#45;keyword">import</span> grails.converters.&#42;<p class="paragraph"/>def showBook = &#123;
+	def b = Book.get(params.id)<p class="paragraph"/>    render b as XML	
+&#125;</pre></div><p class="paragraph"/>하지만 클라이언트에서 DOM을 처리해야 하기 때문에 좀 더 복잡하다:<p class="paragraph"/><div class="code"><pre><span class="xml&#45;tag">&#60;g:javascript&#62;</span>
+function updateBook(e) &#123;
+	var xml = e.responseXML
+	var id = xml.getElementsByTagName(<span class="xml&#45;quote">"book"</span>).getAttribute(<span class="xml&#45;quote">"id"</span>)
+	$(<span class="xml&#45;quote">"book"</span>+id+<span class="xml&#45;quote">"_title"</span>)=xml.getElementsByTagName(<span class="xml&#45;quote">"title"</span>)&#91;0&#93;.textContent
+&#125;
+<span class="xml&#45;tag">&#60;g:javascript&#62;</span>
+<span class="xml&#45;tag">&#60;g:remoteLink action=<span class="xml&#45;quote">"test"</span> update=<span class="xml&#45;quote">"foo"</span> onSuccess=<span class="xml&#45;quote">"updateBook(e)"</span>&#62;</span>Update Book<span class="xml&#45;tag">&#60;/g:remoteLink&#62;</span>
+<span class="xml&#45;tag">&#60;g:set var=<span class="xml&#45;quote">"bookId"</span>&#62;</span>book$&#123;book.id&#125;<span class="xml&#45;tag">&#60;/g:set&#62;</span>
+<span class="xml&#45;tag">&#60;div id=<span class="xml&#45;quote">"$&#123;bookId&#125;"</span>&#62;</span>
+	<span class="xml&#45;tag">&#60;div id=<span class="xml&#45;quote">"$&#123;bookId&#125;_title"</span>&#62;</span>The Stand<span class="xml&#45;tag">&#60;/div&#62;</span>
+<span class="xml&#45;tag">&#60;/div&#62;</span></pre></div><p class="paragraph"/><h4>Script Centric Ajax with JavaScript(스크립트를 위한 Ajax에서 자바스크립트 사용하기)</h4><p class="paragraph"/>스크립트를 위한 Ajax는 실제로 클라이언트에서 실행할 수 있는 자바스크트를 전송한다. 다음은 이 것에 대한 예제이다:<p class="paragraph"/><div class="code"><pre>def showBook = &#123;
+	def b = Book.get(params.id)<p class="paragraph"/>    response.contentType = <span class="java&#45;quote">"text/javascript"</span>
+    <span class="java&#45;object">String</span> title = b.title.encodeAsJavascript()
+    render <span class="java&#45;quote">"&#36;('book$&#123;b.id&#125;_title')='$&#123;title&#125;'"</span>
+&#125;</pre></div><p class="paragraph"/>contentType을 text/javascript로 설정해야 하는 것을 기억하라. 만약 Prototype을 사용하고 있다면 contentType을 설정한 것 때문에 반환된 Javacript가 자동으로 실행된다.<p class="paragraph"/>클라이언트가 수정되서 서버가 망가지길 바라지 않는다면 클라이언트에서 약속된agreed API를 사용해야 한다. 이 것은 Rails의 RJS같은 것이 필요한 이유이다. Grails에는 RJS같은 기능은 없지만 동적 자바스크립트 플러그인(<a href="http://grails.org/Dynamic+Javascript+Plugin" target="blank">Dynamic JavaScript Plug-in</a>)으로 유사한 일을 할 수 있다.<p class="paragraph"/><h2><a name="6.8 Content Negotiation">6.8 Content Negotiation</a></h2>Grails는 HTTP의 Accept 헤더, 명시적 포멧의 요청 파라미터(explicit format request parameter), 매핑된 URI의 확장자을 사용하여 <a href="http://en.wikipedia.org/wiki/Content_negotiation" target="blank">Content negotiation</a>을 지원한다.<p class="paragraph"/><h4>Configuring Mime Types(마임타입 설정하기)</h4><p class="paragraph"/>Content Negotiation을 처리하는 법을 다루기 전에 Grails에 어떤 컨텐트 타입에 적용되길 바라는지 알려주어야 한다. Grails는 기본적으로 grails-app/conf/Config.groovy 파일의 grails.mime.types에 많은 컨텐트 타입이 설정되어 있다:<p class="paragraph"/><div class="code"><pre>grails.mime.types = &#91; xml: &#91;'text/xml', 'application/xml'&#93;,
+                      text: 'text&#45;plain',
+                      js: 'text/javascript',
+                      rss: 'application/rss+xml',
+                      atom: 'application/atom+xml',
+                      css: 'text/css',
+                      cvs: 'text/csv',
+                      all: '&#42;/&#42;',
+                      json: 'text/json',
+                      html: &#91;'text/html','application/xhtml+xml'&#93;
+                    &#93;</pre></div><p class="paragraph"/>이 설정은 Grails가 'text/xml, 'application/xml'을 포함하는 요청 형식을 xml로 감지할 수 있게 해준다. Grail는 단순히 맵에 새로운 내용을 추가하는 것만으로 새로운 컨텐트 타입을 감지할 수 있다.<p class="paragraph"/><h4>Content Negotiation using the Accept header(Accept 헤더를 사용한 Content Negotiation)</h4><p class="paragraph"/>모든 HTTP 요청에는 무슨 미디어 타입(마임 타입이나)인지를 정의한 <a href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html" target="blank">Accept</a> 헤더가 있다. 이 헤더는 클라이언트에서 받아 들일 수 있는 형식을 의미한다. 예전 브라우져들의 Accept 헤더 내용은 일반적으로 다음과 같다:<p class="paragraph"/><div class="code"><pre>&#42;/&#42;</pre></div><p class="paragraph"/>이 것은 단순히 모든 것을 의미한다. 하지만 요즘의 브라우져들은 다음과 같이 좀 더 유용한 정보를 보낸다(다음의 예는 Firefox의 Accept 헤더이다):<p class="paragraph"/><div class="code"><pre>text/xml,application/xml,application/xhtml+xml,text/html;q=0.9,text/plain;q=0.8,image/png,&#42;/&#42;;q=0.5</pre></div><p class="paragraph"/>Grails는 이 정보를 파싱하고 최선의(prefered) <a href="../ref/Servlet API/request.html" class="servletAPI">request</a> 형식을 요청 객체의 프로퍼티에 추가한다. 이 예제는 다음과 같은 assert문을 통과할 것이다:<p class="paragraph"/><div class="code"><pre>assert 'html' == request.format</pre></div><p class="paragraph"/>text/html 미디어 타입은 “quality” 비율이 0.9이다. 따라서 가장 우선순위가 높다. 예전 브라우저를 사용하고 있다면 약간 다른 결과를 얻게 될 것이다:<p class="paragraph"/><div class="code"><pre>assert 'all' == request.format</pre></div><p class="paragraph"/>이 경우 클라이언트가 '모든' 포멧을 수용할 수 있다는 것을 의미한다. 다양한 요청을 처리하기 위해 컨트롤러(<a href="../guide/single.html#6.1 Controllers" class="guide">Controllers</a>)에서 <a href="../ref/Controllers/withFormat.html" class="controllers">withFormat</a> 메소드를 사용한다. 이 메소드는 switch문처럼 동작한다:<p class="paragraph"/><div class="code"><pre><span class="java&#45;keyword">import</span> grails.converters.&#42;<p class="paragraph"/>class BookController &#123;
+	def books
+	def list = &#123;
+		<span class="java&#45;keyword">this</span>.books = Book.list()
+		withFormat &#123;
+			html bookList:books
+			js &#123; render <span class="java&#45;quote">"alert('hello')"</span> &#125; 
+			xml &#123; render books as XML &#125;
+		&#125;
+	&#125;
+&#125;</pre></div><p class="paragraph"/>최선의 포멧이 html이라면 Grails는 html()만 호출 할 것이다. 이 것은 Grails가 grails-app/views/books/list.html.gsp나 grails-app/views/books/list.gsp를 찾도록 만든다. 만약 이 포멧이 xml이라면 클로저가 실행되서 XML로 응답한다.<p class="paragraph"/>예전 브라우저들처럼 Accept 헤더가 모든 형식인 경우에는 withFormat 메소드에 정의한 순서대로 포멧이 선택되어 호출된다. 위의 예제에서는 html 메소드가 먼저 실행될 것이다.<p class="paragraph"/><blockquote class="note">
+액션의 <a href="../ref/Controllers/withFormat.html" class="controllers">withFormat</a> 메소드가 반환하는 값이 다음에 무엇을 해야하는지를 의미하기 때문에 컨트롤러의 액션에서 마지막에 무엇이 호출되는지를 분명하게 해야 한다.
+</blockquote><p class="paragraph"/><h4>Content Negotiation with the format Request Parameter(포멧 요청 파라미터를 사용하는 Content Negotiation)</h4><p class="paragraph"/>요청 헤더를 처리하는 것이 싫다면 덮어쓰도록(override) 요청 파라미터에 다음과 같은 형식으로 명시할 수 있다:<p class="paragraph"/><div class="code"><pre>/book/list?format=xml</pre></div><p class="paragraph"/>그리고 이 파라미터를 URL 매핑(<a href="../guide/single.html#6.4 URL Mappings" class="guide">URL Mappings</a>)에도 정의할 수 있다:<p class="paragraph"/><div class="code"><pre><span class="java&#45;quote">"/book/list"</span>(controller:<span class="java&#45;quote">"book"</span>, action:<span class="java&#45;quote">"list"</span>) &#123;
+	format = <span class="java&#45;quote">"xml"</span>
+&#125;</pre></div><p class="paragraph"/><h4>Content Negotiation with URI Extensions(URI의 확장자를 이용한 Content Negotiation)</h4><p class="paragraph"/>Grails는 URI의 확장자를 이용한 Content Negotiation도 지원한다. 예를 들어 다음과 같은 URI가 있을 때:<p class="paragraph"/><div class="code"><pre>/book/list.xml</pre></div><p class="paragraph"/>Grails는 확장자에 따라 컨텐트 포멧을 xml로 설정하고 확장자를 잘라버린 후 /book/list 메소드에 매핑시킨다. 이 것은 아무것도 설정하지 않고 기본적으로 사용가능하다. 이 기능을 끄고 싶다면 grails-app/conf/Config.groovy 파일의 grails.mime.file.extensions 프로퍼티를 false로 설정해야 한다:<p class="paragraph"/><div class="code"><pre>grails.mime.file.extensions = <span class="java&#45;keyword">false</span></pre></div><p class="paragraph"/><h4>Testing Content Negotiation(Content Negotiation 테스트하기)</h4><p class="paragraph"/>통합(integration) 테스트시 요청 헤더를 조작하여 Content Negotiation을 테스트(<a href="../guide/single.html#9. Testing" class="guide">Testing</a>)할 수 있다:<p class="paragraph"/><div class="code"><pre>void testJavascriptOutput() &#123;
+	def controller = <span class="java&#45;keyword">new</span> TestController()
+	controller.request.addHeader <span class="java&#45;quote">"Accept"</span>, <span class="java&#45;quote">"text/javascript, text/html, application/xml, text/xml, &#42;/&#42;"</span><p class="paragraph"/>	controller.testAction()
+	assertEquals <span class="java&#45;quote">"alert('hello')"</span>, controller.response.contentAsString
+&#125;</pre></div><p class="paragraph"/>다른 방법으로 format 파라미터를 직접 설정하여 동일한 효과를 낼 수 있다:<p class="paragraph"/><div class="code"><pre>void testJavascriptOutput() &#123;
+	def controller = <span class="java&#45;keyword">new</span> TestController()
+	controller.params.format = 'js'<p class="paragraph"/>	controller.testAction()
+	assertEquals <span class="java&#45;quote">"alert('hello')"</span>, controller.response.contentAsString
+&#125;</pre></div>
+
+	</body>
+</html>

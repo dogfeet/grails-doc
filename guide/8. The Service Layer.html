@@ -1,0 +1,67 @@
+<html>
+     <head>
+     	<meta http-equiv="Content-type" content="text/html; charset=utf-8">
+     	<title>8. The Service Layer</title>
+     	<link rel="stylesheet" href="../css/main.css" type="text/css" media="screen" title="Ref" charset="utf-8">
+     </head>
+	<body class="body">
+		<h1><a name="8. The Service Layer">8. The Service Layer</a></h1>Grails는 웹 레이어(<a href="../guide/single.html#6. The Web Layer" class="guide">Web layer</a>) 뿐만아니라 서비스 레이어 개념도 지원한다. Grails 팀은 컨트롤러에 어플리케이션의 중요한(core) 로직을 내장시키는 것을 권장하지 않는다. 내장시키는 일은 재사용을 어렵게 만들고 깨끗하게 분리되지 않게 만든다.<p class="paragraph"/>리다이렉트등의 요청을 처리하는 것은 컨트롤러의 책임으로 남겨두고 어플리케이션의 로직들은 Grails의 서비스에 구현하는 것이 낫다.<p class="paragraph"/><h4>Creating a Service(서비스 만들기)</h4><p class="paragraph"/>터미널 윈도우를 띄우고 프로젝트 루트 디렉토리로 가서 <a href="../ref/Command Line/create-service.html" class="commandLine">create-service</a> 명렁어를 실행하면 Grails 서비스가 만들어진다:<p class="paragraph"/><div class="code"><pre>grails create&#45;service simple</pre></div><p class="paragraph"/>이 예제를 실행하면 grails-app/services/SimpleService.groovy라는 서비스가 생성된다. 서비스는 보통의 Groovy 클래스이고 서비스의 이름은 관례에 따라 Service로 끝난다:<p class="paragraph"/><div class="code"><pre>class SimpleService &#123;	
+&#125;</pre></div><h2><a name="8.1 Declarative Transactions">8.1 Declarative Transactions</a></h2>서로 다른 도메인 클래스(<a href="../guide/single.html#5. Object Relational Mapping (GORM)" class="guide">domain classes</a>)들을 결합하는(co-ordinating) 로직은 보통 서비스에 구현되고 종종 많은 오퍼레이션이 영속성을 사용한다. 이런 서비스의 특징은 트랜잭션을 관리해야만 하게 만든다. 물론 <a href="../ref/Domain Classes/withTransaction.html" class="domainClasses">withTransaction</a> 메소드로 트랜잭션을 프로그래밍할 수 있지만 이 것은 매우 소모적일 뿐만아니라 스프링의 트랜잭션 추상화의 힘을 활용한 것이 아니다.<p class="paragraph"/>서비스가 트랜잭션(transaction demarcation)을 사용해야 한다고 선언하면 트랜잭션이 활성화되고 모든 메소드는 트랜잭션을 사용한다. 모든 서비스에는 기본적으로 트랜잭션이 활성화되있고 transactional 프로퍼티의 값을 false로 설정하여 불활성화시킬 수 있다.<p class="paragraph"/><div class="code"><pre>class CountryService &#123;
+    <span class="java&#45;keyword">static</span> transactional = <span class="java&#45;keyword">false</span>
+&#125;</pre></div><p class="paragraph"/>서비스가 트랜잭션을 필요로 한다는 것을 명시하려면 단순히 이 프로퍼티의 값을 기본 값인 “true”로 설정하면 된다.<p class="paragraph"/><blockquote class="warning">
+선언적 트랜잭션을 사용하는 방법은 <a href="../guide/single.html#8.3 Dependency Injection and Services" class="guide">의존성 주입</a>하는 방법뿐이다. “new BookService()“처럼 new 연산자를 사용해서 트랜잭션 서비스로 만들 수 없다.
+</blockquote><p class="paragraph"/>
+그래서 모든 메소드들은 트랜잭션을 사용하고 메소드에서 예외가 발생하면 자동으로 롤백된다. 트랜잭션의 전파(propagation) 수준은 기본적으로 <a href="http://static.springframework.org/spring/docs/2.0.x/api/org/springframework/transaction/TransactionDefinition.html#PROPAGATION_REQUIRED" target="blank">PROPAGATION_REQUIRED</a>로 설정되어 있다.
+<h2><a name="8.2 Scoped Services">8.2 Scoped Services</a></h2>기본적으로 서비스 메소드들은 동기화되지 않는다. 서비스의 어떤 함수도 동시에concurrent 실행할 수 있도록 고려되지 않았다. 하지만 서비스는 싱글톤이고 동시에 접근될 수 있기 때문에 서비스에 상태를 저장할때는 주의해야 한다. 하지만 손 쉽게 읽기만 사용하고 서비스에 절대로 상태를 저장하지 않는 것이 더 낫다.<p class="paragraph"/>서비스를 다른 스콥에 넣어서 이 행동을 변경할 수 있다. 지원되는 스콥은 다음과 같다:
+<ul class="star">
+<li>prototype - 서비스는 항상 생성되어 다른 클래스로 주입된다.</li>
+<li>request - 서비스는 매 요청마다 생성된다.</li>
+<li>flash - 서비스는 현재 요청부터 다음 요청까지만 생성된다.</li>
+<li>flow - 서비스는 웹 플로우의 flow 스콥에 따라 생성되고 해제된다.</li>
+<li>conversation - 서비스는 웹 플로우의 conversation 스콥에 따라 생성되고 해제된다. 이 스콥은 루트 플로우와 이 것의 모든 서브 플로우들까지 포함된 스콥이다.</li>
+<li>session - 사용자 세션마다 서비스가 생성된다.</li>
+<li>singleton(기본값) - 서비스의 인스턴스는 단 한개만 존재할 수 있다.</li>
+</ul><p class="paragraph"/><blockquote class="note">
+서비스가 flash, flow, conversation 스콥에 해당되면 java.io.Serializable를 구현해야 하고 웹 플로우(<a href="../guide/single.html#6.5 Web Flow" class="guide">Web Flow</a>) 컨텍스트에서만 사용할 수 있다.
+</blockquote><p class="paragraph"/>스콥을 변경하려면 클래스에 정적 프로퍼티 scope을 추가하고 위에 설명한 것들 중에서 하나로 값을 설정한다:<p class="paragraph"/><div class="code"><pre><span class="java&#45;keyword">static</span> scope = <span class="java&#45;quote">"flow"</span></pre></div><p class="paragraph"/><h2><a name="8.3 Dependency Injection and Services">8.3 Dependency Injection and Services</a></h2><h4>Dependency Injection Basics(의존성 주입의 기초)</h4><p class="paragraph"/><a href="http://www.springframework.org/" target="blank">Spring</a> 의 의존성 주입 기능을 이용하는 것은 Grails 서비스의 중요한 특징이다. Grails의 "의존성 주입은 관례를 사용"한다. 구체적으로 말해서 서비스의 클래스 이름으로 된 프로퍼티를 사용하면 자동으로 컨트롤러, 태그 라이브러리, 등에 의존성이 주입된다.<p class="paragraph"/>예를 들어 BookService라고 불리는 서비스가 있다고 하자. 컨트롤러에 bookService 프로퍼티를 다음과 같이 넣는다:<p class="paragraph"/><div class="code"><pre>class BookController &#123;
+   def bookService
+   &#8230;
+&#125;</pre></div><p class="paragraph"/>스프링 컨테이너는 자동으로 설정된 스콥에 기반하여 서비스의 인스턴스를 주입할 것이다. 모든 의존성은 이름으로 주입된다. Grails는 타입을 이용한 의존성 주입을 지원하지 않는다. 하지만, 다음과 같이 타입을 명시할 수 있다:<p class="paragraph"/><div class="code"><pre>class AuthorService &#123;
+	BookService bookService
+&#125;</pre></div><p class="paragraph"/>그러나 이 것은 개발중에 BookService가 변경되면 다시 로딩되면서 에러를 발생시키는 문제가 있다.<p class="paragraph"/><h4>Dependency Injection and Services(의존성 주입과 서비스)</h4><p class="paragraph"/>서비스에도 동일한 방법으로 의존성을 주입할 수 있다. BookService를 사용해야 하는 AuthorService가 있을 때 AuthorService에 다음과 같이 의존성을 주입한다:<p class="paragraph"/><div class="code"><pre>class AuthorService &#123;
+	def bookService
+&#125;</pre></div><p class="paragraph"/><h4>Dependency Injection and Domain Classes(의존성 주입과 도메인 클래스)</h4><p class="paragraph"/>도메인 클래스에도 서비스를 주입할 수 있다. 이를 통해서 풍부한(rich) 도메인 모델을을 개발 할 수 있다:<p class="paragraph"/><div class="code"><pre>class Book &#123;	
+	&#8230;
+	def bookService
+	def buyBook() &#123;
+		bookService.buyBook(<span class="java&#45;keyword">this</span>)
+	&#125;
+&#125;</pre></div>
+<h2><a name="8.4 Using Services from Java">8.4 Using Services from Java</a></h2>서비스가 강력한 이유중에 하나는 다른 클래스에서 로직을 재사용할 수 있도록 캡슐화(encapsulate)하는 것이다. 그리고 자바 클래스에서도 서비스를 재사용할 수 있다. 자바에서 서비스를 재사용하는 방법은 두 가지이다. 가장 간단한 방법은 패키지를 the grails-app/services 디렉토리에 있는 서비스에 정의하는 것이다. 자바 클래스는 기본 패키지에 있는 서비스를 사용import할 수 없기 때문에 이 것은 중요하다. 아무런 패키지를 정의하지 않으면 자동으로 기본 패키지에 포함된다. 그래서 다음과 같은 BookService는 Java에서 사용할 수 없다:<p class="paragraph"/><div class="code"><pre>class BookService &#123;
+	void buyBook(Book book) &#123;
+		// logic
+	&#125;
+&#125;</pre></div><p class="paragraph"/>그러나 이것은 클래스에 패키지를 정의하면 해결된다. 클래스를 grails-app/services/bookstore처럼 하위디렉토리로 옮기고 package 키워드로 패키지를 정의한다:<p class="paragraph"/><div class="code"><pre><span class="java&#45;keyword">package</span> bookstore
+class BookService &#123;
+	void buyBook(Book book) &#123;
+		// logic
+	&#125;
+&#125;</pre></div><p class="paragraph"/>패키지를 정의하는 다른 벙법으로 service의 인터페이스에 패키지를 정의하는 방법도 있다:<p class="paragraph"/><div class="code"><pre><span class="java&#45;keyword">package</span> bookstore;
+<span class="java&#45;keyword">interface</span> BookStore &#123;
+	void buyBook(Book book);
+&#125;</pre></div><p class="paragraph"/>그리고 서비스를 구현한다:<p class="paragraph"/><div class="code"><pre>class BookService <span class="java&#45;keyword">implements</span> bookstore.BookStore &#123;
+	void buyBook(Book b) &#123;
+		// logic
+	&#125;
+&#125;</pre></div><p class="paragraph"/>어쩌면 두번째 방법이 더 깔끔할지도 모른다. 자바 세계에서는 구현된 클래스가 아니라 오직 인터페이스만을 사용할 수 있다. 어떤 방법이든지 목표는 컴파일할때 자바에서 클래스나 인터페이스를 정적으로 찾을 수 있게 하는 것이다. 이제 src/java 패키지에 자바 클래스를 만들고 Spring이 Bean의 타입과 이름을 사용할 수 있도록 setter를 구현해야 한다:<p class="paragraph"/><div class="code"><pre><span class="java&#45;keyword">package</span> bookstore;
+// note: <span class="java&#45;keyword">this</span> is Java class
+<span class="java&#45;keyword">public</span> class BookConsumer &#123;
+	<span class="java&#45;keyword">private</span> BookStore store;<p class="paragraph"/>	<span class="java&#45;keyword">public</span> void setBookStore(BookStore storeInstance) &#123;
+		<span class="java&#45;keyword">this</span>.store = storeInstance;
+	&#125;	
+	&#8230;
+&#125;</pre></div><p class="paragraph"/>그리고 나서 grails-app/conf/spring/resources.xml에 자바 클래스를 Spring의 Bean으로 설정한다(좀 더 자세한 정보는 <a href="../guide/single.html#14. Grails and Spring" class="guide">Grails and Spring</a> 장을 참고하라):<p class="paragraph"/><div class="code"><pre><span class="xml&#45;tag">&#60;bean id=<span class="xml&#45;quote">"bookConsumer"</span> class=<span class="xml&#45;quote">"bookstore.BookConsumer"</span>&#62;</span>
+	<span class="xml&#45;tag">&#60;property name=<span class="xml&#45;quote">"bookStore"</span> ref=<span class="xml&#45;quote">"bookService"</span> /&#62;</span>
+<span class="xml&#45;tag">&#60;/bean&#62;</span></pre></div><p class="paragraph"/>
+	</body>
+</html>

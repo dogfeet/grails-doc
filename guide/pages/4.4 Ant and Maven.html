@@ -1,0 +1,17 @@
+<html>
+     <head>
+     	<meta http-equiv="Content-type" content="text/html; charset=utf-8">
+     	<title>4.4 Ant and Maven</title>
+     	<link rel="stylesheet" href="../css/main.css" type="text/css" media="screen" title="Ref" charset="utf-8">
+     </head>
+	<body class="body">
+		<h4>Ant Integration</h4><p class="paragraph"/>create-app 명령어로 Grails 어플리케이션을 만들때 Grails는 자동으로 <a href="../ref/Command Line/create-app.html" class="commandLine">create-app</a> 의 <code>build.xml</code> 파일을 생성한다. 여기에는 다음과 같은 타겟들이 포함돼 있다.
+<ul class="star">
+<li>clean - Grails 어플리케이션을 청소한다.</li>
+<li>war - WAR 파일을 만든다</li>
+<li>test - 유닛 테스트를 실행한다.</li>
+<li>deploy - 기본적으로 아무일도 하지 않지만 자동 설치deployment를 구현할 수 있다.</li>
+</ul><p class="paragraph"/>이 타겟들은 Ant에 의해 실행된다:<p class="paragraph"/><div class="code"><pre>ant war</pre></div><p class="paragraph"/>build.xml은 Grails의 일반적인 명령어들을 실행하고 <a href="http://cruisecontrol.sourceforge.net/" target="blank">CruiseControl</a> 이나 <a href="https://hudson.dev.java.net/">Hudson</a> 같은 CI(continuous integration) 서버와 통합하는데 사용될 수 있다.<p class="paragraph"/><h4>Maven Integration</h4><p class="paragraph"/>Grails는 공식적으로 <a href="http://maven.apache.org/" target="blank">Maven</a> 을 지원하지 않는다. 하지만 Grails를 위한 <a href="http://forge.octo.com/confluence/display/MTG/Home" target="blank">Maven Tools for Grails</a> 라는 프로젝트가 있다. 이 도구는 이 기존의 Grails 프로젝트를 위한 POM을 만들어줄 뿐만아니라 Maven 라이프사이클lifecycle을 Grails에서 사용할 수 있게 해준다.<p class="paragraph"/>Grails를 위한 <a href="http://forge.octo.com/confluence/display/MTG/Home" target="blank">Maven Tools for Grails</a> 에 대한 자세한 정보는 프로젝트 사이트를 참고하라.
+
+	</body>
+</html>

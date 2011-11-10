@@ -1,0 +1,11 @@
+<html>
+     <head>
+     	<meta http-equiv="Content-type" content="text/html; charset=utf-8">
+     	<title>10.2 Changing Locales</title>
+     	<link rel="stylesheet" href="../css/main.css" type="text/css" media="screen" title="Ref" charset="utf-8">
+     </head>
+	<body class="body">
+		기본적으로 사용자의 Locale은 요청받은 Accept-Language 헤더에 따른다. 하지만 Grails는 사용자가 Locale을 변경할 수 있는 기능을 제공한다. 간단하게 요청 인자로 “lang”을 사용하기만 하면 된다.<p class="paragraph"/><div class="code"><pre>/book/list?lang=es</pre></div><p class="paragraph"/>Grails는 알아서 사용자의 Locale을 변경시키고, 이를 쿠키에 저장하므로 이어지는 요청은 새로운 Header를 가질것이다 (역주, 즉 쿠키로 반영하기 위한 헤더 변경)
+
+	</body>
+</html>

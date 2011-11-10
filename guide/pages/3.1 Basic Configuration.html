@@ -1,0 +1,14 @@
+<html>
+     <head>
+     	<meta http-equiv="Content-type" content="text/html; charset=utf-8">
+     	<title>3.1 Basic Configuration</title>
+     	<link rel="stylesheet" href="../css/main.css" type="text/css" media="screen" title="Ref" charset="utf-8">
+     </head>
+	<body class="body">
+		일반적인 설정을 위해서 grails는 <code>grails-app/conf/Config.groovy</code> 라는 파일을 제공한다. 이 파일은 groovy의 <a href="http://groovy.codehaus.org/ConfigSlurper를" target="blank">ConfigSlurper</a> 사용한다. ConfigSlurper는 순수 groovy로 만들어졌다는 것을 제외하고는 자바 프로퍼티 파일과 매우 유사하다. 따라서 적절한 자바 타입과 변수를 재사용 할 수 있다.<p class="paragraph"/>예를 들어, 다음과 같이 설정을 추가할 수 있다:<p class="paragraph"/><div class="code"><pre>foo.bar.hello = <span class="java&#45;quote">"world"</span></pre></div><p class="paragraph"/>그리고 나서 어플리케이션에서 두 가지 방법으로 이 설정에 접근할 수 있다. 컨트롤러나 태그라이브러리에서 사용가능한 <a href="../api/org/codehaus/groovy/grails/commons/GrailsApplication.html" class="api">GrailsApplication</a> 객체를 통해서 접근하는 것이 가장 일반적이다:<p class="paragraph"/><div class="code"><pre>assert <span class="java&#45;quote">"world"</span> == grailsApplication.config.foo.bar.hello</pre></div><p class="paragraph"/>두번째 방법으로 설정 객체를 참조하고 있는 <a href="../api/org/codehaus/groovy/grails/commons/ConfigurationHolder.html" class="api">ConfigurationHolder</a> 사용할 수도 있다:<p class="paragraph"/><div class="code"><pre><span class="java&#45;keyword">import</span> org.codehaus.groovy.grails.commons.&#42;
+&#8230;
+def config = ConfigurationHolder.config
+assert <span class="java&#45;quote">"world"</span> == config.foo.bar.hello</pre></div>
+
+	</body>
+</html>

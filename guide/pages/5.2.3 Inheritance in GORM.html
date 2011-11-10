@@ -1,0 +1,22 @@
+<html>
+     <head>
+     	<meta http-equiv="Content-type" content="text/html; charset=utf-8">
+     	<title>5.2.3 Inheritance in GORM</title>
+     	<link rel="stylesheet" href="../css/main.css" type="text/css" media="screen" title="Ref" charset="utf-8">
+     </head>
+	<body class="body">
+		GORM 에서는 추상 부모 클래스와 영속 GORM 엔터티에서 상속받을 수 있다. 예를 들면:<p class="paragraph"/><div class="code"><pre>class Content &#123;
+     <span class="java&#45;object">String</span> author
+&#125;
+class BlogEntry <span class="java&#45;keyword">extends</span> Content &#123;
+    URL url
+&#125;
+class Book <span class="java&#45;keyword">extends</span> Content &#123;
+    <span class="java&#45;object">String</span> ISBN
+&#125;
+class PodCast <span class="java&#45;keyword">extends</span> Content &#123;
+    <span class="java&#45;object">byte</span>&#91;&#93; audioStream
+&#125;</pre></div><p class="paragraph"/>이 예에서 우리는 부모 클래스인 <code>Content</code> 와 다른 특징을 가진 자식 클래스들을 만들었다.<p class="paragraph"/><h4>Considerations(고려 사항)</h4><p class="paragraph"/>Grails는 기본적으로 상속 구조당 하나의 테이블(table-per-hierarchy)에 매핑한다. 부모 클래스와 그 자식 클래스들은(<code>BlogEntry</code>, <code>Book</code>, 등등) <strong class="bold">동일한</strong> 테이블을 사용하고 식별 칼럼을 두어 구분한다.<p class="paragraph"/>상속 구조당 하나의 테이블(table-per-hierarchy)에 매핑하는 것은 'not null'인 프로퍼티를 가질 수 없다는 단점이 있다. 다른 방법으로 <a href="../guide/single.html#5.5.2 Custom ORM Mapping" class="guide">ORM DSL</a>을 이용하여 클래스당 하나의 테이블(table-per-subclass)에 매핑하는 전략을 사용하는 것이다.<p class="paragraph"/>그러나 클래스당 하나의 테이블(table-per-subclass)에 매핑하는 전략을 과도하게 사용하면 조인 쿼리가 남발되기 때문에 쿼리 성능이 형편없어 진다. 우리는 상속을 남용하지말고 상속 계층를 너무 깊게 가져가지 말라고 권고한다.<p class="paragraph"/><h4>Polymorphic Queries(쿼리의 다형성)</h4><p class="paragraph"/>상속은 다형적으로(polymorphically) 질의할 수 있게 해준다. 예를 들어 <code>Content</code> 부모 클래스에서 <a href="../ref/Domain Classes/list.html" class="domainClasses">list</a> 메소드를 사용하면 모든 자식 클래스들이 반환된다:<p class="paragraph"/><div class="code"><pre>def content = Content.list() // 블로그 글, 책, 팟 캐스트 모두 나열된다.
+content = Content.findAllByAuthor('Joe Bloggs') // 저자를 기준으로 찾는다.<p class="paragraph"/>def podCasts = PodCast.list() //팟 캐스트만 나열된다.</pre></div>
+	</body>
+</html>

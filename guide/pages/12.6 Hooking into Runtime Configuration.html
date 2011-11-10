@@ -1,0 +1,36 @@
+<html>
+     <head>
+     	<meta http-equiv="Content-type" content="text/html; charset=utf-8">
+     	<title>12.6 Hooking into Runtime Configuration</title>
+     	<link rel="stylesheet" href="../css/main.css" type="text/css" media="screen" title="Ref" charset="utf-8">
+     </head>
+	<body class="body">
+		Grails는 시스템의 여러 다양한 부분에 영향을 주거나 관례에 의해 런타임 구성을 수행하는데 관한 몇 가지 가로채는 방법을 제공한다.<p class="paragraph"/><h4>Hooking into the Grails Spring configuration(Grails Spring 설정에서 가로채기)</h4><p class="paragraph"/>먼저 코드로 할당되는 doWithSpring 프로퍼티를 제공함으로써 Grails 런타임 구성에서 가로챌 수 있다. 예를 들어 아래의 코드는 국제화(<a href="../guide/single.html#10. Internationalization" class="guide">i18n</a>)를 지원하기 위한 코어 Grails 플러그인 중에서 가져온 코드이다:<p class="paragraph"/><div class="code"><pre><span class="java&#45;keyword">import</span> org.springframework.web.servlet.i18n.CookieLocaleResolver;
+<span class="java&#45;keyword">import</span> org.springframework.web.servlet.i18n.LocaleChangeInterceptor;
+<span class="java&#45;keyword">import</span> org.springframework.context.support.ReloadableResourceBundleMessageSource;<p class="paragraph"/>class I18nGrailsPlugin &#123;<p class="paragraph"/>	def version = 0.1<p class="paragraph"/>	def doWithSpring = &#123;
+		messageSource(ReloadableResourceBundleMessageSource) &#123;
+			basename = <span class="java&#45;quote">"WEB&#45;INF/grails&#45;app/i18n/messages"</span>
+		&#125;
+		localeChangeInterceptor(LocaleChangeInterceptor) &#123;
+			paramName = <span class="java&#45;quote">"lang"</span>
+		&#125;
+		localeResolver(CookieLocaleResolver)
+	&#125;
+&#125;</pre></div><p class="paragraph"/>이 플러그인은 Grails messageSource Bean과 로케일 풀이(Resolution)와 로케일간 이동을 관리하는 여러 다른 Bean을 만든다. 이렇게 하기 위해 <a href="../guide/single.html#14. Grails and Spring" class="guide">Spring Bean Builder</a> 문법을 이용한다.<p class="paragraph"/><h4>Participating in web.xml Generation(Web.xml 파일 생성에 참여하기)</h4><p class="paragraph"/>Grails는 실행 시에 WEB-INF/web.xml 파일을 생성한다. 플러그인이 이 파일을 직접 변경할수는 없지만 이 파일을 생성하는데 참야할 수는 있다. 본질적으로 플러그인은 doWithWebDescriptor 프로퍼티를 제공하며 xmlSlurper GPathResult로서 web.xml파일이 전달되는 코드가 할당되어 있다.<p class="paragraph"/>ControllersPlugin의 코드인 아래의 예제를 생각해보자:<p class="paragraph"/><div class="code"><pre>def doWithWebDescriptor = &#123; webXml &#45;&#62;
+	def mappingElement = webXml.'servlet&#45;mapping'
+	mappingElement + &#123;
+		'servlet&#45;mapping' &#123;
+			'servlet&#45;name'(<span class="java&#45;quote">"grails"</span>)
+			'url&#45;pattern'(<span class="java&#45;quote">"&#42;.dispatch"</span>)
+		&#125;
+	&#125;
+&#125;</pre></div><p class="paragraph"/>플러그인은 마지막 &#60;servlnet-mapping&#62; 엘레먼트에 대한 참조를 가지고 클로져와 코드를 사용하여 프로그램적으로 XML을 수정할 수 있는 XmlSlurper의 기능을 사용하여 Grails의 서블릿을 그 끝에다가 추가한다.<p class="paragraph"/>
+<h4>Doing Post Initialisation Configuration(초기화후 설정)</h4><p class="paragraph"/>때때로 Spring <a href="http://static.springframework.org/spring/docs/2.5.x/api/org/springframework/context/ApplicationContext.html" class="api">ApplicationContext</a>가 만들어지고 어떠한 런타임 설정을 할 수 있는것은 유용하다. 이런 상황에서 doWithApplicationContext Closure 프로퍼티를 정의할 수 있다.<p class="paragraph"/><div class="code"><pre>class SimplePlugin &#123;
+     def name=<span class="java&#45;quote">"simple"</span>
+     def version = 1.1<p class="paragraph"/>	 def doWithApplicationContext = &#123; appCtx &#45;&#62;
+          SessionFactory sf = appCtx.getBean(<span class="java&#45;quote">"sessionFactory"</span>)
+          // <span class="java&#45;keyword">do</span> something here with session factory
+	 &#125;
+&#125;</pre></div><p class="paragraph"/>
+	</body>
+</html>

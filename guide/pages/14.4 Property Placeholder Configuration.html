@@ -1,0 +1,14 @@
+<html>
+     <head>
+     	<meta http-equiv="Content-type" content="text/html; charset=utf-8">
+     	<title>14.4 Property Placeholder Configuration</title>
+     	<link rel="stylesheet" href="../css/main.css" type="text/css" media="screen" title="Ref" charset="utf-8">
+     </head>
+	<body class="body">
+		Grails는 프로퍼티 위치지정 설정의 개념을 제공한다. 이것은 Spring의 <a href="http://static.springframework.org/spring/docs/2.5.x/api/org/springframework/beans/factory/config/PropertyPlaceholderConfigurer.html" class="api">PropertyPlaceholderConfigurer</a>의 확장 버전을 통해 제공한다. 그리고 외부화된 설정(<a href="../guide/single.html#3.4 Externalized Configuration" class="guide">externalized configuration</a>)과 함께 묶여서 사용될때 유용하다.<p class="paragraph"/>자바 프로퍼티 파일의 <a href="http://groovy.codehaus.org/ConfigSlurper" target="blank">ConfigSlurper</a> 스크립트에서 정의된 설정들은 grails-app/conf/spring/resources.xml 에서 Spring 설정을 위한 위치지정 값들로 사용된다. 예를 들어 grails-app/conf/Config.groovy 파일(또는 외부화된 설정)에서 다음 목록들entries을 들 수 있다:<p class="paragraph"/><div class="code"><pre>database.driver=<span class="java&#45;quote">"com.mysql.jdbc.Driver"</span>
+database.dbname=<span class="java&#45;quote">"mysql:mydb"</span></pre></div><p class="paragraph"/>그리고 위치지정을 resources.xml파일에서 다음과 같은 ${..} 형식과 비슷하게 지정할 수 있다:<p class="paragraph"/><div class="code"><pre><span class="xml&#45;tag">&#60;bean id=<span class="xml&#45;quote">"dataSource"</span> class=<span class="xml&#45;quote">"org.springframework.jdbc.datasource.DriverManagerDataSource"</span>&#62;</span>
+   <span class="xml&#45;tag">&#60;property name=<span class="xml&#45;quote">"driverClassName"</span>&#62;</span><span class="xml&#45;tag">&#60;value&#62;</span>$&#123;database.driver&#125;<span class="xml&#45;tag">&#60;/value&#62;</span><span class="xml&#45;tag">&#60;/property&#62;</span>
+   <span class="xml&#45;tag">&#60;property name=<span class="xml&#45;quote">"url"</span>&#62;</span><span class="xml&#45;tag">&#60;value&#62;</span>jdbc:$&#123;database.dbname&#125;<span class="xml&#45;tag">&#60;/value&#62;</span><span class="xml&#45;tag">&#60;/property&#62;</span>
+ <span class="xml&#45;tag">&#60;/bean&#62;</span></pre></div>
+	</body>
+</html>

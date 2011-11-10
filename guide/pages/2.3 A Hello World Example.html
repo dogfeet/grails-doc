@@ -1,0 +1,16 @@
+<html>
+     <head>
+     	<meta http-equiv="Content-type" content="text/html; charset=utf-8">
+     	<title>2.3 A Hello World Example</title>
+     	<link rel="stylesheet" href="../css/main.css" type="text/css" media="screen" title="Ref" charset="utf-8">
+     </head>
+	<body class="body">
+		전형적인 "hello world!" 예제 프로그램을 구현하기 위해서는 <a href="../ref/Command Line/create-controller.html" class="commandLine">create-controller</a> 명령어를 사용한다.<p class="paragraph"/><pre class="bq"><code>
+grails create-controller hello  </code></pre><p class="paragraph"/>이것은 <code>grails-app/controllers</code> 디렉토리 안에 <code>HelloController.groovy</code> 라는 새로운 컨트롤러를 생성할 것이다(더 많은 정보를 원한다면 <a href="../guide/single.html#6.1 Controllers" class="guide">컨트롤러</a> 절을 보라.)<p class="paragraph"/>컨트롤러는 웹 요청들을 처리할 수 있다. 그리고 다음과 같이 구현하여 "hello world!"라는 메시지를 출력할 수 있다.<p class="paragraph"/><div class="code"><pre>class HelloController &#123;<p class="paragraph"/>    def world = &#123;
+            render <span class="java&#45;quote">"Hello World!"</span>
+     &#125; 
+&#125;</pre></div><p class="paragraph"/>다했다. 이제 또 다른 명령어인 <a href="../ref/Command Line/run-app.html" class="commandLine">run-app</a>로 컨테이너를 실행시킨다.<p class="paragraph"/><pre class="bq"><code>
+grails run-app</code></pre><p class="paragraph"/>이 명령어로 8080포트로 서버를 실행시키고나서 <code>http://localhost:8080/helloworld</code> 와 같은 URL로 해당 어플리케이션에 접속할 수 있다.<p class="paragraph"/>결과는 다음의 스크린샷과 같이 나올 것이다.<p class="paragraph"/><img border="0" class="center" src="../img/intropage.png"></img><p class="paragraph"/>이 것은 <code>web-app/index.gsp</code> 로 렌더링된 Grails의 소개페이지이다. 이 페이지에는 컨트롤러들이 보여질 것이고 컨트롤러의 링크를 클릭하면 브라우저 윈도우에 "Hello World!"라고 출력되는 것을 보게 될 것이다.
+
+	</body>
+</html>

@@ -1,0 +1,154 @@
+<html>
+     <head>
+     	<meta http-equiv="Content-type" content="text/html; charset=utf-8">
+     	<title>3. Configuration</title>
+     	<link rel="stylesheet" href="../css/main.css" type="text/css" media="screen" title="Ref" charset="utf-8">
+     </head>
+	<body class="body">
+		<h1><a name="3. Configuration">3. Configuration</a></h1>"설정보다 관례"를 지향하는 프레임워크에서 이런 주제를 다루는게 이상하게 보일 것이다. 하지만 설정할 것이 있긴 있기 때문에 이에 대해 짚고 넘어갈 필요가 있다.<p class="paragraph"/>실제로 Grails를 전혀 설정하지 않고서도 개발할 수 있다. Grails에는 내장 컨테이너와 HSQLDB라는 메모리 데이터베이스가 탑재돼 있어서 데이터베이스 설정조차 필요없다.<p class="paragraph"/>하지만 때가 되면 실제 데이터베이스를 사용하고 싶어질 것이고 그 방법은 이 장에서 설명한다.<h2><a name="3.1 Basic Configuration">3.1 Basic Configuration</a></h2>일반적인 설정을 위해서 grails는 <code>grails-app/conf/Config.groovy</code> 라는 파일을 제공한다. 이 파일은 groovy의 <a href="http://groovy.codehaus.org/ConfigSlurper를" target="blank">ConfigSlurper</a> 사용한다. ConfigSlurper는 순수 groovy로 만들어졌다는 것을 제외하고는 자바 프로퍼티 파일과 매우 유사하다. 따라서 적절한 자바 타입과 변수를 재사용 할 수 있다.<p class="paragraph"/>예를 들어, 다음과 같이 설정을 추가할 수 있다:<p class="paragraph"/><div class="code"><pre>foo.bar.hello = <span class="java&#45;quote">"world"</span></pre></div><p class="paragraph"/>그리고 나서 어플리케이션에서 두 가지 방법으로 이 설정에 접근할 수 있다. 컨트롤러나 태그라이브러리에서 사용가능한 <a href="../api/org/codehaus/groovy/grails/commons/GrailsApplication.html" class="api">GrailsApplication</a> 객체를 통해서 접근하는 것이 가장 일반적이다:<p class="paragraph"/><div class="code"><pre>assert <span class="java&#45;quote">"world"</span> == grailsApplication.config.foo.bar.hello</pre></div><p class="paragraph"/>두번째 방법으로 설정 객체를 참조하고 있는 <a href="../api/org/codehaus/groovy/grails/commons/ConfigurationHolder.html" class="api">ConfigurationHolder</a> 사용할 수도 있다:<p class="paragraph"/><div class="code"><pre><span class="java&#45;keyword">import</span> org.codehaus.groovy.grails.commons.&#42;
+&#8230;
+def config = ConfigurationHolder.config
+assert <span class="java&#45;quote">"world"</span> == config.foo.bar.hello</pre></div>
+<h2><a name="3.1.1 Built in options">3.1.1 Built in options</a></h2>Grails는 다음과 같은 설정 옵션을 제공한다.
+<ul class="star">
+<li>grails.config.locations - 프로퍼티 파일이나 추가할 Grails의 설정 파일의 위치를 나타낸다. 추가된 Grails의 설정 파일은 메인 설정파일과 통합돼야 한다.</li>
+<li>grails.enable.native2ascii - 만약 Grails의 i18n 프로퍼티 파일의 native2ascii 전환이 필요없다면 false로 세팅하라</li>
+<li>grails.views.default.codec - GSP를 위한 기본 인코딩을 지정한다. - 'none', 'html', 'base64'중에 하나로 설정할 수 있다. (기본은 'none'이다.) XSS 공격의 위험을 줄이려면 'html'로 바꿔라.</li>
+<li>grails.views.gsp.encoding - GSP 소스파일에서 사용되는 파일 인코딩 (기본적으로 'utf-8'로 되어있다)</li>
+<li>grails.war.destFile - <a href="../ref/Command Line/war.html" class="commandLine">war</a> 명령어로 WAR 파일을 생성 할 장소를 지정한다.</li>
+<li>grails.mime.file.extensions - Content Negotiation의 마임 타입에서 사용할 파일 확장자를 지정한다.</li>
+<li>grails.mime.types - Grails에서 Content Negotiation에 사용할 MIME 타입을 맵 형식으로 지정한다.</li>
+<li><code>grails.serverURL</code> - 서버의 도메인 이름을 포함한 URL의 절대경로 서버 주소. 예, grails.serverURL="http://my.yourportal.com" . <a href="../ref/Tags/createLink.html" class="Tags">createLink</a> 참조.</li>
+</ul><p class="paragraph"/><h2><a name="3.1.2 Logging">3.1.2 Logging</a></h2><h4>Logging Basics</h4><p class="paragraph"/>Grails는 <a href="http://logging.apache.org/log4j/1.2/index.html" target="blank">Log4j</a> 로그 시스템에 기반한 공통의 '설정 매커니즘'을 사용한다. <code>grails-app/conf</code> 디렉토리에 있는 <code>Config.groovy</code>를 수정하여 로깅을 설정하고 <code>Config.groovy</code>파일 하나로 <code>development</code>, <code>test</code>, <code>production</code>의 각 환경에 맞게 로깅 구성을 따로 정할 수 있다. Grails는 <code>Config.groovy</code>파일을 처리해서 <code>web-app/WEB-INF/classes</code> 디렉토리 안에 알맞은 <code>log4j.properties</code> 파일을 생성한다.<p class="paragraph"/>Grails의 일반적인 Log4j 설정은 다음과 같다:<p class="paragraph"/><div class="code"><pre>log4j &#123;
+    appender.stdout = <span class="java&#45;quote">"org.apache.log4j.ConsoleAppender"</span>
+	appender.'stdout.layout'=<span class="java&#45;quote">"org.apache.log4j.PatternLayout"</span>
+    rootLogger=<span class="java&#45;quote">"error,stdout"</span>
+    logger &#123;
+        grails=<span class="java&#45;quote">"info,stdout"</span>
+        org &#123;
+            grails.spring=<span class="java&#45;quote">"info,stdout"</span>
+            codehaus.groovy.grails.web=<span class="java&#45;quote">"info,stdout"</span>
+            codehaus.groovy.grails.commons=<span class="java&#45;quote">"info,stdout"</span>
+            &#8230;
+        &#125;
+&#125;
+&#125;</pre></div><p class="paragraph"/>표준 Log4j 프로퍼티 파일 스타일을 선호한다면 groovy 멀티라인 문자열을 사용할 수 있다:<p class="paragraph"/><div class="code"><pre>log4j = '''
+log4j.appender.stdout=org.apache.log4j.ConsoleAppender
+log4j.appender.stdout.layout=org.apache.log4j.PatternLayout
+&#35; ...remaining configuration
+'''</pre></div><p class="paragraph"/>여기에 유용한 logger를 소개한다:
+<ul class="star">
+<li>org.codehaus.groovy.grails.commons - 클래스 로딩과 같은 중요한 정보</li>
+<li>org.codehaus.groovy.grails.web - Grails의 웹 요청 처리</li>
+<li>org.codehaus.groovy.grails.web.mapping - URL 매핑 디버깅</li>
+<li>org.codehaus.groovy.grails.plugins - 로그 플러그인의 행동</li>
+<li>org.springframework - Spring이 하는 일</li>
+<li>org.hibernate - Hibernate가 하는 일</li>
+</ul><p class="paragraph"/><h4>Full stacktraces</h4><p class="paragraph"/>예외가 발생 했을 때 자바와 Groovy 내부에서부터 스택을 트레이스하면 심한 노이즈가 있을 수 있다. Grails는 보통 관련이 없는 것들을 걸러내고 중요하지 않은 Grails/Groovy 클래스 패키지만을 Trace하도록 제한한다. Grails는 보통 그러한 관련이 없는 것들을 필터링 해주고, 핵심 Grails/Groovy 클래스 패키지가 아닌 것으로 Trace를 제한하고 있다.<p class="paragraph"/>예외가 발생하면, 전체 추적 내용은 항상 StackTrace 로거에 씌여진다. StackTrace는 <code>stacktrace.log</code> 파일에 기록하지만 Congfig.groovy파일을 이용해서 원하는 곳에 기록하도록 할 수 있다. 예를 들어 만약에 표준 출력으로 전체 추적 내용을 기록하고 싶다면 다음과 같은 설정을:<p class="paragraph"/><div class="code"><pre>StackTrace=<span class="java&#45;quote">"error,errors"</span></pre></div><p class="paragraph"/>다음과 같이 바꾼다:<p class="paragraph"/><div class="code"><pre>StackTrace=<span class="java&#45;quote">"error,stdout"</span></pre></div><p class="paragraph"/><code>grails.full.stacktrace</code> VM 프로퍼티을 <code>true</code>로 설정을 해서 스택 트레이스 필터링을 끌 수 있다.<p class="paragraph"/><div class="code"><pre>grails &#45;Dgrails.full.stacktrace=<span class="java&#45;keyword">true</span> run&#45;app</pre></div><p class="paragraph"/><h4>Logging by Convention</h4><p class="paragraph"/>어플리케이션의 모든 아티펙트에는 <code>log</code> 프로퍼티을 동적으로 추가할 수 있다. 아티펙트는 <a href="../guide/single.html#5. Object Relational Mapping (GORM)" class="guide">도메인 클래스</a>, <a href="../guide/single.html#6.1 Controllers" class="guide">컨트롤러</a>, 태그 라이브러리 등을 말한다. 이것의 사용법은 다음과 같다:<p class="paragraph"/><div class="code"><pre>def foo = <span class="java&#45;quote">"bar"</span>
+log.debug <span class="java&#45;quote">"The value of foo is $foo"</span></pre></div><p class="paragraph"/>로그의 이름은 <code>grails.app.&#60;아티펙트 타입&#62;.ClassName</code> 과 같은 관례에 따른다. 다음은 다양한 Grails 아티펙트에 로그를 설정하는 예이다:<p class="paragraph"/><div class="code"><pre>&#35; Set level <span class="java&#45;keyword">for</span> all application artefacts
+log4j.logger.grails.app=<span class="java&#45;quote">"info, stdout"</span><p class="paragraph"/>&#35; Set <span class="java&#45;keyword">for</span> a specific controller
+log4j.logger.grails.app.controller.YourController=<span class="java&#45;quote">"debug, stdout"</span><p class="paragraph"/>&#35; Set <span class="java&#45;keyword">for</span> a specific domain class
+log4j.logger.grails.app.domain.Book=<span class="java&#45;quote">"debug, stdout"</span><p class="paragraph"/>&#35; Set <span class="java&#45;keyword">for</span> a specific taglib
+log4j.logger.grails.app.tagLib.FancyAjax=<span class="java&#45;quote">"debug, stdout"</span><p class="paragraph"/>&#35; Set <span class="java&#45;keyword">for</span> all taglibs
+log4j.logger.grails.app.tagLib=<span class="java&#45;quote">"info, stdout"</span></pre></div><p class="paragraph"/>아티펙트들의 이름은 관례에 따른다. 다음은 일반적인 아티펙트들의 목록이다.
+<ul class="star">
+<li>bootstrap - 부트스트랩 클래스들을 위한 아티펙트</li>
+<li>dataSource - data source들을 위한 아티펙트</li>
+<li>tagLib - 태그 라이브러리를 위한 아티펙트</li>
+<li>service - 서비스 클래스들을 위한 아티펙트</li>
+<li>controller - 컨트롤러들을 위한 아티펙트</li>
+<li>domain - 도메인 요소들을 위한 아티펙트</li>
+</ul><p class="paragraph"/><h2><a name="3.2 Environments">3.2 Environments</a></h2><h4>Per Environment Configuration (환경별 설정)</h4><p class="paragraph"/>Grails는 환경마다 설정할 수 있다. grails-app/conf디렉토리에 있는 Config.groovy파일과, DataSource.groovy파일이 환경단위로 설정할 수 있도록 돕는다. 각 파일들은 <a href="http://groovy.codehaus.org/ConfigSlurper" target="blank">ConfigSlurper</a> 의 문법을 따른다. 다음은 Grails에서 제공하는 기본 DataSource의 정의를 예로 든 것이다.<p class="paragraph"/><div class="code"><pre>dataSource &#123;
+    pooled = <span class="java&#45;keyword">false</span>                          
+    driverClassName = <span class="java&#45;quote">"org.hsqldb.jdbcDriver"</span>	
+    username = <span class="java&#45;quote">"sa"</span>
+    password = <span class="java&#45;quote">""</span>				
+&#125;
+environments &#123;
+    development &#123;
+        dataSource &#123;
+            dbCreate = <span class="java&#45;quote">"create&#45;drop"</span> // one of 'create', 'createeate&#45;drop','update'
+            url = <span class="java&#45;quote">"jdbc:hsqldb:mem:devDB"</span>
+        &#125;
+    &#125;   
+    test &#123;
+        dataSource &#123;
+            dbCreate = <span class="java&#45;quote">"update"</span>
+            url = <span class="java&#45;quote">"jdbc:hsqldb:mem:testDb"</span>
+        &#125;
+    &#125;   
+    production &#123;
+        dataSource &#123;
+            dbCreate = <span class="java&#45;quote">"update"</span>
+            url = <span class="java&#45;quote">"jdbc:hsqldb:file:prodDb;shutdown=<span class="java&#45;keyword">true</span>"</span>
+        &#125;
+    &#125;
+&#125;</pre></div><p class="paragraph"/>최상위 수준에 정의한 설정을 기억해야 한다. environments 블럭에는 DataSource의 url 프로퍼티과 dbCreate를 위해 환경마다 블럭을 정의하였다. 이 문법은 Config.groovy에서도 사용된다.<p class="paragraph"/><h4>Packaging and Running for Different Environments (다양한 환경을 위한 패키징과 실행)</h4><p class="paragraph"/>Grails는 특정 환경단위로 <a href="../guide/single.html#4. The Command Line" class="guide">명령</a>을 실행할 수 있도록 지원한다. 그 형식은 다음과 같다:<p class="paragraph"/><div class="code"><pre>grails &#91;environment&#93; &#91;command name&#93;</pre></div><p class="paragraph"/>또한 Grails에는 dev, prod, test이라는 미리 만들어진 환경이 3개있다. dev, prod, test는 각각 개발(development), 서비스(production), 테스트(test)를 위한 것이다. 예를 들어 테스트 환경에서 WAR를 만들기 위해서는 명령어를 다음과 같이 사용해야 한다.<p class="paragraph"/><div class="code"><pre>grails test war</pre></div><p class="paragraph"/>만약에 또 다른 환경을 가지고 있다면 <code>grails.env</code> 변수를 통해서 그 환경을 지정할 수 있다. 아래는 그 예이다:<p class="paragraph"/><div class="code"><pre>grails &#45;Dgrails.env=UAT run&#45;app</pre></div><p class="paragraph"/><h4>Programmatic Environment Detection (프로그램에 의한 환경 검사)</h4><p class="paragraph"/><a href="../api/grails/util/GrailsUtil.html" class="api">GrailsUtil</a> 클래스를 Gant 스크립트나 부트스트랩 클래스 같은 곳에 사용함으로써 환경을 찾아낼 수 있다:<p class="paragraph"/><div class="code"><pre><span class="java&#45;keyword">import</span> grails.util.GrailsUtil<p class="paragraph"/>...<p class="paragraph"/><span class="java&#45;keyword">switch</span>(GrailsUtil.environment) &#123;
+	<span class="java&#45;keyword">case</span> <span class="java&#45;quote">"development"</span>:
+	   configureForDevelopment()
+	<span class="java&#45;keyword">break</span>
+	<span class="java&#45;keyword">case</span> <span class="java&#45;quote">"production"</span>:
+	   configureForProduction()
+	<span class="java&#45;keyword">break</span> 
+&#125;</pre></div><h2><a name="3.3 The DataSource">3.3 The DataSource</a></h2>Grails는 자바로 만들어졌기 때문에 data source를 설정하려면 JDBC에 대한 약간의 지식이 필요하다(자바 데이터베이스 접속과는 관계없는 지식).<p class="paragraph"/>만약 HSQLDB외에 다른 DB를 사용하고 싶다면, 필수적으로 JDBC드라이버가 필요하다. MySQL을 예로 들자면 <a href="http://www.mysql.com/products/connector/j/" target="blank">Connector/J</a> 가 필요하다.<p class="paragraph"/>드라이버는 일반적으로 JAR 아카이브 형대로 배포된다. JAR파일을 프로젝트의 lib 디렉토리에 넣어라.<p class="paragraph"/>일단 <code>grails-app/conf/DataSource.groovy</code> 에 있는 DataSource descriptor파일에 JAR에 대한 정보가 있어야 한다. 그 파일은 다음과 같은 정보들은 DataSource에 대한 정의를 담고 있다.
+<ul class="star">
+<li>driverClassName - JDBC 드라이버의 클래스 이름</li>
+<li>username - JDBC 연결하는데에 사용될 사용자 이름</li>
+<li>password - JDBC 연결하는데에 사용될 비밀번호</li>
+<li>url - 데이터베이스의 JDBC URL</li>
+<li>dbCreate - 도메인 모델의 데이터베이스를 자동으로 생성할지 안할지 결정하는 플래그</li>
+<li>pooled - 컨넥션의 풀을 사용할것인가를 결정하는 플래그(기본은 true)</li>
+<li>logSql - SQL 로깅여부를 결정</li>
+<li>dialect - Hibernate의 표현식(dialect)으로 표현되는 문자열이나 클래스는 데이터베이스를 통해서 통신한다. Hibernate의 문법을 사용하려면, <a href="http://www.hibernate.org/hib_docs/v3/api/org/hibernate/dialect/package-summary.html" target="blank">org.hibernate.dialect</a>t 패키지를 참고하라.</li>
+</ul><p class="paragraph"/>MySQL에 대한 일반적인 설정은 아마도 다음과 같을 것이다.<p class="paragraph"/><div class="code"><pre>dataSource &#123;
+	pooled = <span class="java&#45;keyword">true</span>
+	dbCreate = <span class="java&#45;quote">"update"</span>
+	url = <span class="java&#45;quote">"jdbc:mysql://localhost/yourDB"</span>
+	driverClassName = <span class="java&#45;quote">"com.mysql.jdbc.Driver"</span>
+	username = <span class="java&#45;quote">"yourUser"</span>
+	password = <span class="java&#45;quote">"yourPassword"</span>	
+&#125;</pre></div><p class="paragraph"/><blockquote class="warning">
+DataSource를 설정할 때에는 타입이나 def 키워드를 사용하지 않는다. 왜냐하면 Groovy는 그러한 문법들을 지역변수를 정의한 것으로 보고 처리하지 않을 것이기 때문이다. 예를 들어 다음과 같은 경우는 잘못된 것이다.
+</blockquote><p class="paragraph"/><div class="code"><pre>dataSource &#123;
+	<span class="java&#45;object">boolean</span> pooled = <span class="java&#45;keyword">true</span> // type declaration results in local variable
+	&#8230;
+&#125;</pre></div><p class="paragraph"/><h2><a name="3.3.1 DataSources and Environments">3.3.1 DataSources and Environments</a></h2>이전의 구성 예는 모든 환경(서비스, 테스트, 개발등)이 같다고 가정하였다.<p class="paragraph"/>하지만, Grails는 DataSource를 "환경 별로(environment aware)" 정의할 수 있다다. 따라서 다음과 같이 할 수 있다.<p class="paragraph"/><div class="code"><pre>dataSource &#123;
+	// common settings here
+&#125;                     
+environments &#123;
+  production &#123;
+     dataSource &#123;
+          url = <span class="java&#45;quote">"jdbc:mysql://liveip.com/liveDb"</span>					
+     &#125;			
+  &#125;
+&#125;</pre></div>
+<h2><a name="3.3.2 JNDI DataSources">3.3.2 JNDI DataSources</a></h2>많은 Java EE 컨테이너는 보통 JNDI(<a href="http://java.sun.com/products/jndi/" target="blank">Java Naming and Directory Interface</a> )의 DataSource 인스턴스를 제공한다. 그래서 DataSource를 통해서 JNDI를 사용해야 할 때도 있다.<p class="paragraph"/>아래와 같이 JNDI data source를 정의할 수 있다.<p class="paragraph"/><div class="code"><pre>dataSource &#123;
+    jndiName = <span class="java&#45;quote">"java:comp/env/myDataSource"</span>
+&#125;</pre></div><p class="paragraph"/>JNDI 이름의 형태는 컨테이너 마다 다를지도 모르지만, DataSource를 정의하는 방법은 똑같다.<p class="paragraph"/><h2><a name="3.3.3 Automatic Database Migration">3.3.3 Automatic Database Migration</a></h2>DataSource를 정의할 때 dbCreate 프로퍼티은 중요하다. 그 이유는 Grails가 런타임에 <a href="../guide/single.html#5. Object Relational Mapping (GORM)" class="guide">GORM</a> 클래스를 이용해 자동적으로 database 테이블를 생성하는 것을 결정하기 때문이다. 옵션들은 다음과 같다.
+<ul class="star">
+<li>create-drop - Grails를 실행할 때마다 데이터베이스를 삭제drop하고 다시 생성한다.</li>
+<li>create - 데이터베이스가 없으면 생성하고 이미 존재할 경우에는 아무일도 하지 않는다. 하지만 데이터는 삭제한다.</li>
+<li>update - 데이터베이스가 없으면 생성하고 이미 존재할 경우에는 변경한다.</li>
+</ul><p class="paragraph"/><blockquote class="warning">
+create-drop과 create 둘 다 이미 있는 데이터를 파괴하므로 사용에 주의해야 한다.
+</blockquote><p class="paragraph"/><a href="../guide/single.html#3.2 Environments" class="guide">개발 환경</a> 에서의 dbCreate의 기본값은 “create-drop”이다.<p class="paragraph"/><div class="code"><pre>dataSource &#123;
+	dbCreate = <span class="java&#45;quote">"create&#45;drop"</span> // one of 'create', 'create&#45;drop','update'
+&#125;</pre></div><p class="paragraph"/>이것은 어플리케이션을 재시작 할 때마다 자동으로 db 테이블을 삭제하고 다시 생성한다. 확실히 이것은 실제 서비스에는 필요없다.<p class="paragraph"/><blockquote class="note">
+비록 Grails가 지금은 Rails 스타일의 이전작업(Migrations)을 지원하고 있지 않지만, 현재 비슷한 기능의 플러그인이 두 개 있다. <a href="http://www.liquibase.org/manual/latest/grails.html" target="blank">LiquiBase</a> 플러그인과 <a href="http://code.google.com/p/dbmigrate/wiki/Grails" target="blank">DbMigrate</a> 플러그인을 <code>list-plugins</code> 명령어로 사용할 수 있다.
+</blockquote><p class="paragraph"/><p class="paragraph"/><h2><a name="3.4 Externalized Configuration">3.4 Externalized Configuration</a></h2>기본 설정 파일인 <code>grails-app/conf</code> 에 있는 <code>Config.groovy</code> 는 주요 상황에서는 꽤 괜찮다. 하지만 메인 어플리케이션 구조 <em class="italic">바깥에</em> 구성 파일을 유지하고 싶을때가 있을 수 있다. 예를 들어, 어떤 관리자들은 WAR를 설치한 후에 설정을 변경하기 위하여 WAR을 다시 만들기 싫어서 어플리케이션의 설정을 외부로 빼고 싶어한다.<p class="paragraph"/>이렇게 설정하는 시나리오를 위해 설정을 어플리케이션 밖에 위치 시킬 수 있다. <code>Config.groovy</code> 파일 안에 <code>grails.config.locations</code> 설정을 다음과 같이 사용하여 설정 파일의 위치를 Grails에 알린다:<p class="paragraph"/><div class="code"><pre>grails.config.locations = &#91; <span class="java&#45;quote">"classpath:$&#123;appName&#125;&#45;config.properties"</span>,
+                            <span class="java&#45;quote">"classpath:$&#123;appName&#125;&#45;config.groovy"</span>,
+                            <span class="java&#45;quote">"file:$&#123;userHome&#125;/.grails/$&#123;appName&#125;&#45;config.properties"</span>,
+                            <span class="java&#45;quote">"file:$&#123;userHome&#125;/.grails/$&#123;appName&#125;&#45;config.groovy"</span>&#93;</pre></div><p class="paragraph"/>이 예제는 클래스패스와 다른 경로인 <code>USER_HOME</code> 에 위치한 설정파일(Java 프로퍼티 파일과 <a href="http://groovy.codehaus.org/ConfigSlurper" target="blank">ConfigSlurper</a> 설정 모두)을 로드한다.<p class="paragraph"/>모든 설정은 결국 <a href="../api/org/codehaus/groovy/grails/commons/GrailsApplication.html" class="api">GrailsApplication</a> 객체의 <code>config</code> 프로퍼티로 합쳐지기 때문에 이를 이용해 설정에 접근할 수 있다.<p class="paragraph"/>
+<blockquote class="note">
+또 Grails는 Spring의 프로퍼티 플레이스홀더(placeholder)와 프로퍼티를 오버라이드하는 configurer 개념도 지원한다. 자세한 정보는 <a href="../guide/single.html#14. Grails and Spring" class="guide">Grails와 Spring</a> 에 대한 장에 있다.
+</blockquote><h2><a name="3.5 Versioning">3.5 Versioning</a></h2><h4>Versioning Basics(버전 기초)</h4><p class="paragraph"/>Grails에는 어플리케이션 버전을 관리하는 기능이 내장되어 있다. <a href="../ref/Command Line/create-app.html" class="commandLine">create-app</a> 를 이용해서 어플리케이션을 처음 만들었을 때의 버전은 0.1이 된다. 버전은 프로젝트의 루트에 있는 <code>application.properties</code> 라는 어플리케이션 메타 데이터에 저장이 된다.<p class="paragraph"/>어플리케이션의 버전을 바꾸기 위해서는, set-version명령어를 사용한다.<p class="paragraph"/><div class="code"><pre>grails set&#45;version 0.2</pre></div><p class="paragraph"/>버전은 war 명령어뿐만 아니라 많은 명령어에서 사용된다. <a href="../ref/Command Line/war.html" class="commandLine">war</a> 명령어를 실행하면 생성되는 WAR파일의 끝에 어플리케이션의 버전을 덧붙혀진다.<p class="paragraph"/><h4>Detecting Versions at Runtime(런타임에 버전 알아내기)</h4><p class="paragraph"/>런타임에 어플리케이션의 버전을 알아낼 수 있다. Grails에서 제공하는 <a href="../api/org/codehaus/groovy/grails/commons/GrailsApplication.html" class="api">GrailsApplication</a> 클래스를 통해 어플케이션의 메타데이터에 접근한다. 예를 들어 <a href="../guide/single.html#6.1 Controllers" class="guide">컨트롤러</a> 에는 다음과 같이 사용할 수 있는 <a href="../ref/Controllers/grailsApplication.html" class="controllers">grailsApplication</a> 변수가 이미 있다:<p class="paragraph"/><div class="code"><pre>def version = grailsApplication.metadata&#91;'app.version'&#93;</pre></div><p class="paragraph"/>만약 Grails의 버전을 알고 싶다면 다음과 같이 사용할 수 있다.<p class="paragraph"/><div class="code"><pre>def grailsVersion = grailsApplication.metadata&#91;'app.grails.version'&#93;</pre></div><p class="paragraph"/>또는 <code>GrailsUtil</code> 클래스를 사용할 수도 있다:<p class="paragraph"/><div class="code"><pre><span class="java&#45;keyword">import</span> grails.util.&#42;
+def grailsVersion = GrailsUtil.grailsVersion</pre></div><p class="paragraph"/>
+<h2><a name="3.6 Deployment">3.6 Deployment</a></h2><h4>빠른 설치</h4><p class="paragraph"/>실제 서비스(production) 환경에서는 Grails 어플리케이션들이 언제나 WAR파일로 설치된다. Grails 어플리케이션을 절대로 run-app명령어를 사용해서 설치하면 안된다. 왜냐하면, 그 명령어는 개발하는 동안 Grails를 auto-reloading을 하도록 구성하기 때문이다.<p class="paragraph"/>하지만 run-war명령어를 이용해 다음과 같이 쉽고 빠르게 Grails 어플리케이션을 실행 할 수 있다.<p class="paragraph"/><div class="code"><pre>grails prod run&#45;war</pre></div><p class="paragraph"/>80번 포트로 실행하도록 하는 방법이다.<p class="paragraph"/><div class="code"><pre>grails &#45;Dserver.port=80 prod run&#45;war</pre></div><p class="paragraph"/>그러면 WAR 파일이 생성되고 서비스production 환경의 WAR 파일은 Jetty를 이용해서 실행된다.<p class="paragraph"/><h4>WAR 설치</h4><p class="paragraph"/>이전에 WAR 설치에 대해 언급했었다. war 명령어는 WAR 파일을 만들기 위한 편의를 제공한다. WAR 파일은 다양한 Java EE 호환 컨테이너에 설치된다.<p class="paragraph"/>WAR 파일을 만들었다면 다음은 WAR 파일을 적당한 디렉토리에 넣어야 한다. 만악 컨테이너가 핫 디플로이먼트hot deployment를 지원한다면 자동으로 리로드될 것이고 그렇지 않으면 컨테이너를 재기동해야 할 것이다.<p class="paragraph"/>예를 들어 아파치 톰캣에서는 TOMCAT_HOME/webapps 디렉토리에 WAR를 놓고 컨테이너를 재시작하면 된다.<p class="paragraph"/>또 다른 컨테이너(특히 상업용)에서는 보통 웹 인터페이스를 제공한다. WAR파일을 웹 인터페이스로 실행중인 컨테이너에 올리고, 설치할 수 있다. 자세한 것은 해당 컨테이너에 대한 문서를 참조하고 설명대로 따라해야 한다.<p class="paragraph"/><h4>WAR 파일 생성 수정하기</h4><p class="paragraph"/>만약 WAR 생성과정을 변경해야 한다면 다양한 방법으로 변경할 수 있다. 만약 간단하게 WAR가 생성되는 장소를 변경하고 싶다면 다음과 같이 하면된다:<p class="paragraph"/><div class="code"><pre>grails war /my/container/path</pre></div><p class="paragraph"/>위 방법 대신에 Config.groovy파일의 grails.war.destFile 옵션을 설정해도 된다:<p class="paragraph"/><div class="code"><pre>grails.war.destFile=/my/container/path</pre></div><p class="paragraph"/>만약에 WAR 파일을 생성하는 동안 의존성들을 수정해야 한다면(예를들어 컨테이너가 공유 라이브러리를 지원한다면) 다음과 같이 특정한 Ant fileset을 grails.war.dependencies 옵션에 명시할 수 있다.<p class="paragraph"/><div class="code"><pre>grails.war.dependencies = &#123;
+	fileset(dir:<span class="java&#45;quote">"/my/libs"</span>, includes:<span class="java&#45;quote">"&#42;.jar"</span>)
+&#125;</pre></div><p class="paragraph"/>좀 더 유연하게 grails.war.resources를 설정할 수 있다. 이 설정에 WAR 파일을 어디에 생성할지 명시할 수 있다.<p class="paragraph"/><div class="code"><pre>grails.war.resources = &#123; warLocation &#45;&#62;
+	copy(todir:<span class="java&#45;quote">"$warLocation/WEB&#45;INF"</span>) &#123;
+		fileset(dir:<span class="java&#45;quote">"/my/configs"</span>, includes:<span class="java&#45;quote">"&#42;.xml"</span>)
+	&#125;
+&#125;</pre></div>
+	</body>
+</html>

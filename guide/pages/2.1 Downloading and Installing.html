@@ -1,0 +1,26 @@
+<html>
+     <head>
+     	<meta http-equiv="Content-type" content="text/html; charset=utf-8">
+     	<title>2.1 Downloading and Installing</title>
+     	<link rel="stylesheet" href="../css/main.css" type="text/css" media="screen" title="Ref" charset="utf-8">
+     </head>
+	<body class="body">
+		Grails를 시작하고 작동시키기 위해서 처음해야 하는 일은 배포본을 설치하는 것이다. 천천히 다음 단계들을 따라하라.
+<ul class="star">
+<li>Grails의 바이너리 배포본을 <a href=":http://grails.org/Download">다운</a> 받고, 원하는 위치에 다운받은 zip파일의 압축을 푼다.</li>
+<li>zip파일의 압축을 푼곳으로 GRAILS_HOME이라는 환경변수를 설정한다.</li>
+<ul class="star">
+<li>Unix/Linux 환경에서는 일반적으로 프로필 파일에 <code>export GRAILS_HOME=/path/to/grails</code> 와 같은 것을 추가시키는 방법을 사용한다.</li>
+<li>윈도우 환경에서는 일반적으로 내 <code>컴퓨터/속성/고급/환경변수</code> 에서 설정한다.</li>
+</ul>
+<li>이제 당신의 <code>PATH</code> 변수에 Grails의 <code>bin</code> 디렉토리를 설정해야한다.</li>
+<ul class="star">
+<li>Unix/Linux 환경에서는 <code>export PATH="$PATH:$GRAILS_HOME/bin"</code>를 실행하는 것으로 설정할 수 있다.</li>
+<li>윈도우즈 환경에서는 내 컴퓨터/속성/환경변수에 있는 <code>Path</code> 환경변수를 수정함으로써 설정 할 수 있다.</li>
+</ul></ul><p class="paragraph"/>만약 Grails가 정상적으로 동작한다면 당신은 터미널 윈도우에서 grails를 타이핑하고서, 다음과 같은 결과물을 볼 수 있다.<p class="paragraph"/><pre class="bq"><code>
+Welcome to Grails 1.0 - http://grails.org/
+Licensed under Apache Standard License 2.0
+Grails home is set to: /Developer/grails-1.0
+No script name specified. Use 'grails help' for more info</code></pre><p class="paragraph"/>
+	</body>
+</html>

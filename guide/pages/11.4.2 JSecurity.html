@@ -1,0 +1,18 @@
+<html>
+     <head>
+     	<meta http-equiv="Content-type" content="text/html; charset=utf-8">
+     	<title>11.4.2 JSecurity</title>
+     	<link rel="stylesheet" href="../css/main.css" type="text/css" media="screen" title="Ref" charset="utf-8">
+     </head>
+	<body class="body">
+		<a href="http://www.jsecurity.org/" target="blank">JSecurity</a> 는 자바 POJO 지향의 보안 프레임워크이다. JSecurity는 다시 렐름, 사용자, 역할, 권한을 모델링 하는 기본 도메인 모델을 제공한다. JSecurity를 통해 보안을 적용시킬 controller들에 대해서 JSecAuthBase 클래스를 기반으로 controller를 확장하고 역할을 설정하기 위해 accessControl 코드을 제공해야 한다. 아래는 한 예제이다:<p class="paragraph"/><div class="code"><pre>class ExampleController <span class="java&#45;keyword">extends</span> JsecAuthBase &#123;
+    <span class="java&#45;keyword">static</span> accessControl = &#123;
+        // All actions require the 'Observer' role.
+        role(name: 'Observer')<p class="paragraph"/>        // The 'edit' action requires the 'Administrator' role.
+        role(name: 'Administrator', action: 'edit')<p class="paragraph"/>        // Alternatively, several actions can be specified.
+        role(name: 'Administrator', only: &#91; 'create', 'edit', 'save', 'update' &#93;)
+    &#125;<p class="paragraph"/>    &#8230;
+&#125;</pre></div><p class="paragraph"/>JSecurity 플러그인에 관련된 더 많은 정보을 알고 싶다면 <a href="http://grails.org/JSecurity+Plugin+-+Quick+Start" target="blank">JSecurity Quick Start</a>를 참고하라.
+
+	</body>
+</html>

@@ -1,0 +1,42 @@
+<html>
+     <head>
+     	<meta http-equiv="Content-type" content="text/html; charset=utf-8">
+     	<title>3.2 Environments</title>
+     	<link rel="stylesheet" href="../css/main.css" type="text/css" media="screen" title="Ref" charset="utf-8">
+     </head>
+	<body class="body">
+		<h4>Per Environment Configuration (환경별 설정)</h4><p class="paragraph"/>Grails는 환경마다 설정할 수 있다. grails-app/conf디렉토리에 있는 Config.groovy파일과, DataSource.groovy파일이 환경단위로 설정할 수 있도록 돕는다. 각 파일들은 <a href="http://groovy.codehaus.org/ConfigSlurper" target="blank">ConfigSlurper</a> 의 문법을 따른다. 다음은 Grails에서 제공하는 기본 DataSource의 정의를 예로 든 것이다.<p class="paragraph"/><div class="code"><pre>dataSource &#123;
+    pooled = <span class="java&#45;keyword">false</span>                          
+    driverClassName = <span class="java&#45;quote">"org.hsqldb.jdbcDriver"</span>	
+    username = <span class="java&#45;quote">"sa"</span>
+    password = <span class="java&#45;quote">""</span>				
+&#125;
+environments &#123;
+    development &#123;
+        dataSource &#123;
+            dbCreate = <span class="java&#45;quote">"create&#45;drop"</span> // one of 'create', 'createeate&#45;drop','update'
+            url = <span class="java&#45;quote">"jdbc:hsqldb:mem:devDB"</span>
+        &#125;
+    &#125;   
+    test &#123;
+        dataSource &#123;
+            dbCreate = <span class="java&#45;quote">"update"</span>
+            url = <span class="java&#45;quote">"jdbc:hsqldb:mem:testDb"</span>
+        &#125;
+    &#125;   
+    production &#123;
+        dataSource &#123;
+            dbCreate = <span class="java&#45;quote">"update"</span>
+            url = <span class="java&#45;quote">"jdbc:hsqldb:file:prodDb;shutdown=<span class="java&#45;keyword">true</span>"</span>
+        &#125;
+    &#125;
+&#125;</pre></div><p class="paragraph"/>최상위 수준에 정의한 설정을 기억해야 한다. environments 블럭에는 DataSource의 url 프로퍼티과 dbCreate를 위해 환경마다 블럭을 정의하였다. 이 문법은 Config.groovy에서도 사용된다.<p class="paragraph"/><h4>Packaging and Running for Different Environments (다양한 환경을 위한 패키징과 실행)</h4><p class="paragraph"/>Grails는 특정 환경단위로 <a href="../guide/single.html#4. The Command Line" class="guide">명령</a>을 실행할 수 있도록 지원한다. 그 형식은 다음과 같다:<p class="paragraph"/><div class="code"><pre>grails &#91;environment&#93; &#91;command name&#93;</pre></div><p class="paragraph"/>또한 Grails에는 dev, prod, test이라는 미리 만들어진 환경이 3개있다. dev, prod, test는 각각 개발(development), 서비스(production), 테스트(test)를 위한 것이다. 예를 들어 테스트 환경에서 WAR를 만들기 위해서는 명령어를 다음과 같이 사용해야 한다.<p class="paragraph"/><div class="code"><pre>grails test war</pre></div><p class="paragraph"/>만약에 또 다른 환경을 가지고 있다면 <code>grails.env</code> 변수를 통해서 그 환경을 지정할 수 있다. 아래는 그 예이다:<p class="paragraph"/><div class="code"><pre>grails &#45;Dgrails.env=UAT run&#45;app</pre></div><p class="paragraph"/><h4>Programmatic Environment Detection (프로그램에 의한 환경 검사)</h4><p class="paragraph"/><a href="../api/grails/util/GrailsUtil.html" class="api">GrailsUtil</a> 클래스를 Gant 스크립트나 부트스트랩 클래스 같은 곳에 사용함으로써 환경을 찾아낼 수 있다:<p class="paragraph"/><div class="code"><pre><span class="java&#45;keyword">import</span> grails.util.GrailsUtil<p class="paragraph"/>...<p class="paragraph"/><span class="java&#45;keyword">switch</span>(GrailsUtil.environment) &#123;
+	<span class="java&#45;keyword">case</span> <span class="java&#45;quote">"development"</span>:
+	   configureForDevelopment()
+	<span class="java&#45;keyword">break</span>
+	<span class="java&#45;keyword">case</span> <span class="java&#45;quote">"production"</span>:
+	   configureForProduction()
+	<span class="java&#45;keyword">break</span> 
+&#125;</pre></div>
+	</body>
+</html>

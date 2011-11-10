@@ -1,0 +1,16 @@
+<html>
+     <head>
+     	<meta http-equiv="Content-type" content="text/html; charset=utf-8">
+     	<title>12.5 Hooking into Build Events</title>
+     	<link rel="stylesheet" href="../css/main.css" type="text/css" media="screen" title="Ref" charset="utf-8">
+     </head>
+	<body class="body">
+		<h4>Post-Install Configuration and Participating in Upgrades(설치후 설정과 업그레이드에 관여하기)</h4><p class="paragraph"/>Grails 플러그인은 설치후 설정(Post-install Configuration)을 할 수 있으며 어플리케이션 업그레이드 프로세스(<a href="../ref/Command Line/upgrade.html" class="commandLine">upgrade</a> 명령)에 관여할 수 있다. 이것은 특별한 이름을 가진 두개의 스크립트를 통해 실행된다. 두 스크립트는 Script디렉토리에 위치하며 그 이름은 _Install.groovy 과_Upgrade.groovy이다.<p class="paragraph"/>_Install.groovy 파일은 플러그인이 설치 된 후에 실행이 된다. _Upgrade.groovy 파일은 <a href="../ref/Command Line/upgrade.html" class="commandLine">upgrade</a> 명령을 통해 사용자가 어플리케이션을 업그레이드 할 때 마다 실행이 된다.<p class="paragraph"/>이 스크립트들은 <a href="../guide/single.html#4. The Command Line" class="guide">Gant</a> 스크립트이기 때문에 Gant의 모든 파워풀한 기능을 사용할 수 있다. Gant의 표준 변수에 추가된 것으로는 pluginBasedir변수이며, 플러그인이 설치되는 기본 디렉토리를 가리키고 있다.<p class="paragraph"/>아래의 한 예제를 보면 _Install.groovy스크립트는 grails-app디렉토리 아래에 새로운 디렉토리를 생성하고 설정 템플릿을 설치한다:<p class="paragraph"/><div class="code"><pre>Ant.mkdir(dir:<span class="java&#45;quote">"$&#123;basedir&#125;/grails&#45;app/jobs"</span>)
+Ant.copy(file:<span class="java&#45;quote">"$&#123;pluginBasedir&#125;/src/samples/SamplePluginConfiguration.groovy"</span>,
+         todir:<span class="java&#45;quote">"$&#123;basedir&#125;/grails&#45;app/conf"</span>)<p class="paragraph"/>// To access Grails home you can use following code:
+// Ant.property(environment:<span class="java&#45;quote">"env"</span>)
+// grailsHome = Ant.antProject.properties.<span class="java&#45;quote">"env.GRAILS_HOME"</span></pre></div><p class="paragraph"/>
+<h4>Scripting events(스트립팅 이벤트)</h4><p class="paragraph"/>플러그인을 통해 명령줄 스크립팅 이벤트를 가로채는것이 가능하다. 이 이벤트들은 Grails 명령이나 플러그인 스크립트의 실행중에 트리거된다.<p class="paragraph"/>예를 들어, 상태 업데이트 출력(예, “Tests passed”, “Server running”)을 가로챌 수도 있고, file들의 생성되는 시점에도 가로챌 수 있다.<p class="paragraph"/>플러그인이 필요한 이벤트를 듣기 위해서, 플러그인은 단지 Events.groovy 스크립트를 제공하면 된다. 더 많은 정보를 살펴보려면 이벤트의 가로채기(<a href="../guide/single.html#4.3 Hooking into Events" class="guide">Hooking into Events</a>)에 관한 문서를 살펴보라.
+
+	</body>
+</html>

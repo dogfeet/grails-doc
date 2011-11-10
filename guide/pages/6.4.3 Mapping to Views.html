@@ -1,0 +1,14 @@
+<html>
+     <head>
+     	<meta http-equiv="Content-type" content="text/html; charset=utf-8">
+     	<title>6.4.3 Mapping to Views</title>
+     	<link rel="stylesheet" href="../css/main.css" type="text/css" media="screen" title="Ref" charset="utf-8">
+     </head>
+	<body class="body">
+		URL을 컨트롤러나 액션 없이 뷰에 매핑하고 싶다면 그렇게 할 수 있다. 예를 들어 루트 URL ”/“를 grails-app/views/index.gsp에 바로 매핑하고 싶다면 다음과 같이 할 수 있다:<p class="paragraph"/><div class="code"><pre><span class="java&#45;keyword">static</span> mappings = &#123;
+      <span class="java&#45;quote">"/"</span>(view:<span class="java&#45;quote">"/index"</span>)  // // 루트 URL이 매핑된다.
+&#125;</pre></div><p class="paragraph"/>뷰뿐만 아니라 컨트롤러도 명시하고 싶다면 다음과 같이 할 수 있다:<p class="paragraph"/><div class="code"><pre><span class="java&#45;keyword">static</span> mappings = &#123;
+   <span class="java&#45;quote">"/help"</span>(controller:<span class="java&#45;quote">"site"</span>,view:<span class="java&#45;quote">"help"</span>) // to a view <span class="java&#45;keyword">for</span> a controller
+&#125;</pre></div>
+	</body>
+</html>

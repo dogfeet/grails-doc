@@ -1,0 +1,17 @@
+<html>
+     <head>
+     	<meta http-equiv="Content-type" content="text/html; charset=utf-8">
+     	<title>5.4.3 Hibernate Query Language (HQL)</title>
+     	<link rel="stylesheet" href="../css/main.css" type="text/css" media="screen" title="Ref" charset="utf-8">
+     </head>
+	<body class="body">
+		GORM에서는 HQL도 사용할 수 있다. Hiberate 문서의 <a href="http://www.hibernate.org/hib_docs/reference/en/html/queryhql.html" target="blank">14장 HQL: The Hibernate Query Language</a>에서 HQL에대한 모든 것을 참고할 수 있다.<p class="paragraph"/>GORM은 find, <a href="../ref/Domain Classes/findAll.html" class="domainClasses">findAll</a> <a href="../ref/Domain Classes/executeQuery.html" class="domainClasses">executeQuery</a> 등의 HQL을 사용할 수 있는 얼마간의 메소드들을 제공한다.<p class="paragraph"/><div class="code"><pre>def results =
+      Book.findAll(<span class="java&#45;quote">"from Book as b where b.title like 'Lord of the%'"</span>)</pre></div><p class="paragraph"/><h4>Positional and Named Parameters(위치 파라미터와 이름 파라미터)</h4><p class="paragraph"/>쿼리에 필요한 값은 하드코딩하려 한다면 위치 파리미터를 사용할 수 있다:<p class="paragraph"/><div class="code"><pre>def results =
+      Book.findAll(<span class="java&#45;quote">"from Book as b where b.title like ?"</span>, &#91;<span class="java&#45;quote">"The Shi%"</span>&#93;)</pre></div><p class="paragraph"/>이름 파라미터를 사용하는 것도 가능하다:<p class="paragraph"/><div class="code"><pre>def results =
+      Book.findAll(<span class="java&#45;quote">"from Book as b where b.title like :search or b.author like :search"</span>, &#91;search:<span class="java&#45;quote">"The Shi%"</span>&#93;)</pre></div><p class="paragraph"/><h4>Multiline Queries(여러 줄로 질의하기)</h4><p class="paragraph"/>쿼리를 여러줄에 걸쳐서 만들어야 한다면 라인연결문자를 사용하라:<p class="paragraph"/><img border="0" class="center" src="../img/multilinehql.png"></img><p class="paragraph"/><blockquote class="note">
+여러 줄 문자열을 만들기 위한 Groovy로 표현법은 HQL 쿼리에 사용할 수 없다.
+</blockquote><p class="paragraph"/><h4>Pagination and Sorting(페이지 매김과 정렬)</h4><p class="paragraph"/>HQL에서도 패이지를 매길 수 있고 정열할 수 있다. 간단하게 메소드 끝에 맵 형식으로 페이지 매김과 정열 옵션을 기술한다.<p class="paragraph"/><div class="code"><pre>def results =
+      Book.findAll(<span class="java&#45;quote">"from Book as b where b.title like 'Lord of the%'"</span>, 
+                   &#91;max:10, offset:20, sort:<span class="java&#45;quote">"title"</span>, order:<span class="java&#45;quote">"asc"</span>&#93;)</pre></div>
+	</body>
+</html>

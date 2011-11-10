@@ -1,0 +1,14 @@
+<html>
+     <head>
+     	<meta http-equiv="Content-type" content="text/html; charset=utf-8">
+     	<title>6.2.2.5 Forms and Fields</title>
+     	<link rel="stylesheet" href="../css/main.css" type="text/css" media="screen" title="Ref" charset="utf-8">
+     </head>
+	<body class="body">
+		<h4>Form Basics(폼의 기초)</h4><p class="paragraph"/>GSP에는 HTML 폼과 필드를 다루는 많은 태그들이 있다. <code>form</code> 태그가 가장 기초적인 것이다. <a href="../ref/Tags/form.html" class="tags">form</a> 태그는 단지 HTML의 form 태그에 컨트롤러/액션을 이해할 수 있도록 한 것에 불과하다. <code>url</code> 속성에 컨트롤러와 액션을 명시한다:<p class="paragraph"/><div class="code"><pre><span class="xml&#45;tag">&#60;g:form name=<span class="xml&#45;quote">"myForm"</span> url=<span class="xml&#45;quote">"&#91;controller:'book',action:'list'&#93;"</span>&#62;</span>...<span class="xml&#45;tag">&#60;/g:form&#62;</span></pre></div><p class="paragraph"/>이 경우에 우리는 <code>BookController</code>의 <code>list</code>액션에 전송하는 <code>myForm</code>이라고 불리는 폼 태그를 만들었다. 나머지는 HTML의 속성와 모두 동일하다.<p class="paragraph"/><h4>Form Fields(폼 필드)</h4><p class="paragraph"/>GSP는 폼 필드와 관련된 다양한 태그를 지원하기 때문에 폼을 쉽게 만들 수 있다.<p class="paragraph"/>textField - 'text' 타입을 위한 입력 필드
+checkBox - 'checkbox' 타입을 위한 입력 필드
+radio - 'radio' 타입을 위한 입력 필드
+hiddenField - 'hidden' 타입을 위한 입력 필드
+select - HTML의 select 박스를 위한 태그<p class="paragraph"/>이 태그들의 value 속성에 GSP 표현식을 사용할 수 있다:<p class="paragraph"/><div class="code"><pre><span class="xml&#45;tag">&#60;g:textField name=<span class="xml&#45;quote">"myField"</span> value=<span class="xml&#45;quote">"$&#123;myValue&#125;"</span> /&#62;</span></pre></div><p class="paragraph"/>GSP는 <a href="../ref/Tags/radioGroup.html" class="tags">radioGroup</a>, <a href="../ref/Tags/localeSelect.html" class="tags">localeSelect</a>, <a href="../ref/Tags/currencySelect.html" class="tags">currencySelect</a>, <a href="../ref/Tags/timeZoneSelect.html" class="tags">timeZoneSelect</a>처럼 위에 설명한 태그들을 확장한 태그들도 지원한다. radioGroup은 <a href="../ref/Tags/radio.html" class="tags">radio</a> 태그를 그룹으로 묶기 위함이고 localeSelect는 로케일을, currencySelect는 화페 단위를, timezoneSelect는 timezone을 선택을 단순화 해준다.<p class="paragraph"/><h4>Multiple Submit Buttons(여러 개의 Submit 버튼)</h4><p class="paragraph"/>Grails는 여러 개의 Submit 버튼을 다루어야하는 역사 깊은 문제도 우아하게 처리할 수 있도록 <a href="../ref/Tags/actionSubmit.html" class="tags">actionSubmit</a> 태그를 지원한다. 이 것은 일반 submit과 동일하지만 action을 명시할 수 있다:<p class="paragraph"/><div class="code"><pre><span class="xml&#45;tag">&#60;g:actionSubmit value=<span class="xml&#45;quote">"Some update label"</span> action=<span class="xml&#45;quote">"update"</span> /&#62;</span></pre></div><p class="paragraph"/>
+	</body>
+</html>

@@ -1,0 +1,11 @@
+<html>
+     <head>
+     	<meta http-equiv="Content-type" content="text/html; charset=utf-8">
+     	<title>6.2.1.3 Page Directives</title>
+     	<link rel="stylesheet" href="../css/main.css" type="text/css" media="screen" title="Ref" charset="utf-8">
+     </head>
+	<body class="body">
+		GSP는 JSP 스타일의 페이지 지시자를 지원한다.<p class="paragraph"/>import 지시자는 페이지에 클래스를 import할 수 있게 해준다. 하지만 Groovy가 기본적으로 import해주는 것들과 <a href="../guide/single.html#6.2.2 GSP Tags" class="guide">GSP Tags</a>가 있기 때문에 거의 필요 없다.<p class="paragraph"/><div class="code"><pre><span class="xml&#45;tag">&#60;%@ page import=<span class="xml&#45;quote">"java.awt.&#42;"</span> %&#62;</span></pre></div><p class="paragraph"/>GSP는 contentType 지시자도 지원한다:<p class="paragraph"/><div class="code"><pre><span class="xml&#45;tag">&#60;%@ page contentType=<span class="xml&#45;quote">"text/json"</span> %&#62;</span></pre></div><p class="paragraph"/>contentType 지시자는 GSP를 사용하여 다른 형식으로 렌더링할 수 있도록 해준다.
+
+	</body>
+</html>

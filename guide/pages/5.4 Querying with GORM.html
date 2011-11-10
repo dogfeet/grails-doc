@@ -1,0 +1,11 @@
+<html>
+     <head>
+     	<meta http-equiv="Content-type" content="text/html; charset=utf-8">
+     	<title>5.4 Querying with GORM</title>
+     	<link rel="stylesheet" href="../css/main.css" type="text/css" media="screen" title="Ref" charset="utf-8">
+     </head>
+	<body class="body">
+		GORM은 동적 파인더(dynamic finder)라는 강력한 질의 방법을 제공한다. 이 것은 Hibernate의 객체지향 쿼리 언어인 HQL에 버금같다.<p class="paragraph"/><a href="http://groovy.codehaus.org/GPath" target="blank">GPath</a> 와 sort, findAll 같은 메소드들로 컬렉션을 관리할 수 있는 Groovy와 GORM의 결합은 강력한 조합을 만들어 낸다.<p class="paragraph"/>그러나. 언제나 천리길도 한 걸음부터.<p class="paragraph"/><h4>Listing instances(리스트)</h4><p class="paragraph"/>단순하게 <a href="../ref/Domain Classes/list.html" class="domainClasses">list</a> 메소드를 사용하여 클래스의 모든 인스턴스를 조회할 수 있다:<p class="paragraph"/><div class="code"><pre>def books = Book.list()</pre></div><p class="paragraph"/>페이지정보(pagination)를 <a href="../ref/Domain Classes/list.html" class="domainClasses">list</a> 메소드의 인자로 넘길 수 있다:<p class="paragraph"/><div class="code"><pre>def books = Book.list(offset:10, max:20)</pre></div><p class="paragraph"/>정렬도 가능하다.<p class="paragraph"/><div class="code"><pre>def books = Book.list(sort:<span class="java&#45;quote">"title"</span>, order:<span class="java&#45;quote">"asc"</span>)</pre></div><p class="paragraph"/>sort 인자로 정열할 때 기준이되는 도메인 클래스의 프로퍼티를 명시하고 order 인자에는 오름 정렬일 때 <strong class="bold">asc</strong>를, 내림 정렬일 때에는 <strong class="bold">desc</strong>를 사용한다<p class="paragraph"/><h4>Retrieval by Database Identifier(데이터베이스 식별자로 조회)</h4><p class="paragraph"/><a href="../ref/Domain Classes/get.html" class="domainClasses">get</a> 메소드에 데이터베이스 식별자를 인자로 넘겨서 조회할 수 있다.<p class="paragraph"/><div class="code"><pre>def book = Book.get(23)</pre></div><p class="paragraph"/>식별자들의 집합을 <a href="../ref/Domain Classes/getAll.html" class="domainClasses">getAll</a> 메소드의 인자로 넘겨서 인스턴스의 목록을 조회할 수 있다.<p class="paragraph"/><div class="code"><pre>def books = Book.getAll(23, 93, 81)</pre></div>
+
+	</body>
+</html>

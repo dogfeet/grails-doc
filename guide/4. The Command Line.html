@@ -1,0 +1,73 @@
+<html>
+     <head>
+     	<meta http-equiv="Content-type" content="text/html; charset=utf-8">
+     	<title>4. The Command Line</title>
+     	<link rel="stylesheet" href="../css/main.css" type="text/css" media="screen" title="Ref" charset="utf-8">
+     </head>
+	<body class="body">
+		<h1><a name="4. The Command Line">4. The Command Line</a></h1>Grails의 명령어 시스템은 <a href="http://groovy.codehaus.org/Gant" target="blank">Gant</a>에 내장되어 있다. Gant는 단순히 <a href="http://ant.apache.org" target="blank">Apache Ant</a>의 그루비 래퍼(wrapper)이다.<p class="paragraph"/>하지만 관례와 명령어을 사용하기 때문에 Grails가 더 낫다. 다음과 같이 타이핑 했을 때:<p class="paragraph"/><div class="code"><pre>grails &#91;command name&#93;</pre></div><p class="paragraph"/>Grails 는 아래에 나오는 디렉토리에서 실행할 Gant 스크립트를 찾는다:
+<ul class="star">
+<li><code>USER_HOME/.grails/scripts</code></li>
+<li><code>PROJECT_HOME/scripts</code></li>
+<li><code>PROJECT_HOME/plugins/*/scripts</code></li>
+<li><code>GRAILS_HOME/scripts</code></li>
+</ul><p class="paragraph"/>또 Grails는 run-app와 같이 소문자로 되어있는 명령어 이름들을 소문자와 대문자가 섞여있는 형태로 변환할 것이다. 따라서 다음과 같이 치면<p class="paragraph"/><div class="code"><pre>grails run&#45;app</pre></div><p class="paragraph"/>다음과 같은 파일들을 찾아낼 것이다:
+<ul class="star">
+<li><code>USER_HOME/.grails/scripts/RunApp.groovy</code></li>
+<li><code>PROJECT_HOME/scripts/RunApp.groovy</code></li>
+<li><code>PROJECT_HOME/plugins/*/scripts/RunApp.groovy</code></li>
+<li><code>GRAILS_HOME/scripts/RunApp.groovy</code></li>
+</ul><p class="paragraph"/>만약 매치되는 것이 한 개가 아니라면 Grails는 실행할 것을 하나만 고른다. Gant 스크립트가 실행될 때 "default" 타겟이 실행된다.<p class="paragraph"/>몇몇 사용 가능한 명령어에 대한 도움말의 목록을 얻으려면 다음과 같이 치면 된다:<p class="paragraph"/><div class="code"><pre>grails help</pre></div><p class="paragraph"/>그러면 간단한 사용법과 Grails가 가지고 있는 명령어들이 출력된다:<p class="paragraph"/><div class="code"><pre>Usage (optionals marked with &#42;): 
+grails &#91;environment&#93;&#42; &#91;target&#93; &#91;arguments&#93;&#42;<p class="paragraph"/>Examples: 
+grails dev run&#45;app	
+grails create&#45;app books<p class="paragraph"/>Available Targets (type grails help 'target&#45;name' <span class="java&#45;keyword">for</span> more info):
+grails bootstrap
+grails bug&#45;report
+grails clean
+grails compile
+...</pre></div><p class="paragraph"/><blockquote class="note">
+각각의 명령어들에 관해 더 자세히 알고 싶다면 레퍼런스 가이드의 왼쪽 메뉴에 있는 명령어 레퍼런스를 참조하라.
+</blockquote>
+<h2><a name="4.1 Creating Gant Scripts">4.1 Creating Gant Scripts</a></h2>현재 프로젝트의 루트에서 <a href="../ref/Command Line/create-script.html" class="commandLine">create-script</a> 명령어를 사용하여 Gant 스크립트를 만들 수 있다. 그 예로 다음과 같이 명령을 내리면<p class="paragraph"/><div class="code"><pre>grails create&#45;script compile&#45;sources</pre></div><p class="paragraph"/><code>script/CompileSources.groovy</code> 라는 스크립트가 만들어질 것이다. Gant 스크립트는 “타겟” 이라는 개념을 지원하고 그것에 의존한다는 것만 제외하면 Groovy 스크립트와 유사하다:<p class="paragraph"/><div class="code"><pre>target(<span class="java&#45;keyword">default</span>:<span class="java&#45;quote">"The <span class="java&#45;keyword">default</span> target is the one that gets executed by Grails"</span>) &#123;
+	depends(clean, compile)
+&#125;
+target(clean:<span class="java&#45;quote">"Clean out things"</span>) &#123;
+	Ant.delete(dir:<span class="java&#45;quote">"output"</span>)
+&#125;
+target(compile:<span class="java&#45;quote">"Compile some sources"</span>) &#123;
+	Ant.mkdir(dir:<span class="java&#45;quote">"mkdir"</span>)
+	Ant.javac(srcdir:<span class="java&#45;quote">"src/java"</span>, destdir:<span class="java&#45;quote">"output"</span>)
+&#125;</pre></div><p class="paragraph"/>위의 스크립트에서 보여준 예처럼 Gant 스크립트에는 암묵적으로 <a href="http://ant.apache.org/manual/index.html" target="blank">Apache Ant API</a> 에 접근 할 수 있는 Ant의 변수가 사용된다.<p class="paragraph"/>You can also "depend" on other targets using the <code>depends</code> method demonstrated in the <code>default</code> target above.<h2><a name="4.2 Re-using Grails scripts">4.2 Re-using Grails scripts</a></h2>Grails에는 재사용하기 매우 좋은 명령어들이 내장돼 있다. 가장 유용한 것들은 <a href="../ref/Command Line/compile.html" class="commandLine">compile</a>, <a href="../ref/Command Line/package.html" class="commandLine">package</a>, <a href="../ref/Command Line/bootstrap.html" class="commandLine">bootstrap</a> 스크립트이다. 모든 명령어에 대한 정보는 레퍼런스 가이드를 참고하라.<p class="paragraph"/><a href="../ref/Command Line/bootstrap.html" class="commandLine">bootstrap</a> 스크립트는 스프링의 <a href="http://static.springframework.org/spring/docs/2.5.x/api/org/springframework/context/ApplicationContext.html" class="api">ApplicationContext</a> 인스턴스를 통해서 데이터 소스등에 접근할 수 있게 해준다:<p class="paragraph"/><div class="code"><pre>Ant.property(environment:<span class="java&#45;quote">"env"</span>)                             
+grailsHome = Ant.antProject.properties.<span class="java&#45;quote">"env.GRAILS_HOME"</span><p class="paragraph"/>includeTargets &#60;&#60; <span class="java&#45;keyword">new</span> File ( <span class="java&#45;quote">"$&#123;grailsHome&#125;/scripts/Bootstrap.groovy"</span> )<p class="paragraph"/>
+target ('<span class="java&#45;keyword">default</span>': <span class="java&#45;quote">"Load the Grails interactive shell"</span>) &#123;
+	depends( configureProxy, packageApp, classpath, loadApp, configureApp )<p class="paragraph"/>	Connection c 
+	<span class="java&#45;keyword">try</span> &#123;
+		// <span class="java&#45;keyword">do</span> something with connection
+		c = appCtx.getBean('dataSource').getConnection()
+	&#125;
+	<span class="java&#45;keyword">finally</span> &#123;
+		c?.close()
+	&#125;
+&#125;</pre></div> <h2><a name="4.3 Hooking into Events">4.3 Hooking into Events</a></h2>Grails는 스크립트 이벤트를 가로채는 방법을 제공한다. Grails의 타겟과 플러그인 스크립트가 실행되는 동안 이벤트가 발생한다.<p class="paragraph"/>이 매커니즘은 꽤 단순하고 유연하게loosely 기술된다. 가로챌 이벤트의 목록은 정해진 것이 아니다. 중요한 타겟target 스크립트에는 동일한 이벤트가 없기 때문에 플러그인 스트립트가 발생시킨 이벤트들을 가로챌 수 있다.<p class="paragraph"/><h4>Defining event handlers(이벤트 핸들러 정의하기)</h4><p class="paragraph"/>이벤트 핸들러는 플러그인의 scripts/ 폴더나 USER_HOME 디렉토리의 .grails/scripts/ 폴더에 있는 Events.groovy라는 스크립트에 정의한다. 모든 이벤트 스크립트는 이벤트가 발생할 때마다 호출된다. 그래서 이벤트를 처리하는 플러그인을 10개를 만들 수도 있고 사용자마다 다르게 할 수도 있다.<p class="paragraph"/><div class="code"><pre>eventCreatedArtefact = &#123; type, name &#45;&#62;
+   println <span class="java&#45;quote">"Created $type $name"</span>
+&#125;<p class="paragraph"/>eventStatusUpdate = &#123; msg &#45;&#62;
+   println msg
+&#125;<p class="paragraph"/>eventStatusFinal = &#123; msg &#45;&#62;
+   println msg
+&#125;</pre></div><p class="paragraph"/>You can see here the three handlers <code>eventCreatedArtefact</code>, <code>eventStatusUpdate</code>, <code>eventStatusFinal</code>. Grails provides some standard events, which are documented in the command line reference guide. For example the <a href="../ref/Command Line/compile.html" class="commandLine">compile</a> command fires the following events:
+<ul class="star">
+<li><code>CompileStart</code>  - Called when compilation starts, passing the kind of compile - source or tests</li>
+<li><code>CompileEnd</code> - Called when compilation is finished, passing the kind of compile - source or tests</li>
+</ul><p class="paragraph"/><h4>Triggering events</h4><p class="paragraph"/>To trigger an event simply include the Init.groovy script and call the event() closure:<p class="paragraph"/><div class="code"><pre>Ant.property(environment:<span class="java&#45;quote">"env"</span>)
+grailsHome = Ant.antProject.properties.<span class="java&#45;quote">"env.GRAILS_HOME"</span>
+includeTargets &#60;&#60; <span class="java&#45;keyword">new</span> File ( <span class="java&#45;quote">"$&#123;grailsHome&#125;/scripts/Init.groovy"</span> )<p class="paragraph"/>
+event(<span class="java&#45;quote">"StatusFinal"</span>, &#91;<span class="java&#45;quote">"Super duper plugin action complete!"</span>&#93;)</pre></div><p class="paragraph"/><h4>Common Events</h4><p class="paragraph"/>Below is a table of some of the common events that can be leveraged:<p class="paragraph"/><table class="wiki-table" cellpadding="0" cellspacing="0" border="0"><tr><th>Event</th><th>Parameters</th><th>Description</th></tr><tr class="table-odd"><td>StatusUpdate</td><td>message</td><td>Passed a string indicating current script status/progress</td></tr><tr class="table-even"><td>StatusError</td><td>message</td><td>Passed a string indicating an error message from the current script</td></tr><tr class="table-odd"><td>StatusFinal</td><td>message</td><td>Passed a string indicating the final script status message, i.e. when completing a target, even if the target does not exit the scripting environment</td></tr><tr class="table-even"><td>CreatedArtefact</td><td>artefactType,artefactName</td><td>Called when a create-xxxx script has completed and created an artefact</td></tr><tr class="table-odd"><td>CreatedFile</td><td>fileName</td><td>Called whenever a project source filed is created, not including files constantly managed by Grails</td></tr><tr class="table-even"><td>Exiting</td><td>returnCode</td><td>Called when the scripting environment is about to exit cleanly</td></tr><tr class="table-odd"><td>PluginInstalled</td><td>pluginName</td><td>Called after a plugin has been installed</td></tr><tr class="table-even"><td>CompileStart</td><td>kind</td><td>Called when compilation starts, passing the kind of compile - source or tests</td></tr><tr class="table-odd"><td>CompileEnd</td><td>kind</td><td>Called when compilation is finished, passing the kind of compile - source or tests</td></tr><tr class="table-even"><td>DocStart</td><td>kind</td><td>Called when documentation generation is about to start - javadoc or groovydoc</td></tr><tr class="table-odd"><td>DocEnd</td><td>kind</td><td>Called when documentation generation has ended - javadoc or groovydoc</td></tr><tr class="table-even"><td>SetClasspath</td><td>rootLoader</td><td>Called during classpath initialization so plugins can augment the classpath with rootLoader.addURL(...). Note that this augments the classpath <strong class="bold">after</strong> event scripts are loaded so you cannot use this to load a class that your event script needs to import, although you can do this if you load the class by name.</td></tr><tr class="table-odd"><td>PackagingEnd</td><td>none</td><td>Called at the end of packaging (which is called prior to the Jetty server being started and after web.xml is generated)</td></tr><tr class="table-even"><td>ConfigureJetty</td><td>Jetty Server object</td><td>Called after initial configuration of the Jetty web server.</td></tr></table><h2><a name="4.4 Ant and Maven">4.4 Ant and Maven</a></h2><h4>Ant Integration</h4><p class="paragraph"/>create-app 명령어로 Grails 어플리케이션을 만들때 Grails는 자동으로 <a href="../ref/Command Line/create-app.html" class="commandLine">create-app</a> 의 <code>build.xml</code> 파일을 생성한다. 여기에는 다음과 같은 타겟들이 포함돼 있다.
+<ul class="star">
+<li>clean - Grails 어플리케이션을 청소한다.</li>
+<li>war - WAR 파일을 만든다</li>
+<li>test - 유닛 테스트를 실행한다.</li>
+<li>deploy - 기본적으로 아무일도 하지 않지만 자동 설치deployment를 구현할 수 있다.</li>
+</ul><p class="paragraph"/>이 타겟들은 Ant에 의해 실행된다:<p class="paragraph"/><div class="code"><pre>ant war</pre></div><p class="paragraph"/>build.xml은 Grails의 일반적인 명령어들을 실행하고 <a href="http://cruisecontrol.sourceforge.net/" target="blank">CruiseControl</a> 이나 <a href="https://hudson.dev.java.net/">Hudson</a> 같은 CI(continuous integration) 서버와 통합하는데 사용될 수 있다.<p class="paragraph"/><h4>Maven Integration</h4><p class="paragraph"/>Grails는 공식적으로 <a href="http://maven.apache.org/" target="blank">Maven</a> 을 지원하지 않는다. 하지만 Grails를 위한 <a href="http://forge.octo.com/confluence/display/MTG/Home" target="blank">Maven Tools for Grails</a> 라는 프로젝트가 있다. 이 도구는 이 기존의 Grails 프로젝트를 위한 POM을 만들어줄 뿐만아니라 Maven 라이프사이클lifecycle을 Grails에서 사용할 수 있게 해준다.<p class="paragraph"/>Grails를 위한 <a href="http://forge.octo.com/confluence/display/MTG/Home" target="blank">Maven Tools for Grails</a> 에 대한 자세한 정보는 프로젝트 사이트를 참고하라.
+
+	</body>
+</html>

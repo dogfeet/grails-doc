@@ -1,0 +1,13 @@
+<html>
+     <head>
+     	<meta http-equiv="Content-type" content="text/html; charset=utf-8">
+     	<title>15. Grails and Hibernate</title>
+     	<link rel="stylesheet" href="../css/main.css" type="text/css" media="screen" title="Ref" charset="utf-8">
+     </head>
+	<body class="body">
+		만약 <a href="../guide/single.html#5. Object Relational Mapping (GORM)" class="guide">GORM</a>으로 하고싶은대로 할 수 없다면 Hibernate를 이용하여 도메인 클래스를 매핑할 수도 있다. Hibernate을 용하기 위해서는 grails-app/conf/hibernate 디렉토리에 hibernate.cfg.xml파일을 만들고 도메인 클래스에 대응되는 HBM mapping xml 파일들을 생성한다.<p class="paragraph"/><blockquote class="note">
+이 것에 대한 자세한 정보는 Hiberate 웹사이트에서 매핑에 관한 <a href="http://www.hibernate.org/" target="blank">문서</a>를 읽어보라.
+</blockquote><p class="paragraph"/>Hibernate는 Grails 도메인 클래스를 더 폭 넓은 레거시Legacy/이미 존재하는 시스템에 매핑할 수 있으며, 데이터베이스 스키마를 훨씬 더 유연하게 생성할 수 있게 해준다<p class="paragraph"/>또한 Grails에서는 도메인 모델을 자바로 작성할 수 있도 있다. Grails에서는 이미 작성된 Hibernate로 매핑된 도메인 클래스를 재사용할 수 있다. 이 것은 grails-app/conf/hibernate 디렉토리에 hibernate.cfg.xml과 관련 매핑 파일들을 위치시키는 것 만으로 가능하다.<p class="paragraph"/>게다가 여러분은 여전히 모든 동적 영속성과 <a href="../guide/single.html#5. Object Relational Mapping (GORM)" class="guide">GORM</a>에서 허용된 쿼리 메소드를 호출할 수 있다.
+
+	</body>
+</html>

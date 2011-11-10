@@ -1,0 +1,24 @@
+<html>
+     <head>
+     	<meta http-equiv="Content-type" content="text/html; charset=utf-8">
+     	<title>7.4 Validation and Internationalization</title>
+     	<link rel="stylesheet" href="../css/main.css" type="text/css" media="screen" title="Ref" charset="utf-8">
+     </head>
+	<body class="body">
+		에러를 출력하는 코드가 어느곳에도 하드코딩되지 않아야 한다는 것은 Grails에서도 역시 중요하다. Spring의 <a href="http://static.springframework.org/spring/docs/2.5.x/api/org/springframework/validation/FieldError.html" class="api">FieldError</a> 클래스는 내부적으로 Grails의 <a href="../guide/single.html#10. Internationalization" class="guide">i18n</a> 기능에서 메시지들을 읽어온다.<p class="paragraph"/><h4>Constraints and Message Codes(제약조건과 메시지 코드)</h4><p class="paragraph"/>메시지 코드 자체는 관례에 따른다. 예를 들어 위에 예시했던 제약조건을 살펴보면:<p class="paragraph"/><div class="code"><pre>class User &#123;
+    ...<p class="paragraph"/>    <span class="java&#45;keyword">static</span> constraints = &#123;
+        login(size:5..15, blank:<span class="java&#45;keyword">false</span>, unique:<span class="java&#45;keyword">true</span>)
+        password(size:5..15, blank:<span class="java&#45;keyword">false</span>)
+        email(email:<span class="java&#45;keyword">true</span>, blank:<span class="java&#45;keyword">false</span>)
+        age(min:18, nullable:<span class="java&#45;keyword">false</span>)
+    &#125;
+&#125;</pre></div><p class="paragraph"/>blank 제약 조건을 위반하게 되면 Grails는 다음과 같은 관례에 따라 메시지를 찾는다:<p class="paragraph"/><div class="code"><pre>&#91;<span class="java&#45;object">Class</span> Name&#93;.&#91;Property Name&#93;.&#91;Constraint Code&#93;</pre></div><p class="paragraph"/>blank 제약 조건을 위반한 경우에의 메시지 코드는 user.login.blank가 될 것이기 때문에 grails-app/i18n/messages.properties 파일에 다음과 같이 메시지를 정의해야 한다:<p class="paragraph"/><div class="code"><pre>user.login.blank=Your login name must be specified!</pre></div><p class="paragraph"/>어떤 제약조건이 어떤 메시지 코드를 사용하는 지를 알고 싶다면 레퍼런스 가이드를 참고하라.<p class="paragraph"/><h4>Displaying Messages(메시지 출력하기)</h4><p class="paragraph"/><a href="../ref/Tags/renderErrors.html" class="tags">renderErrors</a> 태그는 자동으로 <a href="../ref/Tags/message.html" class="tags">message</a> 태그에 사용할 메시지를 찾는다. 하지만 다음과 같이 원하는 대로 메시지를 출력할 수 있다:<p class="paragraph"/><div class="code"><pre><span class="xml&#45;tag">&#60;g:hasErrors bean=<span class="xml&#45;quote">"$&#123;user&#125;"</span>&#62;</span>
+  <span class="xml&#45;tag">&#60;ul&#62;</span>
+   <span class="xml&#45;tag">&#60;g:eachError var=<span class="xml&#45;quote">"err"</span> bean=<span class="xml&#45;quote">"$&#123;user&#125;"</span>&#62;</span>
+       <span class="xml&#45;tag">&#60;li&#62;</span><span class="xml&#45;tag">&#60;g:message error=<span class="xml&#45;quote">"$&#123;err&#125;"</span> /&#62;</span><span class="xml&#45;tag">&#60;/li&#62;</span> 
+   <span class="xml&#45;tag">&#60;/g:eachError&#62;</span>
+  <span class="xml&#45;tag">&#60;/ul&#62;</span>
+<span class="xml&#45;tag">&#60;/g:hasErrors&#62;</span></pre></div><p class="paragraph"/>이 예제에서는 에러 메시지를 읽어오기 위해 <a href="../ref/Tags/eachError.html" class="tags">eachError</a> 태그의 바디에 <a href="../ref/Tags/message.html" class="tags">message</a> 태그를 넣고 err 인자를 사용했다.<p class="paragraph"/>
+
+	</body>
+</html>

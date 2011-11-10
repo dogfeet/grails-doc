@@ -1,0 +1,19 @@
+<html>
+     <head>
+     	<meta http-equiv="Content-type" content="text/html; charset=utf-8">
+     	<title>5.5.2.7 Optimistic Locking and Versioning</title>
+     	<link rel="stylesheet" href="../css/main.css" type="text/css" media="screen" title="Ref" charset="utf-8">
+     </head>
+	<body class="body">
+		<a href="../guide/single.html#5.3.5 Pessimistic and Optimistic Locking" class="guide">낙관적 잠금과 비관적 잠금</a>에 대해 이미 살펴보았듯이 기본적으로 GORM은 낙관적 작금을 사용하고 자동으로 <code>version</code> 속성을 모든 클래스에 주입(inject)한다. 그리고 이 <code>version</code> 속성은 데이터베이스의 <code>version</code> 컬럼에 매핑된다.<p class="paragraph"/>레거시 스키마에 이대로 매핑한다면 골칫거리가 될 뿐이다. 레거시 스키마에 매핑할 때에는 이 기능을 끌 수 있다:<p class="paragraph"/><div class="code"><pre>class Person &#123;
+  ..
+  <span class="java&#45;keyword">static</span> mapping = &#123;
+      table 'people'
+      version <span class="java&#45;keyword">false</span>
+  &#125;
+&#125;</pre></div><p class="paragraph"/><blockquote class="note">
+낙관적 잠금을 사용하지 않으면 근본적으로 동시 업데이트를 고려해야 한다. 그리고 <a href="../guide/single.html#5.3.5 Pessimistic and Optimistic Locking" class="guide">비관적 잠금</a>을 사용하지 않으면 사용자가 데이터를 덮어 쓸수도 있기 때문에 언제라도 데이터를 잃어 버릴 수 있다.
+</blockquote>
+
+	</body>
+</html>

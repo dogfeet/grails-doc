@@ -1,0 +1,20 @@
+<html>
+     <head>
+     	<meta http-equiv="Content-type" content="text/html; charset=utf-8">
+     	<title>3.3.1 DataSources and Environments</title>
+     	<link rel="stylesheet" href="../css/main.css" type="text/css" media="screen" title="Ref" charset="utf-8">
+     </head>
+	<body class="body">
+		이전의 구성 예는 모든 환경(서비스, 테스트, 개발등)이 같다고 가정하였다.<p class="paragraph"/>하지만, Grails는 DataSource를 "환경 별로(environment aware)" 정의할 수 있다다. 따라서 다음과 같이 할 수 있다.<p class="paragraph"/><div class="code"><pre>dataSource &#123;
+	// common settings here
+&#125;                     
+environments &#123;
+  production &#123;
+     dataSource &#123;
+          url = <span class="java&#45;quote">"jdbc:mysql://liveip.com/liveDb"</span>					
+     &#125;			
+  &#125;
+&#125;</pre></div>
+
+	</body>
+</html>

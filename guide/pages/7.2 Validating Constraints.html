@@ -1,0 +1,28 @@
+<html>
+     <head>
+     	<meta http-equiv="Content-type" content="text/html; charset=utf-8">
+     	<title>7.2 Validating Constraints</title>
+     	<link rel="stylesheet" href="../css/main.css" type="text/css" media="screen" title="Ref" charset="utf-8">
+     </head>
+	<body class="body">
+		<h4>Validation Basics(유효성 검사의 기초)</h4><p class="paragraph"/>도메인 클래스의 유효성을 검사하기 위해 모든 인스턴스의 <a href="../ref/Domain Classes/validate.html" class="domainClasses">validate</a> 메소드를 호출할 수 있다:<p class="paragraph"/><div class="code"><pre>def user =  <span class="java&#45;keyword">new</span> User(params)<p class="paragraph"/><span class="java&#45;keyword">if</span>(user.validate()) &#123;
+    // <span class="java&#45;keyword">do</span> something with user
+&#125;
+<span class="java&#45;keyword">else</span> &#123;
+    user.errors.allErrors.each &#123;
+        println it
+    &#125;
+&#125;</pre></div><p class="paragraph"/>도메인 클래스의 errors 속성은 Spring의 <a href="http://static.springframework.org/spring/docs/2.5.x/api/org/springframework/validation/Errors.html" class="api">Errors</a> 인터페이스의 인스턴스이다. Errors 인터페이스는 유효성 검사의 에러를 살펴보는(navigate) 방법과 원래 값을 얻어 오는 방법을 제공한다.<p class="paragraph"/><h4>Validation Phases(유효성 검사 시점)</h4><p class="paragraph"/>Grails의 유효성 검사는 본질적으로 두 가지로 나뉜다. 먼저 다음과 같이 인스턴스에 요청 파리미터를 바인딩(<a href="../guide/single.html#6.1.6 Data Binding" class="guide">data binding</a>)할 때 유효성이 검사된다:<p class="paragraph"/><div class="code"><pre>def user = <span class="java&#45;keyword">new</span> User(params)</pre></div><p class="paragraph"/>이 시점에서 String을 Date로 변환하는 것 같은 형 변환 에러가 errors 속성에 이미 넣어진다. Errors API를 이용해 이 에러를 확인하고 원래 값을 얻을 수 있다:<p class="paragraph"/><div class="code"><pre><span class="java&#45;keyword">if</span>(user.hasErrors()) &#123;
+	<span class="java&#45;keyword">if</span>(user.hasFieldError(<span class="java&#45;quote">"login"</span>)) &#123;
+		println user.getFieldError(<span class="java&#45;quote">"login"</span>).rejectedValue
+	&#125;
+&#125;</pre></div><p class="paragraph"/><a href="../ref/Domain Classes/validate.html" class="domainClasses">validate</a>나 <a href="../ref/Domain Classes/save.html" class="domainClasses">save</a>를 호출될 때도 유효성이 검사된다. 이 때 <a href="../ref/Domain Classes/constraints.html" class="domainClasses">constraints</a> 속성에 정의한 조건에 만족하는지 검사된다. 기본적으로 영속적 <a href="../ref/Domain Classes/save.html" class="domainClasses">save</a> 메소드는 유효성을 검사하기 때문에 다음과 같이 코드를 작성할 수 있다:<p class="paragraph"/><div class="code"><pre><span class="java&#45;keyword">if</span>(user.save()) &#123;
+    <span class="java&#45;keyword">return</span> user
+&#125;
+<span class="java&#45;keyword">else</span> &#123;
+    user.errors.allErrors.each &#123;
+        println it
+    &#125;
+&#125;</pre></div><p class="paragraph"/>
+	</body>
+</html>

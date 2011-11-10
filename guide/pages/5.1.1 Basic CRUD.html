@@ -1,0 +1,15 @@
+<html>
+     <head>
+     	<meta http-equiv="Content-type" content="text/html; charset=utf-8">
+     	<title>5.1.1 Basic CRUD</title>
+     	<link rel="stylesheet" href="../css/main.css" type="text/css" media="screen" title="Ref" charset="utf-8">
+     </head>
+	<body class="body">
+		기본적인 CRUD(Create/Read/Update/Delete) 명령을 사용해 보자.<p class="paragraph"/><h4>Create</h4><p class="paragraph"/>Groovy의 new 연산자를 사용하여 도메인 클래스를 생성하고 프로퍼티 값을 입력하고 <a href="../ref/Domain Classes/save.html" class="domainClasses">save</a> 메소드를를 호출한다:<p class="paragraph"/><div class="code"><pre>def p = <span class="java&#45;keyword">new</span> Person(name:<span class="java&#45;quote">"Fred"</span>, age:40, lastVisit:<span class="java&#45;keyword">new</span> Date())
+p.save()</pre></div><p class="paragraph"/><a href="../ref/Domain Classes/save.html" class="domainClasses">save</a> 메소드는 Hibernate을 이용하여 도메인 클래스를 영속화한다.<p class="paragraph"/><h4>Read</h4><p class="paragraph"/>Grails는 내부적으로 도메인 클래스에 <code>id</code> 프로퍼티를 추가한다.<p class="paragraph"/><div class="code"><pre>def p = Person.get(1)
+assert 1 == p.id</pre></div><p class="paragraph"/>이 예에서는 <a href="../ref/Domain Classes/get.html" class="domainClasses">get</a> 메소드를 이용하여 데이터베이스에서 Person 객체를 읽는다.<p class="paragraph"/><h4>Update</h4><p class="paragraph"/>특정 인스턴스의 정보를 업데이트하기 위해서 필요한 프로퍼티들을 변경하고 단순하게 다시 <a href="../ref/Domain Classes/save.html" class="domainClasses">save</a> 메소드를 호출하면 된다:<p class="paragraph"/><div class="code"><pre>def p = Person.get(1)
+p.name = <span class="java&#45;quote">"Bob"</span>
+p.save()</pre></div><p class="paragraph"/><h4>Delete</h4><p class="paragraph"/><a href="../ref/Domain Classes/delete.html" class="domainClasses">delete</a> 메소드로 인스턴스를 삭제한다:<p class="paragraph"/><div class="code"><pre>def p = Person.get(1)
+p.delete()</pre></div><p class="paragraph"/>
+	</body>
+</html>

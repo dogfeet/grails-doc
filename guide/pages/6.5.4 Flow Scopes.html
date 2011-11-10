@@ -1,0 +1,46 @@
+<html>
+     <head>
+     	<meta http-equiv="Content-type" content="text/html; charset=utf-8">
+     	<title>6.5.4 Flow Scopes</title>
+     	<link rel="stylesheet" href="../css/main.css" type="text/css" media="screen" title="Ref" charset="utf-8">
+     </head>
+	<body class="body">
+		<h4>Scope Basics(스콥의 기초)</h4><p class="paragraph"/>이전 예제에서 플로우 스콥에 객체를 저장하기 위해 “flow”라고 불리는 특별한 객체를 사용했던 것을 기억할 것이다. Grails의 플로우에서는 유용한 다섯 개의 스콥를 사용할 수 있다.
+<ul class="star">
+<li>request - 현재 요청에서 사용할 객체를 저장한다.</li>
+<li>flash - 현재 요청과 다음 요청에서 사용할 객체를 저장한다.</li>
+<li>flow - 현 플로우에서 사용할 객체를 저장한다. 플로우가 끝 상태에 도달해야 저장된 객체들이 제거된다.</li>
+<li>conversation - 루트 플로우와 네스티드(nested) 서브플로우에서 사용할 객체를 저장한다.</li>
+<li>session - 사용자의 세션에서 사용할 객체를 저장한다.</li>
+</ul><p class="paragraph"/><blockquote class="note">
+Grails의 서비스 클래스는 자동으로 웹 플로우 스콥에 포함된다. 더 자세한 정보는 <a href="../guide/single.html#8. The Service Layer" class="guide">Services</a>에 대한 문서를 참고하라.
+</blockquote><p class="paragraph"/>액션에서 반환하는 모델 맵은 자동으로 flow 스콥의 모델이 될 것이다. 다음과 같이 전이 액션에서 반환한 맵은 자동으로 flow 스콥에 저장된다:<p class="paragraph"/><div class="code"><pre>enterPersonalDetails &#123;
+   on(<span class="java&#45;quote">"submit"</span>) &#123;
+         &#91;person:<span class="java&#45;keyword">new</span> Person(params)&#93;
+   &#125;.to <span class="java&#45;quote">"enterShipping"</span>
+   on(<span class="java&#45;quote">"<span class="java&#45;keyword">return</span>"</span>).to <span class="java&#45;quote">"showCart"</span>
+&#125;</pre></div><p class="paragraph"/>각 생태마다 새로운 request가 만들어짐에 유의해야 한다. 액션 상태에서의 request 스콥에 저장된 객체는 뒤에 이어지는 뷰 상태에서 이용할 수 없다. 다른 상태로 전이할 때 다른 스콥으로 객체를 넘겨라. 또 웹 플로우에서 다음과 같은 것을 기억해야 한다:
+<ol>
+<li>상태를 전이시킬 때 flash 스콥에서 request 스콥로 객체를 이동시킨다.</li>
+<li>렌더링하기 전에 flow 스콥과 conversation 스콥에서 view 모델로 객체를 합친다(GSP 페이지 같은 뷰에서 객체를 참조할 때 스콥 접두어를 포함시키지 않는 것이 좋다).</li>
+</ol><p class="paragraph"/><h4>Flow Scopes and Serialization(플로우 스콥과 직렬화)</h4><p class="paragraph"/>flash, flow, converstion 스콥에 객체를 저장하려면 그 객체들은 java.io.Serializable을 구현해야 한다. 그렇지 않으면 에러가 발생한다. 이것은 스콥에 저장될 <a href="../guide/single.html#5. Object Relational Mapping (GORM)" class="guide">domain classes</a>에 영향을 주고 뷰에서 렌더링할 수 있게 만든다. 예를 들어 다음과 같은 도메인 클래스를 살펴보자:<p class="paragraph"/>When placing objects in <code>flash</code>, <code>flow</code> or <code>conversation</code> scope they must implement <code>java.io.Serializable</code> otherwise you will get an error. This has an impact on <a href="../guide/single.html#5. Object Relational Mapping (GORM)" class="guide">domain classes</a> in that domain classes are typically placed within a scope so that they can be rendered in a view. For example consider the following domain class:<p class="paragraph"/><div class="code"><pre>class Book &#123;
+	<span class="java&#45;object">String</span> title
+&#125;</pre></div><p class="paragraph"/>flow 스콥에 Book 클래스의 인스턴스를 저장하기 위해 다음과 같이 이 클래스를 수정해야 한다:<p class="paragraph"/><div class="code"><pre>class Book <span class="java&#45;keyword">implements</span> Serializable &#123;
+	<span class="java&#45;object">String</span> title
+&#125;</pre></div><p class="paragraph"/>이 것은 도메인 클래스에 정의한 관계(association)와 클로저에도 영향을 끼친다. 다음의 예제를 보면:<p class="paragraph"/><div class="code"><pre>class Book <span class="java&#45;keyword">implements</span> Serializable &#123;
+	<span class="java&#45;object">String</span> title
+	Author author
+&#125;</pre></div><p class="paragraph"/>만약 Author 클래스에 Serializable을 구현하지 않았다면 에러가 발생한다. onLoad, onSave, 등과 같은 <a href="../guide/single.html#5.5.1 Events and Auto Timestamping" class="guide">GORM events</a>에서 사용한 클로저에도 영향을 끼친다. 다음의 도메인 클래스의 인스턴스가 flow 스콥에 저장되면 에러가 발생한다:<p class="paragraph"/><div class="code"><pre>class Book <span class="java&#45;keyword">implements</span> Serializable &#123;
+	<span class="java&#45;object">String</span> title
+	def onLoad = &#123;
+		println <span class="java&#45;quote">"I'm loading"</span>
+	&#125;
+&#125;</pre></div><p class="paragraph"/>onload 이벤트에 할당된 블럭은 직렬화될 수 없기 때문이다. 이 것을 방지하기 위해 모든 이벤트는 transient로 정의돼야 한다:<p class="paragraph"/><div class="code"><pre>class Book <span class="java&#45;keyword">implements</span> Serializable &#123;
+	<span class="java&#45;object">String</span> title
+	<span class="java&#45;keyword">transient</span> onLoad = &#123;
+		println <span class="java&#45;quote">"I'm loading"</span>
+	&#125;
+&#125;</pre></div>
+
+	</body>
+</html>

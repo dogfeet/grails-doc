@@ -1,0 +1,17 @@
+<html>
+     <head>
+     	<meta http-equiv="Content-type" content="text/html; charset=utf-8">
+     	<title>6.5 Web Flow</title>
+     	<link rel="stylesheet" href="../css/main.css" type="text/css" media="screen" title="Ref" charset="utf-8">
+     </head>
+	<body class="body">
+		<h4>Overview(소개)</h4><p class="paragraph"/>Grails는 <a href="http://opensource.atlassian.com/confluence/spring/display/WEBFLOW" target="blank">Spring의 웹 플로우</a> 프로젝트에 기반하여 웹 플로우를 지원한다. 하나의 웹 플로우는 다양한 요구와 상태를 유지하는 컨버세이션(conversation)이라고 할 수 있다. 웹 플로우는 시작과 끝 상태를 가진다.<p class="paragraph"/>웹 플로우는 HTTP 세션을 요구하지 않지만 대신 상태를 저장할 때 직렬화시킨다. 이 방법은 Grails가 차례대로 넘기는 요청 파라미터인 플로우 실행 키를 사용하여 복원된다. 이 것은 HttpSession이나 메모리나 클러스터링에 상주시키는 기술을 사용하는 것보다 상태가 있는 어플리케이션의 플로우를 좀 더 쉽게 확장할 수 있게 만들어 준다.<p class="paragraph"/>웹 플로우는 본질적으로 고급 상태 머신이다. 이 것은 한 상태에서 다음 상태로 전이되는 실행의 “플로우”을 관장한다. 웹 플로우가 대신 관리함으로써 상태는 자동으로 관리되기 때문에 진행중에 사용자의 액션을 관리하는 일을 덜어 준다. 이것은 쇼핑 카트, 호텔 예약등의 여러개의 페이지를 가진 웍 플로우(work flow)들의 유즈 케이스를 위한 웹 플로우를 완벽하게 만들어 준다.<p class="paragraph"/><h4>Creating a Flow(플로우 만들기)</h4><p class="paragraph"/>플로우를 만들면 다음과 같이 평범한 Grails 컨트롤러가 생성되고 관례에 따라 Flow로 끝나는 액션이 추가된다:<p class="paragraph"/><div class="code"><pre>class BookController &#123;
+   def index = &#123;
+      redirect(action:<span class="java&#45;quote">"shoppingCart"</span>)
+   &#125;
+   def shoppingCartFlow = &#123;
+        &#8230;
+   &#125;
+&#125;</pre></div><p class="paragraph"/>Flow 접미어를 생락한 채로 액션에서 플로우를 참조시키거나 리다이렉트시킨다는 것을 기억하라. 다시 말해서 위의 플로우 액션의 이름은 shoppingCart이다.
+	</body>
+</html>

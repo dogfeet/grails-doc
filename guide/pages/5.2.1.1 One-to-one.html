@@ -1,0 +1,35 @@
+<html>
+     <head>
+     	<meta http-equiv="Content-type" content="text/html; charset=utf-8">
+     	<title>5.2.1.1 One-to-one</title>
+     	<link rel="stylesheet" href="../css/main.css" type="text/css" media="screen" title="Ref" charset="utf-8">
+     </head>
+	<body class="body">
+		일대일 관계은 가장 단순형태다. 이 관계는 다른 도메인 클래스의 형식으로 프로퍼티를 정의하는 것만으로 쉽게 정의할 수 있다. 다음의 예를 보자:<p class="paragraph"/><h5>Example A</h5><p class="paragraph"/><div class="code"><pre>class Face &#123;
+    Nose nose
+&#125;
+class Nose &#123;	
+&#125;</pre></div><p class="paragraph"/>Face에서 Nose로의 단뱡향 일대일 관계를 만들었다. 이제 양뱡향 관계를 만들어보자:<p class="paragraph"/><h5>Example B</h5><p class="paragraph"/><div class="code"><pre>class Face &#123;
+    Nose nose
+&#125;
+class Nose &#123;	
+	Face face
+&#125;</pre></div><p class="paragraph"/>이제 양뱡향 관계를 만들었다. 하지만 아직 두 클래스 모두 연쇄적으로 업데이트되지 않는다.<p class="paragraph"/>연쇄적으로 업데이트 되게하면 다음과 같다:<p class="paragraph"/><h5>Example C</h5><p class="paragraph"/><div class="code"><pre>class Face &#123;
+    Nose nose
+&#125;
+class Nose &#123;	
+	<span class="java&#45;keyword">static</span> belongsTo = &#91;face:Face&#93;
+&#125;</pre></div><p class="paragraph"/>belongsTo를 이용하여 Nose를 Face에 종속시켰다. 이제 Face를 생성하고 저장하면 <em class="italic">연쇄적으로</em> Nose도 추가되고 변경된다:<p class="paragraph"/><div class="code"><pre><span class="java&#45;keyword">new</span> Face(nose:<span class="java&#45;keyword">new</span> Nose()).save()</pre></div><p class="paragraph"/>The example above will save both face and nose. Note that the inverse <em class="italic">is not</em> true and will result in an error due to a transient <code>Face</code>:<p class="paragraph"/>위 예제는 Face와 Nose가 모두 잘 저장되지만 Face가 비영속 객체(transient object)므로 역순으로 생성하면 저장이 <em class="italic">안되고</em> 오류가 발생할 것이다.<p class="paragraph"/><div class="code"><pre><span class="java&#45;keyword">new</span> Nose(face:<span class="java&#45;keyword">new</span> Face()).save() // will cause an error</pre></div><p class="paragraph"/>그리고 Nose는 Face에 종속되어 있기 때문에 Face를 삭제하면 Nose 역시 삭제된다.<p class="paragraph"/><div class="code"><pre>def f = Face.get(1)
+f.delete() // both Face and Nose deleted</pre></div><p class="paragraph"/>belongsTo를 명시하지 않았다면 연쇄적으로 삭제되지 않는다. Nose를 명시적으로 삭제하지 않은 상태에서 Face를 삭제하면 외래키 제약조건(foreign key constraint) 에러가 발생한다:<p class="paragraph"/><div class="code"><pre>// error here without belongsTo
+def f = Face.get(1)
+f.delete()<p class="paragraph"/>// no error as we explicitly delete both
+def f = Face.get(1)
+f.nose.delete()
+f.delete()</pre></div><p class="paragraph"/>다음과 같이 작성하면 이 관계를 단방향으로 만들 수도 있다. 그리고 연쇄적으로 저장, 업데이트 시킬 수 있다.<p class="paragraph"/><div class="code"><pre>class Face &#123;
+    Nose nose
+&#125;
+class Nose &#123;	
+	<span class="java&#45;keyword">static</span> belongsTo = Face
+&#125;</pre></div><p class="paragraph"/>이 예제에서 belongsTo를 선언할 때 map 문법을 사용하지 않았고 관계(association)라고 부르지도 않았다는 점을 주목하자. Grails는 단방향으로 해석한다. 3가지 예제를 모두 요약하면 아래의 다이어그램과 같다.<p class="paragraph"/><img border="0" class="center" src="../img/GORM-1to1.png"></img>
+	</body>
+</html>

@@ -1,0 +1,24 @@
+<html>
+     <head>
+     	<meta http-equiv="Content-type" content="text/html; charset=utf-8">
+     	<title>12.3 Providing Basic Artefacts</title>
+     	<link rel="stylesheet" href="../css/main.css" type="text/css" media="screen" title="Ref" charset="utf-8">
+     </head>
+	<body class="body">
+		<h4>Adding a new Script(새로운 스크립트를 추가)</h4><p class="paragraph"/>플러그인의 스크립트 디렉토리에서 적절한 Gant 스크립트를 제공함으로써 간단히 새로운 스크립트를 추가할 수 있다.<p class="paragraph"/>
+<div class="code"><pre>+ MyPlugin.groovy
+   + scripts     &#60;&#45;&#45; 여기에 스크립트를 추가함
+   + grails&#45;app
+        + controllers
+        + services
+        + etc.
+    + lib</pre></div><p class="paragraph"/><h4>Adding a new Controller, Tag Library or Service(새로운 컨트롤러, 태그라이브러리, 서비스 추가하기)</h4><p class="paragraph"/>플러그인은 grails-app 트리안에 적절한 파일을 생성함으로써 새로운 컨트롤러, 태그라이브러리, 서비스를 추가할 수 있다. 플러그인이 설치되면 플러그인이 설치된 디렉토리에서 로드가 되고 메인 프로그램의 트리로 복사되지는 않는다.<p class="paragraph"/>
+it will be loaded from where it is installed and not copied into the main application tree.<p class="paragraph"/><div class="code"><pre>+ ExamplePlugin.groovy
+   + scripts
+   + grails&#45;app
+        + controllers  &#60;&#45;&#45; 여기에 컨트롤러가 추가
+        + services &#60;&#45;&#45; 여기에 서비스가 추가
+        + etc.  &#60;&#45;&#45; 여기에 다른것들이 추가
+    + lib</pre></div><p class="paragraph"/>
+	</body>
+</html>

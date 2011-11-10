@@ -1,0 +1,22 @@
+<html>
+     <head>
+     	<meta http-equiv="Content-type" content="text/html; charset=utf-8">
+     	<title>6.2.1.1 Variables and Scopes</title>
+     	<link rel="stylesheet" href="../css/main.css" type="text/css" media="screen" title="Ref" charset="utf-8">
+     </head>
+	<body class="body">
+		당연히 <code>&#60;% %&#62;</code> 블럭에 변수를 정의 할 수 있다:<p class="paragraph"/><div class="code"><pre><span class="xml&#45;tag">&#60;% now = new Date() %&#62;</span></pre></div><p class="paragraph"/>그리고 정의한 부분 이후부터 이 변수를 재사용할 수 있다:<p class="paragraph"/><div class="code"><pre><span class="xml&#45;tag">&#60;%=now%&#62;</span></pre></div><p class="paragraph"/>그러나 GSP에서 사용할 수 있도록 미리 정의된 변수들이 많이 있다:
+<ul class="star">
+<li><code>application</code> - <a href="http://java.sun.com/j2ee/1.4/docs/api/javax/servlet/ServletContext.html" class="api">javax.servlet.ServletContext</a> 인스턴스</li>
+<li><code>applicationContext</code> - Spring의 <a href="http://static.springframework.org/spring/docs/2.5.x/api/org/springframework/context/ApplicationContext.html" class="api">ApplicationContext</a> 인스턴스</li>
+<li><code>flash</code> - <a href="../ref/Controllers/flash.html" class="controllers">flash</a> 객체</li>
+<li><code>grailsApplication</code> - <a href="../api/org/codehaus/groovy/grails/commons/GrailsApplication.html" class="api">GrailsApplication</a> 인스턴스</li>
+<li><code>out</code> - 출력 스트림에 쓸 수 있는 응답 writer</li>
+<li><code>params</code> - 요청 파라미터들을 얻을 수 있는 <a href="../ref/Controllers/params.html" class="controllers">params</a> 객체</li>
+<li><code>request</code> - <a href="http://java.sun.com/j2ee/1.4/docs/api/javax/servlet/http/HttpServletRequest.html" class="api">HttpServletRequest</a> 인스턴스</li>
+<li><code>response</code> - <a href="http://java.sun.com/j2ee/1.4/docs/api/javax/servlet/http/HttpServletResponse.html" class="api">HttpServletResponse</a> 인스턴스</li>
+<li><code>session</code> - <a href="http://java.sun.com/j2ee/1.4/docs/api/javax/servlet/http/HttpSession.html" class="api">HttpSession</a> 인스턴스</li>
+<li><code>webRequest</code> - <a href="../api/org/codehaus/groovy/grails/web/servlet/mvc/GrailsWebRequest.html" class="api">GrailsWebRequest</a> 인스턴스</li>
+</ul><p class="paragraph"/>
+	</body>
+</html>

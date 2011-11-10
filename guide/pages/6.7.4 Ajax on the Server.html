@@ -1,0 +1,49 @@
+<html>
+     <head>
+     	<meta http-equiv="Content-type" content="text/html; charset=utf-8">
+     	<title>6.7.4 Ajax on the Server</title>
+     	<link rel="stylesheet" href="../css/main.css" type="text/css" media="screen" title="Ref" charset="utf-8">
+     </head>
+	<body class="body">
+		Ajax의 X는 XML을 의미하고 Ajax를 구현하는 방법은 매우 다양하지만 일반적으로 다음과 같이 나눌 수 있다:
+<ul class="star">
+<li>내용을 위한 Ajax(Content Centric Ajax) - 단지 페이지를 업데이트하기 위해 HTML의 결과만을 사용한다.</li>
+<li>데이터를 위한 Ajax(Data Centric Ajax) - 서버에서는 XML이나 JSON형식의 응답을 보내고 페이지를 프로그램적으로 업데이트한다.</li>
+<li>스크립트를 위한 Ajax(Script Centric Ajax) - 서버는 바로 실행될 자바스크립트를 보낸다.</li>
+</ul><p class="paragraph"/><a href="../guide/single.html#6.7 Ajax" class="guide">Ajax</a> 절의 예제들은 대부분 페이지를 업데이트하는 내용을 위한 Ajax에 대해 다룬다. 그러나 데이터나 스크립트를 위한 Ajax도 필요할 것이다. 이 문서는 그런 스타일의 Ajax도 다룬다.<p class="paragraph"/><h4>Content Centric Ajax(내용을 위한 Ajax)</h4><p class="paragraph"/>내용을 위한 Ajax는 서버에서 HTML을 전송하는 것을 말한다. 이 것은 일반적으로 <a href="../ref/Controllers/render.html" class="controllers">render</a> 메소드로 템플릿을 렌더링함으로써 이루어진다:<p class="paragraph"/><div class="code"><pre>def showBook = &#123;
+	def b = Book.get(params.id)<p class="paragraph"/>	render(template:<span class="java&#45;quote">"bookTemplate"</span>, model:&#91;book:b&#93;)
+&#125;</pre></div><p class="paragraph"/>클라이언트에서는 <a href="../ref/Tags/remoteLink.html" class="tags">remoteLink</a> 태그로 이 속성을 호출한다:<p class="paragraph"/><div class="code"><pre><span class="xml&#45;tag">&#60;g:remoteLink action=<span class="xml&#45;quote">"showBook"</span> id=<span class="xml&#45;quote">"$&#123;book.id&#125;"</span> update=<span class="xml&#45;quote">"book$&#123;book.id&#125;"</span>&#62;</span>Update Book<span class="xml&#45;tag">&#60;/g:remoteLink&#62;</span>
+<span class="xml&#45;tag">&#60;div id=<span class="xml&#45;quote">"book$&#123;book.id&#125;"</span>&#62;</span>
+   <span class="xml&#45;comment">&#60;!&#45;&#45;existing book mark&#45;up &#45;&#45;&#62;</span>
+<span class="xml&#45;tag">&#60;/div&#62;</span></pre></div><p class="paragraph"/><h4>Data Centric Ajax with JSON(Ajax 데이터에 JSON 사용하기)</h4><p class="paragraph"/>데이터를 위한 Ajax는 일반적으로 클라이언트에서 이 응답을 처리한 후 프로그램으로 페이지를 업데이트 하는 것을 말한다. Grails에서 JSON 응답을 사용하기 위해 Grails의 JSON 마샬링(<a href="../guide/single.html#6.1.7 XML and JSON Responses" class="guide">JSON marshaling</a>) 기능을 사용 할 수 있다:<p class="paragraph"/><div class="code"><pre><span class="java&#45;keyword">import</span> grails.converters.&#42;<p class="paragraph"/>def showBook = &#123;
+	def b = Book.get(params.id)<p class="paragraph"/>    render b as JSON	
+&#125;</pre></div><p class="paragraph"/>그리고 클라이언트에서는 Ajax 이벤트 핸들러를 사용하여 JSON 요청을 파싱한다:<p class="paragraph"/><div class="code"><pre><span class="xml&#45;tag">&#60;g:javascript&#62;</span>
+function updateBook(e) &#123;
+	var book = eval(<span class="xml&#45;quote">"("</span>+e.responseText+<span class="xml&#45;quote">")"</span>) // evaluate the JSON
+	$(<span class="xml&#45;quote">"book"</span>+book.id+<span class="xml&#45;quote">"_title"</span>).innerHTML = book.title
+&#125;
+<span class="xml&#45;tag">&#60;g:javascript&#62;</span>
+<span class="xml&#45;tag">&#60;g:remoteLink action=<span class="xml&#45;quote">"test"</span> update=<span class="xml&#45;quote">"foo"</span> onSuccess=<span class="xml&#45;quote">"updateBook(e)"</span>&#62;</span>Update Book<span class="xml&#45;tag">&#60;/g:remoteLink&#62;</span>
+<span class="xml&#45;tag">&#60;g:set var=<span class="xml&#45;quote">"bookId"</span>&#62;</span>book$&#123;book.id&#125;<span class="xml&#45;tag">&#60;/g:set&#62;</span>
+<span class="xml&#45;tag">&#60;div id=<span class="xml&#45;quote">"$&#123;bookId&#125;"</span>&#62;</span>
+	<span class="xml&#45;tag">&#60;div id=<span class="xml&#45;quote">"$&#123;bookId&#125;_title"</span>&#62;</span>The Stand<span class="xml&#45;tag">&#60;/div&#62;</span>
+<span class="xml&#45;tag">&#60;/div&#62;</span></pre></div><p class="paragraph"/><h4>Data Centric Ajax with XML(Ajax 데이터에 XML 사용하기)</h4><p class="paragraph"/>서버에서 XML을 사용하는 것도 매우 쉽다:<p class="paragraph"/><div class="code"><pre><span class="java&#45;keyword">import</span> grails.converters.&#42;<p class="paragraph"/>def showBook = &#123;
+	def b = Book.get(params.id)<p class="paragraph"/>    render b as XML	
+&#125;</pre></div><p class="paragraph"/>하지만 클라이언트에서 DOM을 처리해야 하기 때문에 좀 더 복잡하다:<p class="paragraph"/><div class="code"><pre><span class="xml&#45;tag">&#60;g:javascript&#62;</span>
+function updateBook(e) &#123;
+	var xml = e.responseXML
+	var id = xml.getElementsByTagName(<span class="xml&#45;quote">"book"</span>).getAttribute(<span class="xml&#45;quote">"id"</span>)
+	$(<span class="xml&#45;quote">"book"</span>+id+<span class="xml&#45;quote">"_title"</span>)=xml.getElementsByTagName(<span class="xml&#45;quote">"title"</span>)&#91;0&#93;.textContent
+&#125;
+<span class="xml&#45;tag">&#60;g:javascript&#62;</span>
+<span class="xml&#45;tag">&#60;g:remoteLink action=<span class="xml&#45;quote">"test"</span> update=<span class="xml&#45;quote">"foo"</span> onSuccess=<span class="xml&#45;quote">"updateBook(e)"</span>&#62;</span>Update Book<span class="xml&#45;tag">&#60;/g:remoteLink&#62;</span>
+<span class="xml&#45;tag">&#60;g:set var=<span class="xml&#45;quote">"bookId"</span>&#62;</span>book$&#123;book.id&#125;<span class="xml&#45;tag">&#60;/g:set&#62;</span>
+<span class="xml&#45;tag">&#60;div id=<span class="xml&#45;quote">"$&#123;bookId&#125;"</span>&#62;</span>
+	<span class="xml&#45;tag">&#60;div id=<span class="xml&#45;quote">"$&#123;bookId&#125;_title"</span>&#62;</span>The Stand<span class="xml&#45;tag">&#60;/div&#62;</span>
+<span class="xml&#45;tag">&#60;/div&#62;</span></pre></div><p class="paragraph"/><h4>Script Centric Ajax with JavaScript(스크립트를 위한 Ajax에서 자바스크립트 사용하기)</h4><p class="paragraph"/>스크립트를 위한 Ajax는 실제로 클라이언트에서 실행할 수 있는 자바스크트를 전송한다. 다음은 이 것에 대한 예제이다:<p class="paragraph"/><div class="code"><pre>def showBook = &#123;
+	def b = Book.get(params.id)<p class="paragraph"/>    response.contentType = <span class="java&#45;quote">"text/javascript"</span>
+    <span class="java&#45;object">String</span> title = b.title.encodeAsJavascript()
+    render <span class="java&#45;quote">"&#36;('book$&#123;b.id&#125;_title')='$&#123;title&#125;'"</span>
+&#125;</pre></div><p class="paragraph"/>contentType을 text/javascript로 설정해야 하는 것을 기억하라. 만약 Prototype을 사용하고 있다면 contentType을 설정한 것 때문에 반환된 Javacript가 자동으로 실행된다.<p class="paragraph"/>클라이언트가 수정되서 서버가 망가지길 바라지 않는다면 클라이언트에서 약속된agreed API를 사용해야 한다. 이 것은 Rails의 RJS같은 것이 필요한 이유이다. Grails에는 RJS같은 기능은 없지만 동적 자바스크립트 플러그인(<a href="http://grails.org/Dynamic+Javascript+Plugin" target="blank">Dynamic JavaScript Plug-in</a>)으로 유사한 일을 할 수 있다.<p class="paragraph"/>
+	</body>
+</html>

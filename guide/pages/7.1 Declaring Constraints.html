@@ -1,0 +1,27 @@
+<html>
+     <head>
+     	<meta http-equiv="Content-type" content="text/html; charset=utf-8">
+     	<title>7.1 Declaring Constraints</title>
+     	<link rel="stylesheet" href="../css/main.css" type="text/css" media="screen" title="Ref" charset="utf-8">
+     </head>
+	<body class="body">
+		제약 조건를 정의하기 위해서는 도메인 클래스의 <a href="../ref/Domain Classes/constraints.html" class="domainClasses">constraints</a> 속성에 코드 블럭을 할당한다:<p class="paragraph"/><div class="code"><pre>class User &#123;
+    <span class="java&#45;object">String</span> login
+    <span class="java&#45;object">String</span> password
+    <span class="java&#45;object">String</span> email
+    <span class="java&#45;object">Integer</span> age<p class="paragraph"/>    <span class="java&#45;keyword">static</span> constraints = &#123;
+	  &#8230;
+    &#125;
+&#125;</pre></div><p class="paragraph"/>constraints 블럭에 속성의 이름과 일치하는 메소드를 호출하고 네임드 파라미터를 사용하여 제약조건을 명시한다:<p class="paragraph"/><div class="code"><pre>class User &#123;
+    ...<p class="paragraph"/>    <span class="java&#45;keyword">static</span> constraints = &#123;
+        login(size:5..15, blank:<span class="java&#45;keyword">false</span>, unique:<span class="java&#45;keyword">true</span>)
+        password(size:5..15, blank:<span class="java&#45;keyword">false</span>)
+        email(email:<span class="java&#45;keyword">true</span>, blank:<span class="java&#45;keyword">false</span>)
+        age(min:18, nullable:<span class="java&#45;keyword">false</span>)
+    &#125;
+&#125;</pre></div><p class="paragraph"/>이 예제의 login 속성 값은 5에서 15 사이로 문자열의 길이를 제한하고, 공백이 될 수 없고, 유일(unique)해야 한다. 그 뿐만 아니라 password, email, age 속성에도 제약조건을 정의했다.<p class="paragraph"/>
+<blockquote class="note">
+이용가능한 제약조건에 대한 내용은 레퍼런스 가이드를 참고하라.
+</blockquote>
+	</body>
+</html>

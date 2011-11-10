@@ -1,0 +1,33 @@
+<html>
+     <head>
+     	<meta http-equiv="Content-type" content="text/html; charset=utf-8">
+     	<title>Grails Reference</title>
+     	<link rel="stylesheet" href="../../css/ref.css" type="text/css" media="screen" title="Ref" charset="utf-8">
+     </head>
+	<body class="body">
+		<h1>formatDate </h1><p class="paragraph"/><h2>Purpose</h2><p class="paragraph"/>Allows the formatting of <code>java.util.Date</code> instances using the same patterns defined by the <a href="http://java.sun.com/j2se/1.4.2/docs/api/java/text/SimpleDateFormat.html" target="blank">SimpleDateFormat</a> class.<p class="paragraph"/><h2>Examples</h2><p class="paragraph"/><div class="code"><pre><span class="xml&#45;tag">&#60;g:formatDate format=<span class="xml&#45;quote">"yyyy&#45;MM&#45;dd"</span> date=<span class="xml&#45;quote">"$&#123;date&#125;"</span>/&#62;</span></pre></div><p class="paragraph"/><h2>Description</h2><p class="paragraph"/>Attributes
+<ul class="star">
+<li><code>format</code> (required) - The format to use for the date</li>
+<li><code>date</code> (required) - The date object to format</li>
+</ul><p class="paragraph"/><h2>Source</h2><p class="paragraph"/><p><a href="#" onclick="document.getElementById('formatDate').style.display='inline'">Show Source</a></p><div id="formatDate" style="display:none;"><div class="code"><pre>def formatDate = &#123; attrs &#45;&#62;<p class="paragraph"/>    	def date
+    	<span class="java&#45;keyword">if</span> (attrs.containsKey(&#39;date&#39;)) &#123;
+        	date = attrs.get(&#39;date&#39;)
+        	<span class="java&#45;keyword">if</span>(date == <span class="java&#45;keyword">null</span>) <span class="java&#45;keyword">return</span>
+    	&#125;
+    	<span class="java&#45;keyword">else</span> &#123;
+            date = <span class="java&#45;keyword">new</span> Date()
+    	&#125;<p class="paragraph"/>        def formatName = attrs.get(&#39;formatName&#39;)
+        def format = attrs.get(&#39;format&#39;)<p class="paragraph"/>        <span class="java&#45;keyword">if</span>(!format &#38;&#38; formatName) &#123;
+            format = message(code:formatName)
+            <span class="java&#45;keyword">if</span>(!format) throwTagError(&#34;Attribute &#91;formatName&#93; of Tag &#91;formatDate&#93; specifies a format key &#91;$formatName&#93; that does not exist within a message bundle!&#34;)
+        &#125;
+        <span class="java&#45;keyword">else</span> <span class="java&#45;keyword">if</span> (!format) &#123;
+            format = &#34;yyyy&#45;MM&#45;dd HH:mm:ss z&#34;
+        &#125;<p class="paragraph"/>        def locale = RCU.getLocale(request)
+        def simpleDateFormat = locale ?
+        <span class="java&#45;keyword">new</span> SimpleDateFormat(format, locale) :
+        <span class="java&#45;keyword">new</span> SimpleDateFormat(format)<p class="paragraph"/>        out &#60;&#60; simpleDateFormat.format(date)
+    &#125;</pre></div></div><p class="paragraph"/>
+
+	</body>
+</html>

@@ -1,0 +1,18 @@
+<html>
+     <head>
+     	<meta http-equiv="Content-type" content="text/html; charset=utf-8">
+     	<title>6.3.1 Simple Tags</title>
+     	<link rel="stylesheet" href="../css/main.css" type="text/css" media="screen" title="Ref" charset="utf-8">
+     </head>
+	<body class="body">
+		이전 예제에서 설명한 것처럼 바디도 없고 단순히 내용을 출력하는 태그를 작성하는 일은 아무일도 아니다. 여기에 <code>dateFormat</code> 형식의 태그에 대한 예제도 살펴보자:<p class="paragraph"/><div class="code"><pre>def dateFormat = &#123; attrs, body &#45;&#62;
+	out &#60;&#60; <span class="java&#45;keyword">new</span> java.text.SimpleDateFormat(attrs.format).format(attrs.date)
+&#125;</pre></div><p class="paragraph"/>날자형식을 위해서 Java의 <code>SimpleDateFormat</code> 클래스를 사용했고 그 것을 응답에 출력했다. GSP에서 다음과 같이 이 태그를 사용할 수 있다:<p class="paragraph"/><div class="code"><pre><span class="xml&#45;tag">&#60;g:dateFormat format=<span class="xml&#45;quote">"dd&#45;MM&#45;yyyy"</span> date=<span class="xml&#45;quote">"$&#123;new Date()&#125;"</span> /&#62;</span></pre></div><p class="paragraph"/>HTML 마크업을 응답에 출력해야 하는 태그를 작성해야 할 수도 있다. 출력할 내용을 바로 삽입하는 방법이 있다:<p class="paragraph"/><div class="code"><pre>def formatBook = &#123; attrs, body &#45;&#62;
+    out &#60;&#60; <span class="java&#45;quote">"&#60;div id=&#34;$&#123;attrs.book.id&#125;&#34;&#62;"</span>	
+    out &#60;&#60; <span class="java&#45;quote">"Title : $&#123;attrs.book.title&#125;"</span>	
+	out &#60;&#60; <span class="java&#45;quote">"&#60;/div&#62;"</span>
+&#125;</pre></div><p class="paragraph"/>이 방법은 실제로 사용하기엔 너무 지저분하다. <a href="../ref/Tags/render.html" class="tags">render</a> 태그를 사용하여 더 낫게 할 수 있다:<p class="paragraph"/><div class="code"><pre>def formatBook = &#123; attrs, body &#45;&#62;
+    out &#60;&#60; render(template:<span class="java&#45;quote">"bookTemplate"</span>, model:&#91;book:attrs.book&#93;)	
+&#125;</pre></div><p class="paragraph"/>이제 실제로 렌더링되는 GSP 템플릿을 만들었다.<p class="paragraph"/>
+	</body>
+</html>

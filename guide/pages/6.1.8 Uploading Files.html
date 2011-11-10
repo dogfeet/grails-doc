@@ -1,0 +1,28 @@
+<html>
+     <head>
+     	<meta http-equiv="Content-type" content="text/html; charset=utf-8">
+     	<title>6.1.8 Uploading Files</title>
+     	<link rel="stylesheet" href="../css/main.css" type="text/css" media="screen" title="Ref" charset="utf-8">
+     </head>
+	<body class="body">
+		<h4>Programmatic File Uploads(파일 업로드 프로그래밍)</h4><p class="paragraph"/>Grails에서의 파일 업로드는 Spring의 <a href="http://static.springframework.org/spring/docs/2.5.x/api/org/springframework/web/multipart/MultipartHttpServletRequest.html" class="api">MultipartHttpServletRequest</a>를 통해서 지원된다. 파일을 업로드하기 위해서 먼저 다음의 예제같이 멀티파트 폼(multipart form)을 만든다:<p class="paragraph"/><div class="code"><pre>Upload Form: <span class="xml&#45;tag">&#60;br /&#62;</span>
+	<span class="xml&#45;tag">&#60;g:form action=<span class="xml&#45;quote">"upload"</span> method=<span class="xml&#45;quote">"post"</span> enctype=<span class="xml&#45;quote">"multipart/form&#45;data"</span>&#62;</span>
+		<span class="xml&#45;tag">&#60;input type=<span class="xml&#45;quote">"file"</span> name=<span class="xml&#45;quote">"myFile"</span> /&#62;</span>
+		<span class="xml&#45;tag">&#60;input type=<span class="xml&#45;quote">"submit"</span> /&#62;</span>
+	<span class="xml&#45;tag">&#60;/g:form&#62;</span></pre></div><p class="paragraph"/>몇 가지 방법으로 파일 업로드를 처리할 수 있다. 먼저 Spring의 <a href="http://static.springframework.org/spring/docs/2.5.x/api/org/springframework/web/multipart/MultipartFile.html" class="api">MultipartFile</a> 인스턴스를 사용하는 방법부터 살펴보자:<p class="paragraph"/><div class="code"><pre>def upload = &#123;
+    def f = request.getFile('myFile')
+    <span class="java&#45;keyword">if</span>(!f.empty) &#123;
+      f.transferTo( <span class="java&#45;keyword">new</span> File('/some/local/dir/myfile.txt') )
+      response.sendError(200,'Done');
+    &#125;    
+    <span class="java&#45;keyword">else</span> &#123;
+       flash.message = 'file cannot be empty'
+       render(view:'uploadForm')
+    &#125;
+&#125;</pre></div><p class="paragraph"/><a href="http://static.springframework.org/spring/docs/2.5.x/api/org/springframework/web/multipart/MultipartFile.html" class="api">MultipartFile</a> 인스턴스를 통해서 InputStream을 획득할 수 있기 때문에 이 방법은 다른 위치에 파일을 저장하고 직접 파일을 조작할 때 유용하다. .<p class="paragraph"/><h4>File Uploads through Data Binding(데이터 바인딩으로 파일 업로드 처리하기)</h4><p class="paragraph"/>파일 업로드는 데이터 바인딩으로도 처리할 수 있다. 다음 예제는 <code>Image</code> 도메인 클래스이다:<p class="paragraph"/><div class="code"><pre>class Image &#123;
+   <span class="java&#45;object">byte</span>&#91;&#93; myFile
+&#125;</pre></div><p class="paragraph"/>다음의 예제처럼 image 객체를 만들고 params 객체를 파라미터로 넘긴다면 Grails는 자동으로 file을 바이트(byte) 타입의 myFile 프로퍼티에 바인딩 시킬 것이다:<p class="paragraph"/><div class="code"><pre>def img = <span class="java&#45;keyword">new</span> Image(params)</pre></div><p class="paragraph"/>Image 클래스의 myFile 프로퍼티의 형식을 String 형식으로 바꾸어 파일의 내용을 String 형식으로 만드는 것도 가능하다:<p class="paragraph"/><div class="code"><pre>class Image &#123;
+   <span class="java&#45;object">String</span> myFile
+&#125;</pre></div><p class="paragraph"/>
+	</body>
+</html>

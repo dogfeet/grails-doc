@@ -1,0 +1,37 @@
+<html>
+     <head>
+     	<meta http-equiv="Content-type" content="text/html; charset=utf-8">
+     	<title>6.1.9 Command Objects</title>
+     	<link rel="stylesheet" href="../css/main.css" type="text/css" media="screen" title="Ref" charset="utf-8">
+     </head>
+	<body class="body">
+		Grails 컨트롤러는 Command 객체 개념을 지원한다. Command 객체는 Struts같은 것에서 form 빈을 사용하는 것과 유사하다. 이 것은 업데이트해야 하는 도메인 클래스의 프로퍼티들을 부분적으로 할당할(populate) 때 유용하다. 이 인터랙션에 요구되는 도메인 클래스는 없지만 <a href="../guide/single.html#6.1.6 Data Binding" class="guide">data binding</a>과 유효성 검사(<a href="../guide/single.html#7. Validation" class="guide">validation</a>) 같은 기능들이 필요하다.<p class="paragraph"/><h4>Declaring Command Objects(Command 객체 정의하기)</h4><p class="paragraph"/>일반적으로 컨트롤러가 정의된 소스파일의 컨트롤러 아래에 Command 객체들을 정의한다:<p class="paragraph"/><div class="code"><pre>class UserController &#123;
+	&#8230;
+&#125;
+class LoginCommand &#123;
+   <span class="java&#45;object">String</span> username
+   <span class="java&#45;object">String</span> password
+   <span class="java&#45;keyword">static</span> constraints = &#123;
+           username(blank:<span class="java&#45;keyword">false</span>, minSize:6)
+           password(blank:<span class="java&#45;keyword">false</span>, minSize:6)
+   &#125;
+&#125;</pre></div><p class="paragraph"/>이 예제는 <a href="../guide/single.html#5. Object Relational Mapping (GORM)" class="guide">domain classes</a>에 정의했던 것처럼 Command 객체에도 제약조건(<a href="../guide/single.html#7.1 Declaring Constraints" class="guide">constraints</a>)을 정의할 수 있다는 것을 보여준다.<p class="paragraph"/><h4>Using Command Objects(Command 객체 사용하기)</h4><p class="paragraph"/>Command 객체를 사용하기 위해서 컨트롤러의 액션은 Command 객체의 파라미터들을 원하는 만큼 명시할 수 있다. 파라미터의 형식은 개발자가 지정하기 때문에 Grails는 생성하고 할당(populate)하고 유효성 검사를 해야 할 객체들을 알 수 있다.<p class="paragraph"/>Grails는 컨트롤러의 액션이 실행되기 전에 Command 클래스의 인스턴스를 자동으로 생성하고 요청 파라미터를 일치하는 Command 객체의 프로퍼티에 할당한다. 마지막으로 Command 객체의 유효성도 검사한다. 예를 들어:<p class="paragraph"/><div class="code"><pre>class LoginController &#123;
+  def login = &#123; LoginCommand cmd &#45;&#62;
+         <span class="java&#45;keyword">if</span>(cmd.hasErrors()) &#123;
+                redirect(action:'loginForm')
+         &#125;
+         <span class="java&#45;keyword">else</span> &#123;
+            // <span class="java&#45;keyword">do</span> something <span class="java&#45;keyword">else</span>
+        &#125;
+  &#125;
+&#125;</pre></div><p class="paragraph"/><h4>Command Objects and Dependency Injection(Command 객체와 의존성 주입)</h4><p class="paragraph"/>Command 객체로 의존성 주입도 다룰 수 있다. 이 것은 Grails의 서비스(<a href="../guide/single.html#8. The Service Layer" class="guide">services</a>)와 상호작용해야 하는 유효성 검사 로직을 Command 객체에 구현해야 할 때 유용하다.<p class="paragraph"/><div class="code"><pre>class LoginCommand &#123;
+    def loginService<p class="paragraph"/>	<span class="java&#45;object">String</span> username
+	<span class="java&#45;object">String</span> password
+	<span class="java&#45;keyword">static</span> constraints = &#123;
+		username(validator: &#123;
+			loginService.canLogin(username, password)
+		&#125;)
+	&#125;
+&#125;</pre></div><p class="paragraph"/>이 예제의 Command 객체는 Spring의 <code>ApplicationContext</code>에서 이름으로 주입된 빈(bean)과 상호작용한다.<p class="paragraph"/>
+	</body>
+</html>

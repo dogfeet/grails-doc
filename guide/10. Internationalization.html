@@ -1,0 +1,22 @@
+<html>
+     <head>
+     	<meta http-equiv="Content-type" content="text/html; charset=utf-8">
+     	<title>10. Internationalization</title>
+     	<link rel="stylesheet" href="../css/main.css" type="text/css" media="screen" title="Ref" charset="utf-8">
+     </head>
+	<body class="body">
+		<h1><a name="10. Internationalization">10. Internationalization</a></h1>Grails의 국제화는 Spring MVC의 국제ghk 지원에 껍데기를 씌운 것이다. 모든 뷰에서 사용자의 Locale에 따라 적절히 텍스트가 표현되도록 할 수 있다. Java의 <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/util/Locale.html" class="api">Locale</a> 클래스의 문서를 인용하자면:<p class="paragraph"/><blockquote class="quote">
+Locale은 지정학적인, 정치적인, 문화적인 어떤 것을 나태낸다. 이를 위해 Locale을 필요로하는 행위를 Locale-sensitive라고 부른다. 사용자에 따라 정보를 조작하기위해 Locale을 사용한다. 예를 들어 숫자를 표시하는 일은 Locale-sensitive라 할 수 있다. 숫자는 사용자가 속한 지역, 문화, 관례에 따르는 형식으로 표현돼야 한다.
+</blockquote><p class="paragraph"/>하나의 Locale은 <a href="http://www.loc.gov/standards/iso639-2/englangn.html" target="blank">언어코드</a>와 <a href="http://www.iso.ch/iso/en/prods-services/iso3166ma/02iso-3166-code-lists/list-en1.html" target="blank">국가코드</a>로 이루어진다. 예를들어 "en_US"는 미국 영어를 나타내고, "en_GB"는 영국 영어를 나타내는 코드이다.
+<h2><a name="10.1 Understanding Message Bundles">10.1 Understanding Message Bundles</a></h2>자 이제 Locale에 대한 개념이 잡혔다면 Grails에서 Locale를 이용하기 위해서 메시지 번들을 만든다. 이 메시지 번들은 사용자에게 보여주기 위한 여러가지 다른 언어들을 담고 있다. 메시지 번들은 Grails에서 “grails-app/i18n” 디렉토리에 위치하며 간단한 Java 프로퍼티파일이다.<p class="paragraph"/>각 번들의 이름은 관례적으로 “messages”로 시작하고 Locale로 끝난다. Grails는 grails-app/i18n 디렉토리에 다양한 언어들을 위해 만들어진 메시지 번들을 가지고 있다.<p class="paragraph"/><div class="code"><pre>messages.properties
+messages_de.properties
+messages_es.properties
+etc.</pre></div><p class="paragraph"/>기본적으로 Grails는 사용자가 자신의 Locale을 지정하지 않으면 message.properties파일에서 메시지를 얻어올 것이다. 필요한 Locale 이름으로 끝나는 새로운 properties 파일을 만드는 것 만으로 간단히 새로운 메시지 번들을 만들 수 있다. 예를 들어 영국 영어를 위해서는 messages_en_GB.properties 파일을 생성하면 된다.
+<h2><a name="10.2 Changing Locales">10.2 Changing Locales</a></h2>기본적으로 사용자의 Locale은 요청받은 Accept-Language 헤더에 따른다. 하지만 Grails는 사용자가 Locale을 변경할 수 있는 기능을 제공한다. 간단하게 요청 인자로 “lang”을 사용하기만 하면 된다.<p class="paragraph"/><div class="code"><pre>/book/list?lang=es</pre></div><p class="paragraph"/>Grails는 알아서 사용자의 Locale을 변경시키고, 이를 쿠키에 저장하므로 이어지는 요청은 새로운 Header를 가질것이다 (역주, 즉 쿠키로 반영하기 위한 헤더 변경)
+<h2><a name="10.3 Reading Messages">10.3 Reading Messages</a></h2><h4>Reading Messages in the View(뷰에서 메시지 읽어오기)</h4><p class="paragraph"/>메시지가 필요한곳은 대부분 뷰 안에서이다. 뷰에서 메시지를 읽어오기 위해서는 간단히 <a href="../ref/Tags/message.html" class="tags">message</a> 태그를 사용한다.<p class="paragraph"/><div class="code"><pre><span class="xml&#45;tag">&#60;g:message code=<span class="xml&#45;quote">"my.localized.content"</span> /&#62;</span></pre></div><p class="paragraph"/>적절한 Locale 접미사를 가진 message.properties 파일에 아래와 같이 key를 가지고 있으면 Grails는 해당 메시지를 찾는다.<p class="paragraph"/><div class="code"><pre>my.localized.content=Hola, Me llamo John. Hoy es domingo.</pre></div><p class="paragraph"/>종종 메시지에 인자를 전달해야할 필요가 있음을 기억하라. 이것은 메시지태그를 통해 전달할 수 있다.<p class="paragraph"/><div class="code"><pre><span class="xml&#45;tag">&#60;g:message code=<span class="xml&#45;quote">"my.localized.content"</span> args=<span class="xml&#45;quote">"$&#123; &#91;'Juan', 'lunes'&#93; &#125;"</span> /&#62;</span></pre></div><p class="paragraph"/>그리고 메시지에서 위치지정 파라미터를 사용한다:<p class="paragraph"/><div class="code"><pre>my.localized.content=Hola, Me llamo &#123;0&#125;. Hoy es &#123;1&#125;.</pre></div><p class="paragraph"/><h4>Reading Messages in Controllers and Tag Libraries(컨트롤러나 태그라이브러리에서 메시지 읽어오기)</h4><p class="paragraph"/>컨트롤러에서도 태그를 메소드처럼 호출할 수 있기 때문에 컨트롤러에서도 쉽게 메시지를 읽을 수 있다:<p class="paragraph"/><div class="code"><pre>def show = &#123;
+	def msg = message(code:<span class="java&#45;quote">"my.localized.content"</span>, args:&#91;'Juan', 'lunes'&#93;)
+&#125;</pre></div><p class="paragraph"/>같은 방법으로 태그 라이브러리에서도 사용할 수 있다. 하지만 <a href="../guide/single.html#6.3 Tag Libraries" class="guide">태그 라이브러리</a>의 <a href="../guide/single.html#6.3.4 Tag Namespaces" class="guide">네임스페이스</a>가 다른 경우 “g.”를 앞에 붙여줘야 한다:<p class="paragraph"/><div class="code"><pre>def myTag = &#123; attrs, body &#45;&#62;
+	def msg = g.message(code:<span class="java&#45;quote">"my.localized.content"</span>, args:&#91;'Juan', 'lunes'&#93;)
+&#125;</pre></div>
+	</body>
+</html>

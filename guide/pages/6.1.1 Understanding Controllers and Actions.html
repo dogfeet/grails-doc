@@ -1,0 +1,23 @@
+<html>
+     <head>
+     	<meta http-equiv="Content-type" content="text/html; charset=utf-8">
+     	<title>6.1.1 Understanding Controllers and Actions</title>
+     	<link rel="stylesheet" href="../css/main.css" type="text/css" media="screen" title="Ref" charset="utf-8">
+     </head>
+	<body class="body">
+		<h4>Creating a controller(컨트롤러 만들기)</h4><p class="paragraph"/><a href="../ref/Command Line/create-controller.html" class="commandLine">create-controller</a> 명령(target)으로 컨트롤러를 만들 수 있다. Grails 프로젝트의 루트(root) 디렉토리에서 다음의 명령을 실행한다:<p class="paragraph"/><div class="code"><pre>grails create&#45;controller book</pre></div><p class="paragraph"/>이 명령을 실행하면 컨트롤러가 <code>grails-app/controllers/BookController.groovyv</code>파일에 만들어진다:<p class="paragraph"/>
+<div class="code"><pre>class BookController &#123; &#8230; &#125;</pre></div><p class="paragraph"/>이 <code>BookController</code>는 기본적으로 /book URI로 매핑된다(어플리케이션의 루트의 하위로).<p class="paragraph"/><blockquote class="note">
+<code>create-controller</code> 명령은 매우 편리하다. 아주 쉽게 컨트롤러를 만들고 텍스트 에디터나 IDE로 편집할 수 있다.
+</blockquote><p class="paragraph"/><h4>Creating Actions(액션 만들기)</h4><p class="paragraph"/>컨트롤러는 코드 블럭으로 구현된 많은 프로퍼티를 가질 수 있다. 각 프로퍼티는 URI에 매핑된다.<p class="paragraph"/><div class="code"><pre>class BookController &#123;
+    def list = &#123;<p class="paragraph"/>        // <span class="java&#45;keyword">do</span> controller logic
+        // create model<p class="paragraph"/>        <span class="java&#45;keyword">return</span> model
+    &#125;
+&#125;</pre></div><p class="paragraph"/>이 예제의 list 프로퍼티는 기본적으로 <code>/book/list</code>로 매핑된다.<p class="paragraph"/><h4>The Default Action(기본 액션)</h4><p class="paragraph"/>컨트롤러의 URI에 매핑하는 기본 액션이 있다. 이 경우의 기본 URI는 <code>/book</code>이고 기본 URI는 다음 규칙을 따른다.
+<ul class="star">
+<li>컨트롤러에 액션이 하나밖에 없다면 기본 URI는 그 액션에 매핑된다.</li>
+<li>/book에 명시된 액션이 없을 때 요청을 처리하는 액션은 <code>index</code> 액션이다.</li>
+<li><code>defaultAction</code> 프로퍼티를 이용해서 기본 URI에 매핑되는 액션을 설정할 수 있다:</li>
+</ul><p class="paragraph"/><div class="code"><pre>def defaultAction = <span class="java&#45;quote">"list"</span></pre></div>
+
+	</body>
+</html>

@@ -1,0 +1,20 @@
+<html>
+     <head>
+     	<meta http-equiv="Content-type" content="text/html; charset=utf-8">
+     	<title>6.2.2.2 Logic and Iteration</title>
+     	<link rel="stylesheet" href="../css/main.css" type="text/css" media="screen" title="Ref" charset="utf-8">
+     </head>
+	<body class="body">
+		GSP는 조건과 반복을 위한 태그도 지원한다. 일반적인 분기 시나리오를 위해 <a href="../ref/Tags/if.html" class="tags">if</a>, <a href="../ref/Tags/else.html" class="tags">else</a>, <a href="../ref/Tags/elseif.html" class="tags">elseif</a> 같은 태그를 다음과 같이 사용할 수 있다:<p class="paragraph"/><div class="code"><pre><span class="xml&#45;tag">&#60;g:if test=<span class="xml&#45;quote">"$&#123;session.role == 'admin'&#125;"</span>&#62;</span>
+   <span class="xml&#45;tag">&#60;%&#45;&#45; show administrative functions &#45;&#45;%&#62;</span>
+<span class="xml&#45;tag">&#60;/g:if&#62;</span>
+<span class="xml&#45;tag">&#60;g:else&#62;</span>
+   <span class="xml&#45;tag">&#60;%&#45;&#45; show basic functions &#45;&#45;%&#62;</span>
+<span class="xml&#45;tag">&#60;/g:else&#62;</span></pre></div><p class="paragraph"/><a href="../ref/Tags/each.html" class="tags">each</a>와 <a href="../ref/Tags/while.html" class="tags">while</a> 태그로 GSP에서 반복 시나리오도 작성할 수 있다:<p class="paragraph"/><div class="code"><pre><span class="xml&#45;tag">&#60;g:each in=<span class="xml&#45;quote">"$&#123;&#91;1,2,3&#93;&#125;"</span> var=<span class="xml&#45;quote">"num"</span>&#62;</span>
+   <span class="xml&#45;tag">&#60;p&#62;</span>Number $&#123;num&#125;<span class="xml&#45;tag">&#60;/p&#62;</span>
+<span class="xml&#45;tag">&#60;/g:each&#62;</span><p class="paragraph"/><span class="xml&#45;tag">&#60;g:set var=<span class="xml&#45;quote">"num"</span> value=<span class="xml&#45;quote">"$&#123;1&#125;"</span> /&#62;</span>
+<span class="xml&#45;tag">&#60;g:while test=<span class="xml&#45;quote">"$&#123;num &#60; 5 &#125;"</span>&#62;</span>
+    <span class="xml&#45;tag">&#60;p&#62;</span>Number $&#123;num++&#125;<span class="xml&#45;tag">&#60;/p&#62;</span>
+<span class="xml&#45;tag">&#60;/g:while&#62;</span></pre></div>
+	</body>
+</html>

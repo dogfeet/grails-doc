@@ -1,0 +1,16 @@
+<html>
+     <head>
+     	<meta http-equiv="Content-type" content="text/html; charset=utf-8">
+     	<title>6.3.4 Tag Namespaces</title>
+     	<link rel="stylesheet" href="../css/main.css" type="text/css" media="screen" title="Ref" charset="utf-8">
+     </head>
+	<body class="body">
+		태그는 자동으로 Grails의 기본 네임스페이스에 추가되고 GSP 페이지에서 'g:' 접두어로 태그를 사용할 수 있다. 그러나 TagLib 클래스에 static namespace 프로퍼티에 사용해서 다른 네임스페이스를 명시할 수 있다:<p class="paragraph"/><div class="code"><pre>class SimpleTagLib &#123;
+    <span class="java&#45;keyword">static</span> namespace = <span class="java&#45;quote">"my"</span><p class="paragraph"/>    def example = &#123; attrs &#45;&#62;
+        &#8230;
+    &#125;
+&#125;</pre></div><p class="paragraph"/>이 예제에서 “my” 네임스페이스를 명시했다. 이 태그 라이브러리의 태그는 GSP 페이지에서 다음과 같이 사용해야 한다:<p class="paragraph"/><div class="code"><pre><span class="xml&#45;tag">&#60;my:example name=<span class="xml&#45;quote">"..."</span> /&#62;</span></pre></div><p class="paragraph"/>이 접두어는 static namespace 프로퍼티에 명시한 값이다. 네임스페이스는 플러그인에 특히 유용하다.<p class="paragraph"/>네임스페이스를 접두어로 사용해서 네임스페이스의 태그를 매소드처럼 호출할 수 있다:
+<div class="code"><pre>out &#60;&#60; my.example(name:<span class="java&#45;quote">"foo"</span>)</pre></div><p class="paragraph"/>이 것은 GSP, 컨트롤러, 태그 라이브러리에서 잘 동작한다.
+
+	</body>
+</html>

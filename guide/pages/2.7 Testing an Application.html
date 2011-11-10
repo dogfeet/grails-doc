@@ -1,0 +1,11 @@
+<html>
+     <head>
+     	<meta http-equiv="Content-type" content="text/html; charset=utf-8">
+     	<title>2.7 Testing an Application</title>
+     	<link rel="stylesheet" href="../css/main.css" type="text/css" media="screen" title="Ref" charset="utf-8">
+     </head>
+	<body class="body">
+		Grails의 <code>create-*</code>형식의 명령어들은 t<code>est/integration</code> 디렉토리에 통합 테스트들을 자동적으로 만든다. 물론 <a href="../guide/single.html#9. Testing" class="guide">테스트</a> 에 대한 장에서 설명하는 정보와 테스트 로직에 부합하도록 내용을 채우는 일은 당신의 몫이다. 하지만 만약 테스트를 실행하기를 원한다면 당신은 다음과 같이 <a href="../ref/Command Line/test-app.html" class="commandLine">test-app</a> 명령어를 사용할 수 있다.<p class="paragraph"/><div class="code"><pre>grails test&#45;app</pre></div><p class="paragraph"/>Grails는 <a href="../ref/Command Line/test-app.html" class="commandLine">test-app</a> 명령어와 동일하게 동작하는 Ant의 <code>build.xml</code> 파일을 자동으로 만들어준다.<p class="paragraph"/>
+<div class="code"><pre>ant test</pre></div><p class="paragraph"/>이것을 통해 CruiseControl같은 지속적 통합(continuous integration) 플랫폼을 유용하게 사용할 수 있다
+	</body>
+</html>

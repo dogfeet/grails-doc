@@ -1,0 +1,35 @@
+<html>
+     <head>
+     	<meta http-equiv="Content-type" content="text/html; charset=utf-8">
+     	<title>6.1.2 Controllers and Scopes</title>
+     	<link rel="stylesheet" href="../css/main.css" type="text/css" media="screen" title="Ref" charset="utf-8">
+     </head>
+	<body class="body">
+		<h4>Available Scopes(이용할 수 있는 스콥)</h4><p class="paragraph"/>스콥는 본질적으로 변수를 저장할 수 있는 해시 객체다. 컨트롤러에서 사용가능한 스콥은 다음과 같다.
+<ul class="star">
+<li><a href="../ref/Controllers/servletContext.html" class="controllers">servletContext</a> - 어플리케이션 스콥이라고도 한다. 이 스콥은 전체 웹 어플리케이션의 상태를 공유할 수 있게 한다. 이 servletContext는 <a href="http://java.sun.com/j2ee/1.4/docs/api/javax/servlet/ServletContext.html" class="api">javax.servlet.ServletContext</a>의 인스턴스다.</li>
+<li><a href="../ref/Controllers/session.html" class="controllers">session</a> - 이 session은 사용자의 상태와 관련돼 있다. 일반적으로 클라이언트의 세션과 연관된 쿠키를 사용한다. 이 session은 <a href="http://java.sun.com/j2ee/1.4/docs/api/javax/servlet/http/HttpSession.html" class="api">HttpSession</a>의 인스턴스다.</li>
+<li><a href="../ref/Controllers/request.html" class="controllers">request</a> - 이 request 객체에는 현재 요청과 관련된 객체들을 저장할 수 있다. 이 <strong class="bold"> </strong> request는 HttpServletRequest의 객체이다.</li>
+<li><a href="../ref/Controllers/params.html" class="controllers">params</a> - 요청(CGI) 파리미터들의 맵이다.</li>
+<li><a href="../ref/Controllers/flash.html" class="controllers">flash</a> - 나중에 설명한다.</li>
+</ul><p class="paragraph"/><h4>Accessing Scopes(스콥 사용하기)</h4><p class="paragraph"/>스콥은 변수 이름과 Groovy의 배열 인덱스 연산자를 이용하여 접근할 수 있다. 이 것은 <a href="http://java.sun.com/j2ee/1.4/docs/api/javax/servlet/http/HttpServletRequest.html" class="api">HttpServletRequest</a>같은 Servlet API에 정의돼 있는 클래스들을 사용한다.<p class="paragraph"/><div class="code"><pre>class BookController &#123;
+    def find = &#123;
+        def findBy = params&#91;<span class="java&#45;quote">"findBy"</span>&#93;
+        def appContext = request&#91;<span class="java&#45;quote">"foo"</span>&#93;
+        def loggedUser = session&#91;<span class="java&#45;quote">"logged_user"</span>&#93;<p class="paragraph"/>    &#125;
+&#125;</pre></div><p class="paragraph"/>코드을 더 명료하게 하는 역참조(de-reference) 연산자로 Scope 변수에 접근할 수도 있다:<p class="paragraph"/><div class="code"><pre>class BookController &#123;
+    def find = &#123;
+        def findBy = params.findBy
+        def appContext = request.foo
+        def loggedUser = session.logged_user<p class="paragraph"/>    &#125;
+&#125;</pre></div><p class="paragraph"/>이 방법은 Grails가 스콥들에 통일된 방법으로 접근할 수 있도록 제공하는 방법중 한 가지 방법이다.<p class="paragraph"/><h4>Using Flash Scope(Flash 스콥)</h4><p class="paragraph"/>Grails는 <a href="../ref/Controllers/flash.html" class="controllers">flash</a> 스콥을 지원한다. flash 스콥에는 현재 요청부터 다음 요청까지 전달해야 할 프로퍼티를 저장할 수 있다. 그 후 이 프로퍼티는 지워진다. 리다이렉션으로 바로 처리될 메시지를 전달하는데 유용하다. 예를 들어:<p class="paragraph"/><div class="code"><pre>def delete = &#123;
+    def b = Book.get( params.id )
+    <span class="java&#45;keyword">if</span>(!b) &#123;
+        flash.message = <span class="java&#45;quote">"User not found <span class="java&#45;keyword">for</span> id $&#123;params.id&#125;"</span>
+        redirect(action:list)
+    &#125;
+    &#8230; // remaining code
+&#125;</pre></div>
+
+	</body>
+</html>

@@ -1,0 +1,61 @@
+<html>
+     <head>
+     	<meta http-equiv="Content-type" content="text/html; charset=utf-8">
+     	<title>Grails Reference</title>
+     	<link rel="stylesheet" href="../../css/ref.css" type="text/css" media="screen" title="Ref" charset="utf-8">
+     </head>
+	<body class="body">
+		<h1>render </h1><p class="paragraph"/><h2>Purpose</h2><p class="paragraph"/>Applies an inbuilt or user defined Groovy template against a model so that templates can be re-used for lists or instance or a single instance<p class="paragraph"/><h2>Examples</h2><p class="paragraph"/>Example domain class:<p class="paragraph"/><div class="code"><pre>class Book &#123;
+     <span class="java&#45;object">String</span> title
+     <span class="java&#45;object">String</span> author
+&#125;</pre></div><p class="paragraph"/>Example template:<p class="paragraph"/><div class="code"><pre>&#60;p&#62;$&#123;it.title&#125;&#60;/p&#62;
+&#60;p&#62;$&#123;it.author&#125;&#60;/p&#62;</pre></div><p class="paragraph"/>This template can now be re-used whether you have a list of books or a single book. For a list the template will be repeated for each instance:<p class="paragraph"/><div class="code"><pre><span class="xml&#45;tag">&#60;g:render template=<span class="xml&#45;quote">"displaybook"</span> collection=<span class="xml&#45;quote">"$&#123;books&#125;"</span> /&#62;</span></pre></div><p class="paragraph"/>or<p class="paragraph"/><div class="code"><pre><span class="xml&#45;tag">&#60;g:render template=<span class="xml&#45;quote">"displaybook"</span> bean=<span class="xml&#45;quote">"$&#123;book&#125;"</span> /&#62;</span></pre></div><p class="paragraph"/>or you could create a template that handles a certain type of model. For example the template below:<p class="paragraph"/><div class="code"><pre><span class="xml&#45;tag">&#60;p&#62;</span><span class="xml&#45;tag">&#60;%= book.title %&#62;</span><span class="xml&#45;tag">&#60;/p&#62;</span>
+<span class="xml&#45;tag">&#60;p&#62;</span><span class="xml&#45;tag">&#60;%= author.fullName %&#62;</span><span class="xml&#45;tag">&#60;/p&#62;</span></pre></div><p class="paragraph"/>Could be used with the model as below. The disadvantage of this technique however is that the template is less re-usable<p class="paragraph"/><div class="code"><pre><span class="xml&#45;tag">&#60;g:render template=<span class="xml&#45;quote">"displaybook"</span> model=<span class="xml&#45;quote">"&#91;'book':book,'author':author&#93;"</span> /&#62;</span></pre></div><p class="paragraph"/>It is also possible to define the name of the variable to be used by the template in the render tag:<p class="paragraph"/>Example template:<p class="paragraph"/><div class="code"><pre>&#60;p&#62;$&#123;myBook.title&#125;&#60;/p&#62;
+&#60;p&#62;$&#123;myBook.author&#125;&#60;/p&#62;</pre></div><p class="paragraph"/>Example render tag call for the above template<p class="paragraph"/><div class="code"><pre><span class="xml&#45;tag">&#60;g:render template=<span class="xml&#45;quote">"displaybook"</span> collection=<span class="xml&#45;quote">"$&#123;books&#125;"</span> var=<span class="xml&#45;quote">"myBook"</span>/&#62;</span></pre></div><p class="paragraph"/>
+<h2>Description</h2><p class="paragraph"/>Note that if the value of the template attribute starts with a '/' it will be resolved relative to the views folder. This is useful for sharing templates between views. Without the leading '/' it will be first be resolved relative to the current controller's view folder then, failing that, the top level views folder. In either case the template file must be named with a leading underscore ('_') but referenced in the template attribute without that underscore or the '.gsp' suffix.<p class="paragraph"/>Attributes
+<ul class="star">
+<li><code>template</code> (required) - The name of the template to apply</li>
+<li><code>bean</code> (optional) - The bean to apply the template against</li>
+<li><code>model</code> (optional) - The model to apply the template against as a java.util.Map</li>
+<li><code>collection</code> (optional) - A collection of model objects to apply the template to</li>
+<li><code>var</code> (optional) - The variable name of the bean to be referenced in the template</li>
+</ul><p class="paragraph"/><h2>Source</h2><p class="paragraph"/><p><a href="#" onclick="document.getElementById('render').style.display='inline'">Show Source</a></p><div id="render" style="display:none;"><div class="code"><pre>def render = &#123; attrs, body &#45;&#62;
+        <span class="java&#45;keyword">if</span>(!groovyPagesTemplateEngine) <span class="java&#45;keyword">throw</span> <span class="java&#45;keyword">new</span> IllegalStateException(&#34;Property &#91;groovyPagesTemplateEngine&#93; must be set!&#34;)
+        <span class="java&#45;keyword">if</span>(!attrs.template)
+            throwTagError(&#34;Tag &#91;render&#93; is missing required attribute &#91;template&#93;&#34;)<p class="paragraph"/>        def engine = groovyPagesTemplateEngine
+        def uri = grailsAttributes.getTemplateUri(attrs.template,request)
+        def <span class="java&#45;keyword">var</span> = attrs&#91;&#39;<span class="java&#45;keyword">var</span>&#39;&#93;
+        def contextPath = attrs.contextPath ? attrs.contextPath : &#34;&#34;<p class="paragraph"/>        def r = engine.getResourceForUri(&#34;$&#123;contextPath&#125;$&#123;uri&#125;&#34;)
+        <span class="java&#45;keyword">if</span>(!r.exists()) r = engine.getResourceForUri(&#34;$&#123;contextPath&#125;/grails&#45;app/views/$&#123;uri&#125;&#34;)
+        def t = engine.createTemplate( r )<p class="paragraph"/>        <span class="java&#45;keyword">if</span>(attrs.model <span class="java&#45;keyword">instanceof</span> Map) &#123;
+            t.make( attrs.model ).writeTo(out)
+        &#125;
+        <span class="java&#45;keyword">else</span> <span class="java&#45;keyword">if</span>(attrs.containsKey(&#39;collection&#39;)) &#123;
+            attrs.collection.each &#123;
+            	<span class="java&#45;keyword">if</span>(<span class="java&#45;keyword">var</span>) &#123;
+            		def b = &#91;:&#93;
+            		b.put(<span class="java&#45;keyword">var</span>, it)
+            		t.make(b).writeTo(out)
+            	&#125;
+            	<span class="java&#45;keyword">else</span> &#123;
+	                t.make( &#91;&#39;it&#39;: it&#93; ).writeTo(out)
+	            &#125;
+            &#125;
+        &#125;
+        <span class="java&#45;keyword">else</span> <span class="java&#45;keyword">if</span>(attrs.containsKey(&#39;bean&#39;)) &#123;
+        	<span class="java&#45;keyword">if</span>(<span class="java&#45;keyword">var</span>) &#123;
+        		def b = &#91;:&#93;
+        		b.put(<span class="java&#45;keyword">var</span>, attrs.bean)
+        		t.make(b).writeTo(out)
+        	&#125;
+        	<span class="java&#45;keyword">else</span> &#123;
+	            t.make( &#91; &#39;it&#39; : attrs.bean &#93; ).writeTo(out)
+	        &#125;
+        &#125;
+		<span class="java&#45;keyword">else</span> <span class="java&#45;keyword">if</span>(attrs.template) &#123;
+			t.make().writeTo(out)
+		&#125;
+    &#125;</pre></div></div><p class="paragraph"/>
+
+	</body>
+</html>

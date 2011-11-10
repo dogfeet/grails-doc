@@ -1,0 +1,41 @@
+<html>
+     <head>
+     	<meta http-equiv="Content-type" content="text/html; charset=utf-8">
+     	<title>5.2.1.2 One-to-many</title>
+     	<link rel="stylesheet" href="../css/main.css" type="text/css" media="screen" title="Ref" charset="utf-8">
+     </head>
+	<body class="body">
+		일대다 관계는 하나의 클래스가 많은 다른 클래스의 인스턴스를 가지고 있는 것이다. <code>Author</code> 와 <code>Book</code> 의 관계가 그렇다. hasMany를 이용하여 이런 관계를 정의한다.<p class="paragraph"/><div class="code"><pre>class Author &#123;
+    <span class="java&#45;keyword">static</span> hasMany = &#91; books : Book &#93;<p class="paragraph"/>    <span class="java&#45;object">String</span> name
+&#125;
+class Book &#123;
+	<span class="java&#45;object">String</span> title
+&#125;</pre></div><p class="paragraph"/>우리는 단방향 1-n 관계를 만들었다. Grails는 기본적으로 Join 테이블로 이런한 관계를 매핑한다.<p class="paragraph"/><blockquote class="note">
+<a href="../guide/single.html#5.5.2 Custom ORM Mapping" class="guide">ORM DSL</a> 은 외래키 관계을 사용하여 단방향 관계를 가능하게 한다.
+</blockquote><p class="paragraph"/>Grails는 자동으로 도메인 클래스의 <code>hasMany</code> 가 명시된 프로퍼티들을 <code>java.util.Set</code> 형식으로 만든다. 따라서 컬렉션(collection)의 이터레이션(iteration)을 사용할 수 있다.<p class="paragraph"/><div class="code"><pre>def a = Author.get(1)<p class="paragraph"/>a.books.each &#123;
+	println it.title
+&#125;</pre></div><p class="paragraph"/><blockquote class="note">
+Grails에서 사용하는 기본 패치(fetch) 전략은 필요할 때(lazily) 패치하는 "lazy" 전략이다. <a href="http://www.javalobby.org/java/forums/t20533.html" target="blank">n+1 문제</a>가 발생하지 않도록 조심해야 한다.<p class="paragraph"/>"eager" 패치 전략을 취하도록 <a href="../guide/single.html#5.4 Querying with GORM" class="guide">query</a>의 일부로서 <a href="../guide/single.html#5.5.2 Custom ORM Mapping" class="guide">ORM DSL</a> 에 명시 할 수도 있다.
+</blockquote><p class="paragraph"/>연쇄적으로 저장, 갱신하는 것이 기본적인 연쇄 방식이고 belongsTo가 명시되어 있지 않으면 연쇄적으로 삭제되지도 않는다.<p class="paragraph"/><div class="code"><pre>class Author &#123;
+    <span class="java&#45;keyword">static</span> hasMany = &#91; books : Book &#93;<p class="paragraph"/>    <span class="java&#45;object">String</span> name
+&#125;
+class Book &#123;
+	<span class="java&#45;keyword">static</span> belongsTo = &#91;author:Author&#93;
+	<span class="java&#45;object">String</span> title
+&#125;</pre></div><p class="paragraph"/>일대다 관계에서 '다'쪽의 도메인 클래스에 '일'쪽의 형식으로 정의된 프로퍼티가 두 개 이상 있다면 mappedBy를 사용하여 어떤 컬렉션에 매핑돼야 하는지 명시해야 한다.<p class="paragraph"/><div class="code"><pre>class Airport &#123;
+	<span class="java&#45;keyword">static</span> hasMany = &#91;flights:Flight&#93;
+	<span class="java&#45;keyword">static</span> mappedBy = &#91;flights:<span class="java&#45;quote">"departureAirport"</span>&#93;
+&#125;
+class Flight &#123;
+	Airport departureAirport
+	Airport destinationAirport
+&#125;</pre></div><p class="paragraph"/>또, 컬렉션을 어러개 만들어 '다'쪽의 도메인 클래스의 다른 프로퍼티로 매핑시키는 것도 가능하다.<p class="paragraph"/><div class="code"><pre>class Airport &#123;
+	<span class="java&#45;keyword">static</span> hasMany = &#91;outboundFlights:Flight, inboundFlights:Flight&#93;
+	<span class="java&#45;keyword">static</span> mappedBy = &#91;outboundFlights:<span class="java&#45;quote">"departureAirport"</span>, inboundFlights:<span class="java&#45;quote">"destinationAirport"</span>&#93;
+&#125;
+class Flight &#123;
+	Airport departureAirport
+	Airport destinationAirport
+&#125;</pre></div><p class="paragraph"/>
+	</body>
+</html>

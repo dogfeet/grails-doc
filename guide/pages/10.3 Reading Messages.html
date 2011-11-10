@@ -1,0 +1,14 @@
+<html>
+     <head>
+     	<meta http-equiv="Content-type" content="text/html; charset=utf-8">
+     	<title>10.3 Reading Messages</title>
+     	<link rel="stylesheet" href="../css/main.css" type="text/css" media="screen" title="Ref" charset="utf-8">
+     </head>
+	<body class="body">
+		<h4>Reading Messages in the View(뷰에서 메시지 읽어오기)</h4><p class="paragraph"/>메시지가 필요한곳은 대부분 뷰 안에서이다. 뷰에서 메시지를 읽어오기 위해서는 간단히 <a href="../ref/Tags/message.html" class="tags">message</a> 태그를 사용한다.<p class="paragraph"/><div class="code"><pre><span class="xml&#45;tag">&#60;g:message code=<span class="xml&#45;quote">"my.localized.content"</span> /&#62;</span></pre></div><p class="paragraph"/>적절한 Locale 접미사를 가진 message.properties 파일에 아래와 같이 key를 가지고 있으면 Grails는 해당 메시지를 찾는다.<p class="paragraph"/><div class="code"><pre>my.localized.content=Hola, Me llamo John. Hoy es domingo.</pre></div><p class="paragraph"/>종종 메시지에 인자를 전달해야할 필요가 있음을 기억하라. 이것은 메시지태그를 통해 전달할 수 있다.<p class="paragraph"/><div class="code"><pre><span class="xml&#45;tag">&#60;g:message code=<span class="xml&#45;quote">"my.localized.content"</span> args=<span class="xml&#45;quote">"$&#123; &#91;'Juan', 'lunes'&#93; &#125;"</span> /&#62;</span></pre></div><p class="paragraph"/>그리고 메시지에서 위치지정 파라미터를 사용한다:<p class="paragraph"/><div class="code"><pre>my.localized.content=Hola, Me llamo &#123;0&#125;. Hoy es &#123;1&#125;.</pre></div><p class="paragraph"/><h4>Reading Messages in Controllers and Tag Libraries(컨트롤러나 태그라이브러리에서 메시지 읽어오기)</h4><p class="paragraph"/>컨트롤러에서도 태그를 메소드처럼 호출할 수 있기 때문에 컨트롤러에서도 쉽게 메시지를 읽을 수 있다:<p class="paragraph"/><div class="code"><pre>def show = &#123;
+	def msg = message(code:<span class="java&#45;quote">"my.localized.content"</span>, args:&#91;'Juan', 'lunes'&#93;)
+&#125;</pre></div><p class="paragraph"/>같은 방법으로 태그 라이브러리에서도 사용할 수 있다. 하지만 <a href="../guide/single.html#6.3 Tag Libraries" class="guide">태그 라이브러리</a>의 <a href="../guide/single.html#6.3.4 Tag Namespaces" class="guide">네임스페이스</a>가 다른 경우 “g.”를 앞에 붙여줘야 한다:<p class="paragraph"/><div class="code"><pre>def myTag = &#123; attrs, body &#45;&#62;
+	def msg = g.message(code:<span class="java&#45;quote">"my.localized.content"</span>, args:&#91;'Juan', 'lunes'&#93;)
+&#125;</pre></div>
+	</body>
+</html>

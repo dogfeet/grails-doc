@@ -1,0 +1,46 @@
+<html>
+     <head>
+     	<meta http-equiv="Content-type" content="text/html; charset=utf-8">
+     	<title>5.5.2.2 Caching Strategy</title>
+     	<link rel="stylesheet" href="../css/main.css" type="text/css" media="screen" title="Ref" charset="utf-8">
+     </head>
+	<body class="body">
+		<h4>Setting up caching(캐싱 설정하기)</h4><p class="paragraph"/><a href="http://www.hibernate.org/" target="blank">Hibernate</a> 는 사용자가 정의 가능한 캐시 프로바이더(cache provider)를 지원하는 2차 캐시 second-level cache를 가지고 있다. 다음의 예처럼 <code>grails-app/conf/DataSource.groovy</code>에 설정한다:<p class="paragraph"/><div class="code"><pre>hibernate &#123;
+    cache.use_second_level_cache=<span class="java&#45;keyword">true</span>
+    cache.use_query_cache=<span class="java&#45;keyword">true</span>
+    cache.provider_class='org.hibernate.cache.EhCacheProvider'
+&#125;</pre></div><p class="paragraph"/>당연히 원하는 대로 설정할 수 있다. 예를 들어, 분산 캐시 매커니즘을 사용하고 싶다면 그렇게 할 수 있다.<p class="paragraph"/><blockquote class="note">
+캐시에 대하여, 특히 Hibernate의 2차 캐시second-level cache에 대하여 더 알고 싶으면 <a href="http://www.hibernate.org/hib_docs/reference/en/html/performance.html#performance-cache" target="blank">Hibernate 문서</a>에서 관련 주제를 참고하라.
+</blockquote><p class="paragraph"/><h4>Caching instances(인스턴스 캐싱하기)</h4><p class="paragraph"/>기본적으로 캐싱되게 하려면 mapping 블럭에 <code>cache</code> 매소드를 호출한다:<p class="paragraph"/><div class="code"><pre>class Person &#123;
+  ..
+  <span class="java&#45;keyword">static</span> mapping = &#123;
+      table 'people'
+      cache <span class="java&#45;keyword">true</span>
+  &#125;
+&#125;</pre></div><p class="paragraph"/>이 예제에서는 lazy든 아니든 상관하지 않고 'read-write'로 캐싱한다. 물론 이 전략도 변경할 수 있다:<p class="paragraph"/><div class="code"><pre>class Person &#123;
+  ..
+  <span class="java&#45;keyword">static</span> mapping = &#123;
+      table 'people'
+      cache usage:'read&#45;only', include:'non&#45;lazy'
+  &#125;
+&#125;</pre></div><p class="paragraph"/><h4>Caching associations(관계 캐싱하기)</h4><p class="paragraph"/>인스턴스를 캐싱할 때 Hibernate의 2차 캐시를 사용하도록 할 수 있을 뿐만 아니라 객체의 컬렉션도 캐싱할 수 있다. 다음의 코드를 보면:<p class="paragraph"/><div class="code"><pre>class Person &#123;
+  <span class="java&#45;object">String</span> firstName
+  <span class="java&#45;keyword">static</span> hasMany = &#91;addresses:Address&#93;
+  <span class="java&#45;keyword">static</span> mapping = &#123;
+      table 'people'
+      version <span class="java&#45;keyword">false</span>
+      addresses column:'Address', cache:<span class="java&#45;keyword">true</span>
+  &#125;
+&#125;
+class Address &#123;
+   <span class="java&#45;object">String</span> number
+   <span class="java&#45;object">String</span> postCode
+&#125;</pre></div><p class="paragraph"/>이 예제는 addresses 컬렉션에 대해 'read-write'로 캐싱한다. 'read-write'뿐만 아니라 다른 것도 사용할 수 있다:<p class="paragraph"/><div class="code"><pre>cache:'read&#45;write' // or 'read&#45;only' or 'transactional'</pre></div><p class="paragraph"/>캐시 사용법에서 보다 자세히 설명한다.<p class="paragraph"/><h4>Cache usages(캐시 사용법)</h4><p class="paragraph"/>다음은 설정할 수 있는 캐싱 정책과 그 사용법에 대한 설명이다.
+<ul class="star">
+<li><code>read-only</code> - 영속 클래스를 전혀 수정하지 않고 읽기만 한다면 'read-only' 캐시를 사용하라.</li>
+<li><code>read-write</code> - 데이터를 수정할 것이라면 'read-write' 캐시가 적절하다.</li>
+<li><code>nonstrict-read-write</code> - 가끔 데이터를 수정하고(두 트랜젝션에서 동일한 아이템을 동시에 수정하지 않을 것 같다면) 엄격한 트랜젝션 격리(strict transaction isolation)가 필요없다면 <code>nonstrict-read-write</code>를 사용하는 것이 좋다.</li>
+<li><code>transactional</code> - 이 전략은 JBoss의 TreeCache같은 완벽한 트랜젝션 지향 캐시 공급자(fully transactional cache providers)를 사용할 수 있게 해준다. 그런 캐시는 JTA 환경에서만 사용되고 <code>grails-app/conf/DataSource.groovy</code>파일에서의 <code>Hiberate</code> 설정에 <code>hibernate.transaction.manager_lookup_class</code>를 명시해야만 한다.</li>
+</ul><p class="paragraph"/>
+	</body>
+</html>

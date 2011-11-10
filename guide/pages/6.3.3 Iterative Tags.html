@@ -1,0 +1,26 @@
+<html>
+     <head>
+     	<meta http-equiv="Content-type" content="text/html; charset=utf-8">
+     	<title>6.3.3 Iterative Tags</title>
+     	<link rel="stylesheet" href="../css/main.css" type="text/css" media="screen" title="Ref" charset="utf-8">
+     </head>
+	<body class="body">
+		반복 태그도 역시 간단한다. 다음과 같이 body를 여러번 실행하게 할 수 있다.<p class="paragraph"/><div class="code"><pre>def repeat = &#123; attrs, body &#45;&#62;
+    attrs.times?.toInteger().times &#123; num &#45;&#62;
+        out &#60;&#60; body(num)
+    &#125;
+&#125;</pre></div><p class="paragraph"/>이 예제에서는 <code>times</code> 속성을 검사하고 만약 숫자로 변환되면 Groovy의 <code>times</code> 메소드를 사용하여 명시된 횟수만큼 반복한다:<p class="paragraph"/><div class="code"><pre><span class="xml&#45;tag">&#60;g:repeat times=<span class="xml&#45;quote">"3"</span>&#62;</span>
+<span class="xml&#45;tag">&#60;p&#62;</span>Repeat this 3 times! Current repeat = $&#123;it&#125;<span class="xml&#45;tag">&#60;/p&#62;</span>
+<span class="xml&#45;tag">&#60;/g:repeat&#62;</span></pre></div><p class="paragraph"/>이 예제의 <code>it</code> 변수가 어떻게 현재 반복 횟수를 의미되었는지를 기억하라. 이 것은 반복 코드에 현재 반복 횟수를 인자로 넘겨줬기 때문에 가능한 일이다:<p class="paragraph"/><div class="code"><pre>out &#60;&#60; body(num)</pre></div><p class="paragraph"/>이 값은 태그에서 사용할 수 있는 변수 <code>it</code>으로 넘겨진다. 만약 중첩하여 태그를 사용하면 충돌을 일으킬 수 있다. 따라서 바디에서 사용할 변수이름을 지정해야 한다:<p class="paragraph"/><div class="code"><pre>def repeat = &#123; attrs, body &#45;&#62;
+	def <span class="java&#45;keyword">var</span> = attrs.<span class="java&#45;keyword">var</span> ? attrs.<span class="java&#45;keyword">var</span> : <span class="java&#45;quote">"num"</span>
+    attrs.times?.toInteger().times &#123; num &#45;&#62;
+        out &#60;&#60; body((<span class="java&#45;keyword">var</span>):num)
+    &#125;
+&#125;</pre></div><p class="paragraph"/><code>var</code> 속성이 있는지 검사하고 만약 속성이 존재하면 바디를 호출하는 줄에서 파라미터로 사용한다:<p class="paragraph"/><div class="code"><pre>out &#60;&#60; body((<span class="java&#45;keyword">var</span>):num)</pre></div><p class="paragraph"/><blockquote class="note">
+변수 이름에 괄호를 사용한 것을 기억하라. 괄호를 생략하면 Groovy는 var 변수를 사용하는 것이 아니라 문자열 키를 사용한다고 간주한다.
+</blockquote><p class="paragraph"/>이제 다음과 같이 태그를 사용할 수 있다:<p class="paragraph"/><div class="code"><pre><span class="xml&#45;tag">&#60;g:repeat times=<span class="xml&#45;quote">"3"</span> var=<span class="xml&#45;quote">"j"</span>&#62;</span>
+<span class="xml&#45;tag">&#60;p&#62;</span>Repeat this 3 times! Current repeat = $&#123;j&#125;<span class="xml&#45;tag">&#60;/p&#62;</span>
+<span class="xml&#45;tag">&#60;/g:repeat&#62;</span></pre></div><p class="paragraph"/>변수 <code>j</code>를 정의하기 위해서 <code>var</code> 속성을 어떻게 사용했는지를 기억하라. 이제 태그의 바디에서 이 변수를 참조할 수 있다.
+
+	</body>
+</html>

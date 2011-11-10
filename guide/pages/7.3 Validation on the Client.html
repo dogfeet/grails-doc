@@ -1,0 +1,19 @@
+<html>
+     <head>
+     	<meta http-equiv="Content-type" content="text/html; charset=utf-8">
+     	<title>7.3 Validation on the Client</title>
+     	<link rel="stylesheet" href="../css/main.css" type="text/css" media="screen" title="Ref" charset="utf-8">
+     </head>
+	<body class="body">
+		<h4>Displaying Errors(에러 출력하기)</h4><p class="paragraph"/>보통 유효성 검사 에러가 발생하면 그 뷰를 다시 보여줘야 할 것이고 에러를 출력할 어떤 방법이 필요하다. Grails에는 에러를 처리하는 태그들이 많이 있다. <a href="../ref/Tags/renderErrors.html" class="tags">renderErrors</a>를 사용하여 단순히 에러의 목록을 출력할 수 있다:<p class="paragraph"/><div class="code"><pre><span class="xml&#45;tag">&#60;g:renderErrors bean=<span class="xml&#45;quote">"$&#123;user&#125;"</span> /&#62;</span></pre></div><p class="paragraph"/><a href="../ref/Tags/hasErrors.html" class="tags">hasErrors</a>와 <a href="../ref/Tags/eachError.html" class="tags">eachError</a>를 사용하여 상세하게 제어할 수도 있다:<p class="paragraph"/><div class="code"><pre><span class="xml&#45;tag">&#60;g:hasErrors bean=<span class="xml&#45;quote">"$&#123;user&#125;"</span>&#62;</span>
+  <span class="xml&#45;tag">&#60;ul&#62;</span>
+   <span class="xml&#45;tag">&#60;g:eachError var=<span class="xml&#45;quote">"err"</span> bean=<span class="xml&#45;quote">"$&#123;user&#125;"</span>&#62;</span>
+       <span class="xml&#45;tag">&#60;li&#62;</span>$&#123;err&#125;<span class="xml&#45;tag">&#60;/li&#62;</span> 
+   <span class="xml&#45;tag">&#60;/g:eachError&#62;</span>
+  <span class="xml&#45;tag">&#60;/ul&#62;</span>
+<span class="xml&#45;tag">&#60;/g:hasErrors&#62;</span></pre></div><p class="paragraph"/><h4>Highlighting Errors(에러 꾸미기)</h4><p class="paragraph"/>잘못된 값이 입력되면 붉은 박스나 어떤 지시자를 사용하여 꾸미는 것이 매우 유용하다. 이 것은 <a href="../ref/Tags/hasErrors.html" class="tags">hasErrors</a>를 메소드처럼 호출하여 처리한다:<p class="paragraph"/><div class="code"><pre><span class="xml&#45;tag">&#60;div class='value $&#123;hasErrors(bean:user,field:'login','errors')&#125;'&#62;</span>
+   <span class="xml&#45;tag">&#60;input type=<span class="xml&#45;quote">"text"</span> name=<span class="xml&#45;quote">"login"</span> value=<span class="xml&#45;quote">"$&#123;fieldValue(bean:user,field:'login')&#125;"</span>/&#62;</span>
+<span class="xml&#45;tag">&#60;/div&#62;</span></pre></div><p class="paragraph"/>이 코드가 하는 일은 user Bean과 관련된 login 필드에 에러가 있는지 검사하고 에러가 있으면 div 태그의 class 속성에 “errors”를 추가한다. 그래서 CSS 규칙을 정의하여 div 태그를 꾸밀 수 있다.<p class="paragraph"/><h4>Retrieving Input Values(입력 값 가져오기)</h4><p class="paragraph"/>각각의 에러는 실질적으로 Spring의 <a href="http://static.springframework.org/spring/docs/2.5.x/api/org/springframework/validation/FieldError.html" class="api">FieldError</a> 클래스의 인스턴스이다. 이 인스턴스에는 원래 값이 저장돼 있다. 이 것은 <a href="../ref/Tags/fieldValue.html" class="tags">fieldValue</a> 태그를 통해서 사용자가 입력 값을 고칠 수 있도록 에러 값을 재사용할 수 있다.<p class="paragraph"/><div class="code"><pre><span class="xml&#45;tag">&#60;input type=<span class="xml&#45;quote">"text"</span> name=<span class="xml&#45;quote">"login"</span> value=<span class="xml&#45;quote">"$&#123;fieldValue(bean:user,field:'login')&#125;"</span>/&#62;</span></pre></div><p class="paragraph"/>이 코드는 user Bean에 FieldError가 있는지 확인하고 만약 존재하면 login 필드에 입력된 값을 다시 넣는다.
+
+	</body>
+</html>

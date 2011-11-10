@@ -1,0 +1,13 @@
+<html>
+     <head>
+     	<meta http-equiv="Content-type" content="text/html; charset=utf-8">
+     	<title>6.4.1 Mapping to Controllers and Actions</title>
+     	<link rel="stylesheet" href="../css/main.css" type="text/css" media="screen" title="Ref" charset="utf-8">
+     </head>
+	<body class="body">
+		쉽게 매핑을 정의하려면 메소드 이름으로 하위 URL을 만들고 매핑할 컨트롤러와 액션을 네임드 파라미터를 사용하여 명시한다:<p class="paragraph"/><div class="code"><pre><span class="java&#45;quote">"/product"</span>(controller:<span class="java&#45;quote">"product"</span>, action:<span class="java&#45;quote">"list"</span>)</pre></div><p class="paragraph"/>이 예제는 ProductController의 list 액션에 /product URL이 매핑된다는 의미이다. 물론 action을 생략하여 컨트롤러의 기본 액션에 매핑되도록 할 수 있다:<p class="paragraph"/><div class="code"><pre><span class="java&#45;quote">"/product"</span>(controller:<span class="java&#45;quote">"product"</span>)</pre></div><p class="paragraph"/>메소드에 넘기는 블력 안에 컨트롤러와 액션을 명시하는 방법도 있다:<p class="paragraph"/><div class="code"><pre><span class="java&#45;quote">"/product"</span> &#123;
+	controller = <span class="java&#45;quote">"product"</span>
+	action = <span class="java&#45;quote">"list"</span>
+&#125;</pre></div><p class="paragraph"/>'어떤 방법을 사용하는 가?'는 전적으로 개인의 취향에 달려있다.<p class="paragraph"/>
+	</body>
+</html>

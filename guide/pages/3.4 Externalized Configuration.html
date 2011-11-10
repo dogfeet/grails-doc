@@ -1,0 +1,16 @@
+<html>
+     <head>
+     	<meta http-equiv="Content-type" content="text/html; charset=utf-8">
+     	<title>3.4 Externalized Configuration</title>
+     	<link rel="stylesheet" href="../css/main.css" type="text/css" media="screen" title="Ref" charset="utf-8">
+     </head>
+	<body class="body">
+		기본 설정 파일인 <code>grails-app/conf</code> 에 있는 <code>Config.groovy</code> 는 주요 상황에서는 꽤 괜찮다. 하지만 메인 어플리케이션 구조 <em class="italic">바깥에</em> 구성 파일을 유지하고 싶을때가 있을 수 있다. 예를 들어, 어떤 관리자들은 WAR를 설치한 후에 설정을 변경하기 위하여 WAR을 다시 만들기 싫어서 어플리케이션의 설정을 외부로 빼고 싶어한다.<p class="paragraph"/>이렇게 설정하는 시나리오를 위해 설정을 어플리케이션 밖에 위치 시킬 수 있다. <code>Config.groovy</code> 파일 안에 <code>grails.config.locations</code> 설정을 다음과 같이 사용하여 설정 파일의 위치를 Grails에 알린다:<p class="paragraph"/><div class="code"><pre>grails.config.locations = &#91; <span class="java&#45;quote">"classpath:$&#123;appName&#125;&#45;config.properties"</span>,
+                            <span class="java&#45;quote">"classpath:$&#123;appName&#125;&#45;config.groovy"</span>,
+                            <span class="java&#45;quote">"file:$&#123;userHome&#125;/.grails/$&#123;appName&#125;&#45;config.properties"</span>,
+                            <span class="java&#45;quote">"file:$&#123;userHome&#125;/.grails/$&#123;appName&#125;&#45;config.groovy"</span>&#93;</pre></div><p class="paragraph"/>이 예제는 클래스패스와 다른 경로인 <code>USER_HOME</code> 에 위치한 설정파일(Java 프로퍼티 파일과 <a href="http://groovy.codehaus.org/ConfigSlurper" target="blank">ConfigSlurper</a> 설정 모두)을 로드한다.<p class="paragraph"/>모든 설정은 결국 <a href="../api/org/codehaus/groovy/grails/commons/GrailsApplication.html" class="api">GrailsApplication</a> 객체의 <code>config</code> 프로퍼티로 합쳐지기 때문에 이를 이용해 설정에 접근할 수 있다.<p class="paragraph"/>
+<blockquote class="note">
+또 Grails는 Spring의 프로퍼티 플레이스홀더(placeholder)와 프로퍼티를 오버라이드하는 configurer 개념도 지원한다. 자세한 정보는 <a href="../guide/single.html#14. Grails and Spring" class="guide">Grails와 Spring</a> 에 대한 장에 있다.
+</blockquote>
+	</body>
+</html>

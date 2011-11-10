@@ -1,0 +1,139 @@
+<html>
+     <head>
+     	<meta http-equiv="Content-type" content="text/html; charset=utf-8">
+     	<title>9.2 Integration Testing</title>
+     	<link rel="stylesheet" href="../css/main.css" type="text/css" media="screen" title="Ref" charset="utf-8">
+     </head>
+	<body class="body">
+		통합 테스트는 모든 코드를 테스트할 수 있어야 한다는 점에서 유닛 테스트와 다르다 Grails는 통합 테스트에 HSQLDB라는 메모리 데이터베이스를 사용하고 각 테스트마다 데이터베이스의 모든 데이터를 삭제할 것이다.<p class="paragraph"/><h4>Testing Controllers(컨트롤러 테스트하기)</h4><p class="paragraph"/>컨트롤러를 테스트하려면 먼저 스프링 Mock 라이브러리를 이해해야 한다.<p class="paragraph"/>Grails의 테스트에서는 내부적으로 <a href="http://static.springframework.org/spring/docs/2.5.x/api/org/springframework/mock/web/MockHttpServletRequest.html" class="api">MockHttpServletRequest</a>, <a href="http://static.springframework.org/spring/docs/2.5.x/api/org/springframework/mock/web/MockHttpServletResponse.html" class="api">MockHttpServletResponse</a>, <a href="http://static.springframework.org/spring/docs/2.5.x/api/org/springframework/mock/web/MockHttpSession.html" class="api">MockHttpSession</a>을 사용한다. 다음과 같이 이 것들을 이용해서 테스트할 수 있다:<p class="paragraph"/><div class="code"><pre>class FooController &#123;<p class="paragraph"/>	def text = &#123;
+	    render <span class="java&#45;quote">"bar"</span>
+	&#125;<p class="paragraph"/>	def someRedirect = &#123;
+		redirect(action:<span class="java&#45;quote">"bar"</span>)
+	&#125;
+&#125;</pre></div><p class="paragraph"/>다음과 같이 이 코드에 대한 테스트를 만든다:<p class="paragraph"/><div class="code"><pre>class FooControllerTests <span class="java&#45;keyword">extends</span> GroovyTestCase &#123;<p class="paragraph"/>  void testText() &#123;
+		def fc = <span class="java&#45;keyword">new</span> FooController()
+		fc.text()
+		assertEquals <span class="java&#45;quote">"bar"</span>, fc.response.contentAsString
+	&#125;<p class="paragraph"/>	void testSomeRedirect() &#123;<p class="paragraph"/>		def fc = <span class="java&#45;keyword">new</span> FooController()
+		fc.someRedirect()
+		assertEquals <span class="java&#45;quote">"/foo/bar"</span>, fc.response.redirectedUrl
+	&#125;
+&#125;</pre></div><p class="paragraph"/>이 예제에서 응답은 MockHttpServletResponse의 인스턴스이다. 응답에 쓴 결과를 contentAsString으로 결과를 확인하거나 리다이렉트된 URL을 얻어오기 위해 사용한다. Servlet API의 Mock 버전은 실제 버전과 달라서 모든 것을 변경할 수 있고 contextPath같은 요청의 속성도 설정할 수 있다.<p class="paragraph"/>통합 테스트 중에는 액션이 호출될 때 Grails가 인터셉터(<a href="../guide/single.html#6.1.5 Controller Interceptors" class="guide">interceptors</a>)를 자동으로 실행하지 않는다. 인터셉터를 테스트해야 한다면 인터셉터만 별도로 기능 테스트(<a href="../guide/single.html#9.3 Functional Testing" class="guide">functional testing</a>)를 이용해 테스트한다.<p class="paragraph"/><h4>Testing Controllers with Services(서비스와 함께 컨트롤러 테스트하기)</h4><p class="paragraph"/>만약 컨트롤러가 서비스를 참조하고 있다면 테스트에서 서비스를 명시적으로 초기화 시켜야 한다.<p class="paragraph"/>주어진 컨트롤러가 다음과 같으면:<p class="paragraph"/><div class="code"><pre>class FilmStarsController &#123;
+    def popularityService<p class="paragraph"/>    def update = &#123;
+        // <span class="java&#45;keyword">do</span> something with popularityService
+    &#125;
+&#125;</pre></div><p class="paragraph"/>테스트를 다음과 같이 만들 수 있다:<p class="paragraph"/><div class="code"><pre>class FilmStarsTests <span class="java&#45;keyword">extends</span> GroovyTestCase &#123;
+    def popularityService<p class="paragraph"/>    <span class="java&#45;keyword">public</span> void testInjectedServiceInController () &#123;
+        def fsc = <span class="java&#45;keyword">new</span> FilmStarsController()
+        fsc.popularityService = popularityService
+        fsc.update()
+    &#125;
+&#125;</pre></div><p class="paragraph"/><h4>Testing Controller Command Objects(컨트롤러의 커맨드 객체 테스트하기)</h4><p class="paragraph"/>커맨드 객체로 요청에 파라미터를 제공하는 방법이 있다. 커맨드 객체는 파라미터 없이 액션이 호출되면 자동으로 실행된다:<p class="paragraph"/>다음과 같이 커맨드 객체를 사용하는 객체가 있을 때:<p class="paragraph"/><div class="code"><pre>class AuthenticationController &#123;
+    def signup = &#123; SignupForm form &#45;&#62;
+        &#8230;
+    &#125;
+&#125;</pre></div><p class="paragraph"/>다음과 같이 테스트를 할 수 있다:<p class="paragraph"/><div class="code"><pre>def controller = <span class="java&#45;keyword">new</span> AuthenticationController()
+controller.params.login = <span class="java&#45;quote">"marcpalmer"</span>
+controller.params.password = <span class="java&#45;quote">"secret"</span>
+controller.params.passwordConfirm = <span class="java&#45;quote">"secret"</span>
+controller.signup()</pre></div><p class="paragraph"/>Grails는 마법처럼 자동으로 Mock 요청 파라미터들을 커맨드 객체에 할당시켜서 siginup 액션를 실행시킨다. 컨트롤러를 테스트 하는 동안 그레일즈가 제공하는 Mock 요청으로 params가 바뀔 수도 있다.<p class="paragraph"/><h4>Testing Controllers and the render Method(render 메소드를 사용하는 컨트롤러 테스트하기)</h4><p class="paragraph"/><a href="../ref/Controllers/render.html" class="controllers">render</a> 메소드를 사용하면 모든 액션에서 원하는 뷰를 렌더링할 수 있다. 예를 들어 다음과 같은 예제가 있을 때:<p class="paragraph"/><div class="code"><pre>def save = &#123;
+	def book = Book(params)
+	<span class="java&#45;keyword">if</span>(book.save()) &#123;
+		// handle
+	&#125;
+	<span class="java&#45;keyword">else</span> &#123;
+		render(view:<span class="java&#45;quote">"create"</span>, model:&#91;book:book&#93;)
+	&#125;
+&#125;</pre></div><p class="paragraph"/>액션 모델의 결과는 반환되지 않지만 대신에 컨트롤러의 modelAndView 속성에 저장된다. modelAndView 속성은 Spring MVC's <a href="http://static.springframework.org/spring/docs/1.2.x/api/org/springframework/web/servlet/ModelAndView.html" target="blank">ModelAndView</a> 클래스의 인스턴스이고 이 속성을 사용하여 액션의 결과를 테스트할 수 있다:<p class="paragraph"/><div class="code"><pre>def bookController = <span class="java&#45;keyword">new</span> BookController()
+bookController.save()
+def model = bookController.modelAndView.model.book</pre></div><p class="paragraph"/><h4>Simulating Request Data(요청 데이터 시뮬레이션)</h4><p class="paragraph"/>액션을 테스트하려면 REST 웹 서비스처럼 어떤 요청 데이터가 필요하다. 이를 위해 스프링의 <a href="http://static.springframework.org/spring/docs/2.5.x/api/org/springframework/mock/web/MockHttpServletRequest.html" class="api">MockHttpServletRequest</a> 객체를 사용할 수 있다. 예를 들어 다음의 액션은 들어오는 요청을 바인딩한다:<p class="paragraph"/><div class="code"><pre>def create = &#123;
+	&#91;book: <span class="java&#45;keyword">new</span> Book(params&#91;'book'&#93;) &#93;	
+&#125;</pre></div><p class="paragraph"/>다음과 같이 XML로 book 파라미터를 시뮬레이션할 수 있다:<p class="paragraph"/><div class="code"><pre>void testCreateWithXML() &#123;
+	def controller = <span class="java&#45;keyword">new</span> BookController()
+	controller.request.contentType = 'text/xml'
+	controller.request.contents = '''&#60;?xml version=<span class="java&#45;quote">"1.0"</span> encoding=<span class="java&#45;quote">"ISO&#45;8859&#45;1"</span>?&#62;
+	&#60;book&#62;
+		&#60;title&#62;The Stand&#60;/title&#62;
+		&#8230;
+	&#60;/book&#62;	
+	'''.getBytes() // note we need the bytes<p class="paragraph"/>	def model = controller.create()
+	assert model.book
+	assertEquals <span class="java&#45;quote">"The Stand"</span>, model.book.title
+&#125;</pre></div><p class="paragraph"/>JSON 요청에도 동일하게 적용할 수 있다:<p class="paragraph"/><div class="code"><pre>void testCreateWithJSON() &#123;
+	def controller = <span class="java&#45;keyword">new</span> BookController()	
+ 	controller.request.contentType = <span class="java&#45;quote">"text/json"</span>
+ 	controller.request.content = '&#123;<span class="java&#45;quote">"id"</span>:1,<span class="java&#45;quote">"class"</span>:<span class="java&#45;quote">"Book"</span>,<span class="java&#45;quote">"title"</span>:<span class="java&#45;quote">"The Stand"</span>&#125;'.getBytes()<p class="paragraph"/>	def model = controller.create()
+	assert model.book
+	assertEquals <span class="java&#45;quote">"The Stand"</span>, model.book.title<p class="paragraph"/>&#125;</pre></div><p class="paragraph"/><blockquote class="note">
+JSON을 사용할 때에는 class 속성에 바인딩할 객체의 형식을 명시해야 한다는 것을 잊으면 안된다. XML에서는 &#60;book&#62;노드의 이름에서 유추하지만 JSON에서는 JSON 패킷에 이 속성을 명시해야 한다.
+</blockquote><p class="paragraph"/>REST 웹 서비스에 대한 정보는 <a href="../guide/single.html#13.1 REST" class="guide">REST</a> 절을 보라.<p class="paragraph"/><h4>Testing Web Flows(웹 플로우 테스트하기)</h4><p class="paragraph"/>웹 플로우(<a href="../guide/single.html#6.5 Web Flow" class="guide">Web Flows</a>)를 테스팅하는 것은 grails.test.WebFlowTestCase라는 특별한 테스트 도구harness가 필요하다. 이 클래스는 스프링 웹 플로우에 포함된 <a href="http://static.springframework.org/spring/docs/2.5.x/api/org/springframework/webflow/test/execution/AbstractFlowExecutionTests.html" class="api">AbstractFlowExecutionTests</a> 서브클래스이다.<p class="paragraph"/><blockquote class="note">
+WebFlowTestCase의 서브클래스는 통합 테스트를 의미한다.
+</blockquote><p class="paragraph"/>일반적으로 다음과 같은 플로우가 있을 때:<p class="paragraph"/><div class="code"><pre>class ExampleController &#123;
+	def exampleFlow = &#123;
+		start &#123;
+			on(<span class="java&#45;quote">"go"</span>) &#123;
+				flow.hello = <span class="java&#45;quote">"world"</span>
+			&#125;.to <span class="java&#45;quote">"next"</span>
+		&#125;
+		next &#123;
+			on(<span class="java&#45;quote">"back"</span>).to <span class="java&#45;quote">"start"</span>
+			on(<span class="java&#45;quote">"go"</span>).to <span class="java&#45;quote">"end"</span>
+		&#125;
+		end()
+	&#125;	
+&#125;</pre></div><p class="paragraph"/>어떤 플로우를 사용할 것인지 테스트 도구(harness)에 알려줘야 한다. 추상 메소드를 getFlow를 오버라이딩해서 테스트 도구에 알릴 수 있다:<p class="paragraph"/><div class="code"><pre>class ExampleFlowTests <span class="java&#45;keyword">extends</span> grails.test.WebFlowTestCase &#123;
+	def getFlow() &#123; <span class="java&#45;keyword">new</span> ExampleController().exampleFlow &#125;
+	&#8230;
+&#125;</pre></div><p class="paragraph"/>만약 flow id를 명시해야 한다면 getFlowId 메소드를 오버라이딩해서 명시할 수 있다. 그렇지않으면 기본 값이 사용된다:<p class="paragraph"/><div class="code"><pre>class ExampleFlowTests <span class="java&#45;keyword">extends</span> grails.test.WebFlowTestCase &#123;
+	<span class="java&#45;object">String</span> getFlowId() &#123; <span class="java&#45;quote">"example"</span> &#125;
+	&#8230;
+&#125;</pre></div><p class="paragraph"/>이 것을 다 끝냈으면 startFlow 메소드로 flow를 시작할 수 있다다. 이 startFlow 메소드는 ViewSelection 객체를 반환한다:<p class="paragraph"/><div class="code"><pre>void testExampleFlow() &#123;
+	def viewSelection = startFlow()<p class="paragraph"/>	assertEquals <span class="java&#45;quote">"start"</span>, viewSelection.viewName
+	&#8230;
+&#125;</pre></div><p class="paragraph"/>이 예제는 viewSelection 객체의 viewName 속성를 이용하여 현재 올바른 상태에 있는지 검사할 수 있다는 것을 보여준다. 그리고 siginalEvent 메소드를 사용하여 event를 발생시킬 수 있다:<p class="paragraph"/><div class="code"><pre>void testExampleFlow() &#123;
+	&#8230;
+	viewSelection = signalEvent(<span class="java&#45;quote">"go"</span>)
+	assertEquals <span class="java&#45;quote">"next"</span>, viewSelection.viewName
+	assertEquals <span class="java&#45;quote">"world"</span>, viewSelection.model.hello
+&#125;</pre></div><p class="paragraph"/>여기서 “go” 이벤트를 실행시켜야 한다는 것을 플로우에 알렸다. 그래서 “next” 상태로 전이될 수 있다. 이 예제의 전이 액션은 flow 스콥의 hello 변수에 값을 채운다. 그리고 viewSelection의 model속성을 이용하여 변수의 값이 제대로 적용됐는지 검사할 수 있다.<p class="paragraph"/><h4>Testing Tag Libraries(태그 라이브러리 테스트하기)</h4><p class="paragraph"/>태그가 메소드 처럼 실행될 때 결과를 실질적으로 문자열로 반환하기 때문에 태그 라이브러리를 테스트하는 것은 꽤 쉽다. 만약 다음과 같은 태그 라이브러리가 있다면:<p class="paragraph"/><div class="code"><pre>class FooTagLib &#123;
+   def bar =  &#123; attrs, body &#45;&#62;
+   	   out &#60;&#60; <span class="java&#45;quote">"&#60;p&#62;Hello World!&#60;/p&#62;"</span>
+   &#125;<p class="paragraph"/>   def bodyTag =  &#123; attrs, body &#45;&#62;
+      out &#60;&#60; <span class="java&#45;quote">"&#60;$&#123;attrs.name&#125;&#62;"</span>
+           out &#60;&#60; body()
+      out &#60;&#60; <span class="java&#45;quote">"&#60;/$&#123;attrs.name&#125;&#62;"</span>   	
+   &#125;
+&#125;</pre></div><p class="paragraph"/>테스트는 다음과 같이 작성한다:<p class="paragraph"/><div class="code"><pre>class FooTagLibTests <span class="java&#45;keyword">extends</span> GroovyTestCase &#123;<p class="paragraph"/>  void testBarTag() &#123;
+	   assertEquals <span class="java&#45;quote">"&#60;p&#62;Hello World!&#60;/p&#62;"</span>, <span class="java&#45;keyword">new</span> FooTagLib().bar(<span class="java&#45;keyword">null</span>,<span class="java&#45;keyword">null</span>)
+   &#125;<p class="paragraph"/>   void testBodyTag() &#123;
+	   assertEquals <span class="java&#45;quote">"&#60;p&#62;Hello World!&#60;/p&#62;"</span>, <span class="java&#45;keyword">new</span> FooTagLib().bodyTag(name:<span class="java&#45;quote">"p"</span>) &#123;
+	       <span class="java&#45;quote">"Hello World!"</span> 
+       &#125;
+    &#125;
+&#125;</pre></div><p class="paragraph"/>두 번째 예제인 testBodyTag를 잘 살펴보자. 태그의 바디를 반환하는 블럭을 넘기는데 이 것으로 바디의 내용을 쉽게 문자열로 표현할 수 있다.<p class="paragraph"/><h4>Testing Tag Libraries with GroovyPagesTestCase(GroovyPagesTestCase로 태그 라이브러리 테스트하기)</h4><p class="paragraph"/>위의 예제를 grails.test.GroovyPagesTestCase 클래스를 사용하여 더 쉽게 테스트할 수 있다.<p class="paragraph"/>GroovyPagesTestCase 클래스는 GroovyTestCase 클래스의 서브클래스이고 GSP 렌더링의 출력을 테스팅할 수 있는 메소드들이 추가되어 있다.<p class="paragraph"/><blockquote class="note">
+GroovyPagesTestCase는 오직 통합 테스트에서만 사용할 수 있다.
+</blockquote><p class="paragraph"/>다음과 같이 날짜를 표현하는(formatting) 태그 라이브러리가 있다고 하면:<p class="paragraph"/><div class="code"><pre>class FormatTagLib &#123;
+	def dateFormat = &#123; attrs, body &#45;&#62; 
+		out &#60;&#60; <span class="java&#45;keyword">new</span> java.text.SimpleDateFormat(attrs.format) &#60;&#60; attrs.date
+	&#125;
+&#125;</pre></div><p class="paragraph"/>이 것은 다음과 같이 쉽게 태스트할 수 있다:<p class="paragraph"/><div class="code"><pre>class FormatTagLibTests <span class="java&#45;keyword">extends</span> GroovyPagesTestCase &#123;
+	void testDateFormat() &#123;
+		def template = '&#60;g:dateFormat format=<span class="java&#45;quote">"dd&#45;MM&#45;yyyy"</span> date=<span class="java&#45;quote">"$&#123;myDate&#125;"</span> /&#62;'<p class="paragraph"/>		def testDate = &#8230; // create the date
+		assertOutputEquals( '01&#45;01&#45;2008', template, &#91;myDate:testDate&#93; )
+	&#125;
+&#125;</pre></div><p class="paragraph"/>또 GroovyPagesTestCase 클래스의 applyTemplate 메소드를 사용하여 GSP의 결과를 얻을 수 있다:<p class="paragraph"/><div class="code"><pre>class FormatTagLibTests <span class="java&#45;keyword">extends</span> GroovyPagesTestCase &#123;
+	void testDateFormat() &#123;
+		def template = '&#60;g:dateFormat format=<span class="java&#45;quote">"dd&#45;MM&#45;yyyy"</span> date=<span class="java&#45;quote">"$&#123;myDate&#125;"</span> /&#62;'<p class="paragraph"/>		def testDate = &#8230; // create the date
+		def result = applyTemplate( template, &#91;myDate:testDate&#93; )<p class="paragraph"/>		assertEquals '01&#45;01&#45;2008', result
+	&#125;
+&#125;</pre></div><p class="paragraph"/><h4>Testing Domain Classes(도메인 클래스 테스트하기)</h4><p class="paragraph"/>보통 도메인 클래스를 테스트하는 것은 <a href="../guide/single.html#5. Object Relational Mapping (GORM)" class="guide">GORM API</a>의 문제이지만 먼저 알아야 하는 것들이 있다. 만약 쿼리를 테스트하고 있다면 데이터베이스에 저장돼 올바른 상태가 보장되도록 종종 “플러쉬(flush)“시켜야만 한다. 예를 들어 다음과 같은 예제가 있다면:<p class="paragraph"/>
+<div class="code"><pre>void testQuery() &#123;
+	def books = &#91; <span class="java&#45;keyword">new</span> Book(title:<span class="java&#45;quote">"The Stand"</span>), <span class="java&#45;keyword">new</span> Book(title:<span class="java&#45;quote">"The Shining"</span>)&#93;
+	books&#42;.save()<p class="paragraph"/>	assertEquals 2, Book.list().size()
+&#125;</pre></div><p class="paragraph"/>이 테스트는 <a href="../ref/Domain Classes/save.html" class="domainClasses">save</a> 메소드가 호출되면 바로 Book 인스턴스는 저장되지 않으므로 실패할 것이다. save를 호출하는 것은 단지 하이버네이트가 언젠가 인스턴스를 데이터베이스에 저장해야 한다는 것을 알리는 것뿐이다. 만약 즉시 저장되게 하고 싶다면 “플러쉬”시켜야 한다.<p class="paragraph"/><div class="code"><pre>void testQuery() &#123;
+	def books = &#91; <span class="java&#45;keyword">new</span> Book(title:<span class="java&#45;quote">"The Stand"</span>), <span class="java&#45;keyword">new</span> Book(title:<span class="java&#45;quote">"The Shining"</span>)&#93;
+	books&#42;.save(flush:<span class="java&#45;keyword">true</span>)<p class="paragraph"/>	assertEquals 2, Book.list().size()
+&#125;</pre></div><p class="paragraph"/>이 예제는 flush 인자의 값을 true로 넘기기 때문에 즉시 데이터베이스에 저장된다. 그래서 이제 데이터베이스에 질의해도 된다.
+
+	</body>
+</html>

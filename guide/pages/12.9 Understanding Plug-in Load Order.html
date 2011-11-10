@@ -1,0 +1,22 @@
+<html>
+     <head>
+     	<meta http-equiv="Content-type" content="text/html; charset=utf-8">
+     	<title>12.9 Understanding Plug-in Load Order</title>
+     	<link rel="stylesheet" href="../css/main.css" type="text/css" media="screen" title="Ref" charset="utf-8">
+     </head>
+	<body class="body">
+		플러그인은 종종 다른 플러그인의 존재 여부에 영향을 받는다. 또한 다른 플러그인의 존재 여부에 따라 적응하기도 한다. 플러그인은 두가지 프로퍼티를 정의하여 이를 다룰 수 있다. 하나는 dependsOn이라 부르는 것이다. 예를 들어 Grails Hibernate 플러그인으로부터 가져온 부분을 살펴보자.<p class="paragraph"/><div class="code"><pre>class HibernateGrailsPlugin &#123;
+	def version = 1.0
+	def dependsOn = &#91;dataSource:1.0,
+	                 domainClass:1.0,
+	                 i18n:1.0,
+	                 core: 1.0&#93;<p class="paragraph"/>&#125;</pre></div><p class="paragraph"/>위의 예제에서 보듯이 Hibernate 플러그인은 4개의 플러그인에 의존적이다. 그 4개의 플러그인은 dataSource, domainClass, i18n, core 플러그인이다.<p class="paragraph"/>필수로 의존성에 걸리는 플러그인은 Hibernate 플러그인보다 먼저 로드가 된다. 모든 의존성에 걸린 플러그인이 로드되지 않으면, Hibernate 플러그인은 로드되지 않는다.<p class="paragraph"/>하지만, 이것은 의존성에 걸리는 플러그인에 대해서 로드하지 못하면 로드하는 것을 포기하는 굉장히 엄격한 의존성이다. loadAfter 프로퍼티를 통해 좀 더 약한(유연한) 의존성을 가지게 할 수 있다:<p class="paragraph"/><div class="code"><pre>def loadAfter = &#91;'controllers'&#93;</pre></div><p class="paragraph"/>controller 플러그인이 존재한다면 controllers 플러그인이 로드된 이후에 이 플러그인은 로드될 것이다. controller 플러그인이 존재하지 않는다면 그냥 이 플러그인은 의존성 없이 로드될 것이다. 플러그인은 다른 플러그인이 로드되었는지에 대해서 적응할 수 있다. 예를 들어 Hibernate 플러그인은 doWithSpring 클로져에서 아래와 같은 코드를 가지고 있다:<p class="paragraph"/><div class="code"><pre><span class="java&#45;keyword">if</span>(manager?.hasGrailsPlugin(<span class="java&#45;quote">"controllers"</span>)) &#123;
+	openSessionInViewInterceptor(OpenSessionInViewInterceptor) &#123;
+        	flushMode = HibernateAccessor.FLUSH_MANUAL
+	        sessionFactory = sessionFactory
+	&#125;
+        grailsUrlHandlerMapping.interceptors &#60;&#60; openSessionInViewInterceptor
+  &#125;</pre></div><p class="paragraph"/>Hibernate 플러그인은 controllers플러그인이 로드되었을 때만 OpenSessionInViewInterceptor를 등록한다. manager변수는 <a href="../api/org/codehaus/groovy/grails/plugins/GrailsPluginManager.html" class="api">GrailsPluginManager</a> 인터페이스의 인스턴스이며 어떠한 플러그인이라도 다른 플러그인이나 GrailsPluginManager 자신과의 상호작용에 대한 메소드를 지원한다.
+
+	</body>
+</html>
