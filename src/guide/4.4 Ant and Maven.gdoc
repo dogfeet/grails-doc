@@ -1,0 +1,22 @@
+h4. Ant Integration
+
+create-app 명령어로 Grails 어플리케이션을 만들때 Grails는 자동으로 [create-app|commandLine] 의 @build.xml@ 파일을 생성한다. 여기에는 다음과 같은 타겟들이 포함돼 있다.
+
+* clean - Grails 어플리케이션을 청소한다.
+* war - WAR 파일을 만든다
+* test - 유닛 테스트를 실행한다.
+* deploy - 기본적으로 아무일도 하지 않지만 자동 설치deployment를 구현할 수 있다.
+
+이 타겟들은 Ant에 의해 실행된다:
+
+{code:java}
+ant war
+{code}
+
+build.xml은 Grails의 일반적인 명령어들을 실행하고 "CruiseControl":http://cruisecontrol.sourceforge.net/ 이나 "Hudson":https://hudson.dev.java.net/ 같은 CI(continuous integration) 서버와 통합하는데 사용될 수 있다.
+
+h4. Maven Integration
+
+Grails는 공식적으로 "Maven":http://maven.apache.org/ 을 지원하지 않는다. 하지만 Grails를 위한 "Maven Tools for Grails":http://forge.octo.com/confluence/display/MTG/Home 라는 프로젝트가 있다. 이 도구는 이 기존의 Grails 프로젝트를 위한 POM을 만들어줄 뿐만아니라 Maven 라이프사이클lifecycle을 Grails에서 사용할 수 있게 해준다.
+
+Grails를 위한 "Maven Tools for Grails":http://forge.octo.com/confluence/display/MTG/Home 에 대한 자세한 정보는 프로젝트 사이트를 참고하라.

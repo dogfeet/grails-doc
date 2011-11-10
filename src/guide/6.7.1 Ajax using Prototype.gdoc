@@ -1,0 +1,15 @@
+Grails에는 기본적으로 "Prototype":http://www.prototypejs.org/ 라이브러리가 탑재되어 있다. 그러나 플러그인 시스템([Plug-in system|guide:plug-ins])을 통해서 "Dojo":http://dojotoolkit.org/, "Yahoo UI":http://developer.yahoo.com/yui/, "Google Web Toolkit":http://code.google.com/webtoolkit/ 같은 다른 프레임웍도 지원한다.
+
+이 절에서는 Prototype을 위해 Grails가 지원하는 것들에 대해 다룬다. 페이지의 <head> 태그에 다음의 라인을 추가하는 것으로 시작한다:
+	
+{code:xml}
+<g:javascript library="prototype" />
+{code}	
+
+[javascript|tags] 태그를 사용하면 자동으로 올바른 Prototype을 사용할 수 있다. 만약 "Scriptaculous":http://script.aculo.us/ 도 필요하면 다음과 같이 할 수 있다:
+
+{code:xml}
+<g:javascript library="scriptaculous" />
+{code}	
+
+

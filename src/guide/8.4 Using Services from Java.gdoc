@@ -1,0 +1,62 @@
+서비스가 강력한 이유중에 하나는 다른 클래스에서 로직을 재사용할 수 있도록 캡슐화(encapsulate)하는 것이다. 그리고 자바 클래스에서도 서비스를 재사용할 수 있다. 자바에서 서비스를 재사용하는 방법은 두 가지이다. 가장 간단한 방법은 패키지를 the grails-app/services 디렉토리에 있는 서비스에 정의하는 것이다. 자바 클래스는 기본 패키지에 있는 서비스를 사용import할 수 없기 때문에 이 것은 중요하다. 아무런 패키지를 정의하지 않으면 자동으로 기본 패키지에 포함된다. 그래서 다음과 같은 BookService는 Java에서 사용할 수 없다:
+
+{code:java}
+class BookService {
+	void buyBook(Book book) {
+		// logic
+	}
+}
+{code}
+
+그러나 이것은 클래스에 패키지를 정의하면 해결된다. 클래스를 grails-app/services/bookstore처럼 하위디렉토리로 옮기고 package 키워드로 패키지를 정의한다:
+
+{code:java}
+package bookstore
+class BookService {
+	void buyBook(Book book) {
+		// logic
+	}
+}{code}
+
+패키지를 정의하는 다른 벙법으로 service의 인터페이스에 패키지를 정의하는 방법도 있다:
+
+{code:java}
+package bookstore;
+interface BookStore {
+	void buyBook(Book book);
+}
+{code}
+
+그리고 서비스를 구현한다:
+
+{code:java}
+class BookService implements bookstore.BookStore {
+	void buyBook(Book b) {
+		// logic
+	}
+}
+{code}
+
+어쩌면 두번째 방법이 더 깔끔할지도 모른다. 자바 세계에서는 구현된 클래스가 아니라 오직 인터페이스만을 사용할 수 있다. 어떤 방법이든지 목표는 컴파일할때 자바에서 클래스나 인터페이스를 정적으로 찾을 수 있게 하는 것이다. 이제 src/java 패키지에 자바 클래스를 만들고 Spring이 Bean의 타입과 이름을 사용할 수 있도록 setter를 구현해야 한다:
+
+{code:java}
+package bookstore;
+// note: this is Java class
+public class BookConsumer {
+	private BookStore store;
+	
+	public void setBookStore(BookStore storeInstance) {
+		this.store = storeInstance;
+	}	
+	...
+}
+{code}
+
+그리고 나서 grails-app/conf/spring/resources.xml에 자바 클래스를 Spring의 Bean으로 설정한다(좀 더 자세한 정보는 [Grails and Spring|guide:spring] 장을 참고하라):
+
+{code:xml}
+<bean id="bookConsumer" class="bookstore.BookConsumer">
+	<property name="bookStore" ref="bookService" />
+</bean>
+{code}
+

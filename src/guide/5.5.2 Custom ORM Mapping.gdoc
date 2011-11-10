@@ -1,0 +1,16 @@
+Grails의 도메인 클래스는 ORM DSL(Object Relational Mapping Domain Specify Language) 레거시 스키마에 매핑될 수 있다. 다음 장에서 ORM DSL로 할 수 있는 일들을 설명한다.
+
+{note}
+GORM의 관례에 따르는 테이블, 컬럼 이름등이 마음에 든다면 이 것은 전혀 필요없다. 캐싱을 한다거나 GORM을 레거시 스키마에 매핑하려 할때에만 이 기능이 필요하다.
+{note}
+
+도메인 클래스에 정적 mapping 블럭을 사용하므로써 매핑 규칙을 정의할 수 있다:
+
+{code:java}
+class Person {
+  ..
+  static mapping = {
+
+  }
+}
+{code}

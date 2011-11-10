@@ -1,0 +1,75 @@
+일대다 관계는 하나의 클래스가 많은 다른 클래스의 인스턴스를 가지고 있는 것이다. @Author@ 와 @Book@ 의 관계가 그렇다. hasMany를 이용하여 이런 관계를 정의한다.
+
+{code}
+class Author {
+    static hasMany = [ books : Book ]
+
+    String name
+}
+class Book {
+	String title
+}
+{code}
+
+우리는 단방향 1-n 관계를 만들었다. Grails는 기본적으로 Join 테이블로 이런한 관계를 매핑한다.
+
+{note}
+[ORM DSL|guide:ormdsl] 은 외래키 관계을 사용하여 단방향 관계를 가능하게 한다.
+{note}
+
+Grails는 자동으로 도메인 클래스의 @hasMany@ 가 명시된 프로퍼티들을 @java.util.Set@ 형식으로 만든다. 따라서 컬렉션(collection)의 이터레이션(iteration)을 사용할 수 있다.
+
+{code}
+def a = Author.get(1)
+
+a.books.each {
+	println it.title
+}
+{code}
+
+{note}
+Grails에서 사용하는 기본 패치(fetch) 전략은 필요할 때(lazily) 패치하는 "lazy" 전략이다. [n+1 문제|http://www.javalobby.org/java/forums/t20533.html]가 발생하지 않도록 조심해야 한다. 
+
+"eager" 패치 전략을 취하도록 [query|guide:querying]의 일부로서 [ORM DSL|guide:ormdsl] 에 명시 할 수도 있다.
+{note}
+
+연쇄적으로 저장, 갱신하는 것이 기본적인 연쇄 방식이고 belongsTo가 명시되어 있지 않으면 연쇄적으로 삭제되지도 않는다.
+
+{code}
+class Author {
+    static hasMany = [ books : Book ]
+
+    String name
+}
+class Book {
+	static belongsTo = [author:Author]
+	String title
+}
+{code}
+
+일대다 관계에서 '다'쪽의 도메인 클래스에 '일'쪽의 형식으로 정의된 프로퍼티가 두 개 이상 있다면 mappedBy를 사용하여 어떤 컬렉션에 매핑돼야 하는지 명시해야 한다.
+
+{code}
+class Airport {
+	static hasMany = [flights:Flight]
+	static mappedBy = [flights:"departureAirport"]
+}
+class Flight {
+	Airport departureAirport
+	Airport destinationAirport
+}
+{code} 
+
+또, 컬렉션을 어러개 만들어 '다'쪽의 도메인 클래스의 다른 프로퍼티로 매핑시키는 것도 가능하다.
+
+{code}
+class Airport {
+	static hasMany = [outboundFlights:Flight, inboundFlights:Flight]
+	static mappedBy = [outboundFlights:"departureAirport", inboundFlights:"destinationAirport"]
+}
+class Flight {
+	Airport departureAirport
+	Airport destinationAirport
+}
+{code}
+

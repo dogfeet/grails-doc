@@ -1,0 +1,84 @@
+GORM은 delete, insert, update같은 이벤트가 발생할 때 수행될 클로저(closure)를 등록할 수 있다. 단순히 도메인 클래스의 이벤트에 적절한 클로저를 동록하면 된다. 다음과 같은 이벤트들이 있다.
+
+h4. The beforeInsert event(beforeInsert 이벤트)
+
+객체가 데이터베이스에 저장되기 전에 실행된다.
+
+{code:java}
+class Person {
+   Date dateCreated
+
+   def beforeInsert = {
+       dateCreated = new Date()
+   }
+}
+
+{code}
+
+h4. The beforeUpdate event(beforeUpdate 이벤트)
+
+객체가 업데이트되기 전에 실행된다.
+
+{code:java}
+class Person {
+   Date dateCreated
+   Date lastUpdated
+
+   def beforeInsert = {
+       dateCreated = new Date()
+   }
+   def beforeUpdate = {
+       lastUpdated = new Date()
+   }
+}
+{code}
+
+h4. The beforeDelete event(beforeDelete 이벤트)
+
+객체가 삭제되기 전에 실행된다.
+
+{code:java}
+class Person {
+   String name
+   Date dateCreated
+   Date lastUpdated
+
+   def beforeDelete = {
+      new ActivityTrace(eventName:"Person Deleted",data:name).save()
+   }
+}
+
+{code}
+
+h4. The onLoad event(onLoad 이벤트)
+
+데이터베이스에서 객체가 로드될때 실행된다:
+
+{code:java}
+class Person {
+   String name
+   Date dateCreated
+   Date lastUpdated
+
+   def onLoad = {
+      name = "I'm loaded"
+   }
+}
+{code}
+
+h4. Automatic timestamping(자동 시간도장)
+
+위의 예에서 이벤트를 사용하여 @lastUpdated@와 @dateCreated@ 프로퍼티를 업데이트하는 방법에 대해 알아보았다. GORM은 객체의 히스토리를 유지하는 다른방법을 제공한다. GORM에서는 단순히 @lastUpdated@와 @dateCreated@ 프로퍼티만 정의하는 것만으로도 충분한다.
+
+이 기능이 맘에 들지 않는다면 끌 수 있다:
+
+{code:java}
+class Person {
+   Date dateCreated
+   Date lastUpdated
+   static mapping = {
+      autoTimestamp false
+   }
+}
+{code}
+

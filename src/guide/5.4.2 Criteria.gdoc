@@ -1,0 +1,184 @@
+Criteria는 복잡한 쿼리를 만들기 위해 Groovy 빌더를 사용한다. Criteria는 자료형이 보장(type safe)되는 매우 훌륭한 도구다. 이 것이 StringBuffer보다 훨씬 훌륭하다.
+
+[createCriteria|domainClasses]나 [withCriteria|domainClasses] 메소드를 통해서 Criteria를 사용한다. 이 빌더는 Hibernate의 Criteria API를 사용한다. 빌더의 노드들은 Hibernate의 Criteria API의 [Restrictions|api:org.hibernate.criterion.Restrictions] 클래스에 있는 static method들에 매핑된다. 다음의 예를 보자:
+
+{code}
+def c = Account.createCriteria()
+def results = c {
+	like("holderFirstName", "Fred%")
+	and {
+		between("balance", 500, 1000)
+		eq("branch", "London")
+	}
+	maxResults(10)
+	order("holderLastName", "desc")
+}
+{code}
+
+h4. Conjunctions and Disjunctions(논리곱과 논리합)
+
+위의 예에서 보여주듯이 @and { }@을 이용하여 논리블럭을 만들고 Criteria에 논리연산을 적용할 수 있다:
+
+{code:java}
+and {
+	between("balance", 500, 1000)
+	eq("branch", "London")
+}
+{code}
+
+OR 연산자도 마찬가지다:
+
+{code:java}
+or {
+	between("balance", 500, 1000)
+	eq("branch", "London")
+}
+{code}
+
+NOT 연산자에서도 잘 동작한다:
+
+{code:java}
+not {
+	between("balance", 500, 1000)
+	eq("branch", "London")
+}
+{code}
+
+h4. Querying Associations(관계 질의하기)
+
+프로퍼티에 알 맞는 노드가 있으면 관계를 질의할 수 있다. 다음 예제는 @Account@ 클래스는 많은 @Transaction@ 객체를 가질 수 있다는 것을 말해준다.
+
+{code}
+class Account {
+    ...
+    def hasMany = [transactions:Transaction]
+    Set transactions
+    ...
+}
+{code}
+
+우리는 빌더 노드에 @transaction@ 프로퍼티을 사용하여 이 관계를 질의할 수 있다.
+
+{code:java}
+def c = Account.createCriteria()
+def now = new Date()
+def results = c.list {
+       transactions {
+            between('date',now-10, now)
+       }
+}
+{code}
+
+이 예제는 최근 10일안에 @transaction@이 있었던 @Account@ 인스턴스를 모두 찾는다.
+그리고 그러한 관계를 질의하는 쿼리를 논리 블럭안에 넣을 수 있다.:
+
+{code:java}
+def c = Account.createCriteria()
+def now = new Date()
+def results = c.list {
+     or {
+        between('created',now-10,now)
+        transactions {
+             between('date',now-10, now)
+        }
+     }
+}
+{code}
+
+이 예제는 최근 10일 이내에 transaction이 수행됐었거나 생성된 Account 인스턴스들은 모두 찾는다.
+
+h4. Querying with Projections(프로젝션으로 질의하기)
+
+프로젝션은 결과를 사용자 사정에 맞추는데(customize) 사용된다. 프로젝션을 사용하기 위해서는 Criteria 빌더 트리에 "projections" 노드를 정의해야 한다. projections 노드의 메소드은 Hibernate의 [Projections|api:org.hibernate.criterion.Projections] 클래스의 메소드와 동일하다:
+
+{code:java}
+def c = Account.createCriteria()
+
+def numberOfBranches = c.get {
+	projections {
+		countDistinct('branch')
+	}
+}
+
+{code}
+
+h4. Using Scrollable Results(스크롤되는 결과의 사용)
+
+scroll 메소드를 호출하여 Hiberate의 [ScrollableResults|api:org.hibernate.ScrollableResults] 기능을 사용할 수 있다.
+
+{code:java}
+def results = crit.scroll {
+      maxResults(10)
+}
+def f = results.first()
+def l = results.last()
+def n = results.next()
+def p = results.previous()
+
+def future = results.scroll(10)
+def accountNumber = results.getLong('number')
+{code}
+
+Hiberate에서 ScrollableResult를 설명하는 문서를 인용했다:
+
+{quote}
+원하는 개수만큼 결과를 스크롤할 수 있는 result iterator이다. Query/ScrollableResults 패턴은 JDBC PreparedStatement/ResultSet 패턴과 매우 유사하고 메소드의 이름도 ResultSet의 것과 비슷하게 지어졌다.
+{quote}
+
+하지만 JDBC와는 다르게 결과의 컬럼의 인덱스는 0부터 시작한다.
+
+h4. Setting properties in the Criteria instance(Criteria 인스턴스의 프로퍼티를 설정하기)
+
+빌더 트리에서 기술한 조건이 해석할 수 없으면 Criteria 인스턴스의 자체 프로퍼티를 설정하려고 시도한다. 그래서 이 클래스의 모든 프로퍼티에 접근하는 것이 가능하다. 아래의 예를 보면 [Criteria|api:org.hibernate.Criteria] 인스턴스의 @setMaxResults@와 @setFirstResult@ 메소드가 호출된다.
+
+{code:java}
+	import org.hibernate.FetchMode as FM
+	...
+	def results = c.list {
+		maxResults(10)
+		firstResult(50)
+		fetchMode("aRelationship", FM.EAGER)
+	}
+{code}
+
+h4. Querying with Eager Fetching(Eager 패칭으로 질의하기)
+
+[Eager and Lazy Fetching|guide:5.3.4 Eager and Lazy Fetching] 을 설명하면서 우리는 N+1 select 문제를 회피하는 방법에 대해 이미 다루었다. 하지만 Criteria를 이용하여 동일한 일을 할 수 있다:
+
+{code:java}
+import org.hibernate.FetchMode as FM
+...
+
+def criteria = Task.createCriteria()
+def tasks = criteria.list{
+     eq("assignee.id", task.assignee.id)
+     fetchMode('assignee', FM.EAGER)
+     fetchMode('project', FM.EAGER)
+     order('priority', 'asc')
+}
+{code}
+
+
+h4. Method Reference(메소드 레퍼런스)
+
+만약 다음의 예제처럼 아무것도 없이 빌더를 실행하면:
+
+{code:java}
+c { ... }
+{code}
+
+결과의 목록을 얻어오는 것이 빌더의 목적이므로 다음의 예제와 동일하게 작동된다:
+
+{code:java}
+c.list { ... }
+{code}
+
+{table}
+ 메소드 | 설명 
+
+ *list* | 기본 메소드로 조건에 만족하는 모든 열을 반환한다.  
+ *get* | 단 한 개의 결과 집합(result set)를 반환한다. 이 메소드를 위한 Criteria는 단 한 개의 결과를 반환하도록 만들어져야 한다. 이 메소드와 단지 첫 열만을 얻어오는 것과 혼동하지 말아야 한다.
+ *scroll* | 스크롤되는 결과를 반환한다.
+ *listDistinct* | 서브쿼리나 관계를 이용할 때 결과 집합에서 동일한 열이 여러개 존재할 수 있는데 이 것으로 중복을 허용하지 않을 수 있다. [CriteriaSpecification|api:org.hibernate.criterion.CriteriaSpecification] 클래스의 @DISTINCT_ROOT_ENTITY@와 동일하다.
+{table}
+

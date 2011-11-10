@@ -1,0 +1,79 @@
+인터셉터는 요청, 세션, 어플리케이션의 상태를 처리하는 중에 가로채야intercept할 때 유용하다. 인터셉터는 액션으로 구현된고 현재는 before, after 두 종류의 인터셉터가 있다
+
+{note}
+인터셉터를 하나 이상의 컨트롤러에 적용해야 한다면 [Filter|guide:filters]를 사용하는 것이 낫다. Filter는 여러 개의 컨트롤러나 URI이에 적용할 수 있고 각 컨트롤러의 로직을 변경할 필요도 없다.
+{note}
+
+h4. Before Interception
+
+@beforeInterceptor@는 액션이 실해되기 전에 가로챈다. 만약 인터셉터가 @false@를 반환하면 요청된 액션은 실행되지 않는다. 인터셉터는 다음의 예제처럼 모든 액션에 적용될 수 있다.
+
+{code:java}
+def beforeInterceptor = {
+       println "Tracing action ${actionUri}"
+}
+{code}
+
+이 예제는 컨트롤러 안에 정의된다. 이 인터셉터는 액션이 하나도 실행되기 전에 실행될 것이다. 다음은 일반적으로 사용하는 인증 예제이다:
+
+{code:java}
+def beforeInterceptor = [action:this.&auth,except:'login']
+// 보통의 메소드처럼 정의했지만 숨겨진다
+def auth() {
+     if(!session.user) {
+            redirect(action:'login')
+            return false
+     }
+}
+def login = {
+     // 로그인 페이지를 보여준다
+}
+{code}
+
+
+이 예제에서는 @auth@ 메소드를 호출하도록 정의했다. 외부에 액션이 노출되지 않았지만 메소드는 호출된다(액션이 숨겨진다). 이 @beforeInterceptor@는 login 액션을 제외(except)하고 모든 액션에 적용된다. 즉, 모든 액션이 실행되기 전에 'auth' 메소드가 실행된다. 'auth' 메소드는 Groovy의 메소드 포인터 문법을 사용하여 참조된다. 'auth' 메소드는 인증된 사용자인지를 검사하고 인증된 사용자가 아니면 login 액션으로 리다이렉트 시킨다. 그리고 이 메소드가 false를 반환하기 때문에 원래 요구된 액션은 실행되지 않는다.
+
+h4. After Interception
+
+액션이 실행된 후에 실행되는 인터셉터는 @afterInterceptor@ 프로퍼티를 이용하여 정의한다:
+
+{code:java}
+def afterInterceptor = { model ->
+       println "Tracing action ${actionUri}"
+}
+{code}
+
+afterInterceptor는 결과 모델을 인자로 받는다. 이 인터셉터를 사용하여 액션이 실행된 후의 모델이나 응답을 관리할 수 있다.
+
+afterInterceptor를 이용하면 렌더링하기 전에 Spring의 MVC [ModelAndView|api:org.springframework.web.servlet.ModelAndView] 객체도 수정할 수 있다. 위 예제에 적용하면 다음과 같이 된다:
+
+{code:java}
+def afterInterceptor = { model, modelAndView ->
+       println "Current view is ${modelAndView.viewName}"
+       if(model.someVar) modelAndView.viewName = "/mycontroller/someotherview"
+       println "View is now ${modelAndView.viewName}"
+}
+{code}
+
+이 것는 액션이 반환하는 모델을 사용할 뷰를 변경시키는 예제다. 액션이 가로채어지고 render나 redirect를 호출되면 @modelAndView@는 @null@이 된다는 것을 기억하라.
+
+h4. Interception Conditions(인터셉터에 조건 달기)
+
+Rails 사용자들은 인증 예제가 친숙할 것이고 인터셉터를 실행할 때 어떻게 'except' 조건을 사용해야 하는지를 잘 알고 있을 것이다(Rails에서는 인터셉터를 필터(filter)라고 부른다. 하지만 필터는 자바의 servlet filter와 혼동된다):
+
+{code:java}
+def beforeInterceptor = [action:this.&auth,except:'login']
+{code}
+
+이 인터셉터은 명시한 액션을 제외하고 모든 액션에 적용된다. 다음의 예처럼 여러 개의 액션을 명시할 수도 있다:
+
+{code:java}
+def beforeInterceptor = [action:this.&auth,except:['login','register']]
+{code}
+
+다른 조건으로 'only'도 있다. 인터셉터은 오직 명시된 액션에만 적용된다:
+
+{code:java}
+def beforeInterceptor = [action:this.&auth,only:['secure']]
+{code}
+

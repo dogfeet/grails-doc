@@ -1,0 +1,11 @@
+HTTP 메소드(GET, POST, PUT, DELETE)에 따라 URL이 다르게 매핑되도록 설정할 수 있다. 이 것은 RESTful API와 HTTP 메소드에 따라 매핑되도록 제약할 수 있기에 굉장히 유용하다.
+
+다음은 BookControler에 RESTful API를 위해 URL 매핑되도록 하는 예제이다:
+
+{code:java}
+static mappings = {
+   "/product/$id"(controller:"product"){
+       action = [GET:"show", PUT:"update", DELETE:"delete", POST:"save"]
+   }	
+}
+{code}

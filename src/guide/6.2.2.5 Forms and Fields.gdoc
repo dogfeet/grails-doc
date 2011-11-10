@@ -1,0 +1,36 @@
+h4. Form Basics(폼의 기초)
+
+GSP에는 HTML 폼과 필드를 다루는 많은 태그들이 있다. @form@ 태그가 가장 기초적인 것이다. [form|tags] 태그는 단지 HTML의 form 태그에 컨트롤러/액션을 이해할 수 있도록 한 것에 불과하다. @url@ 속성에 컨트롤러와 액션을 명시한다:
+
+{code:xml}
+<g:form name="myForm" url="[controller:'book',action:'list']">...</g:form>
+{code}
+
+이 경우에 우리는 @BookController@의 @list@액션에 전송하는 @myForm@이라고 불리는 폼 태그를 만들었다. 나머지는 HTML의 속성와 모두 동일하다.
+
+h4. Form Fields(폼 필드)
+
+GSP는 폼 필드와 관련된 다양한 태그를 지원하기 때문에 폼을 쉽게 만들 수 있다.
+
+textField - 'text' 타입을 위한 입력 필드
+checkBox - 'checkbox' 타입을 위한 입력 필드
+radio - 'radio' 타입을 위한 입력 필드
+hiddenField - 'hidden' 타입을 위한 입력 필드
+select - HTML의 select 박스를 위한 태그
+
+이 태그들의 value 속성에 GSP 표현식을 사용할 수 있다:
+
+{code:xml}
+<g:textField name="myField" value="${myValue}" />
+{code}
+
+GSP는 [radioGroup|tags], [localeSelect|tags], [currencySelect|tags], [timeZoneSelect|tags]처럼 위에 설명한 태그들을 확장한 태그들도 지원한다. radioGroup은 [radio|tags] 태그를 그룹으로 묶기 위함이고 localeSelect는 로케일을, currencySelect는 화페 단위를, timezoneSelect는 timezone을 선택을 단순화 해준다.
+
+h4. Multiple Submit Buttons(여러 개의 Submit 버튼)
+
+Grails는 여러 개의 Submit 버튼을 다루어야하는 역사 깊은 문제도 우아하게 처리할 수 있도록 [actionSubmit|tags] 태그를 지원한다. 이 것은 일반 submit과 동일하지만 action을 명시할 수 있다:
+
+{code:xml}
+<g:actionSubmit value="Some update label" action="update" /> 
+{code}
+

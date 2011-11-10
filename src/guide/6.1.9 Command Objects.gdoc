@@ -1,0 +1,61 @@
+Grails 컨트롤러는 Command 객체 개념을 지원한다. Command 객체는 Struts같은 것에서 form 빈을 사용하는 것과 유사하다. 이 것은 업데이트해야 하는 도메인 클래스의 프로퍼티들을 부분적으로 할당할(populate) 때 유용하다. 이 인터랙션에 요구되는 도메인 클래스는 없지만 [data binding|guide:dataBinding]과 유효성 검사([validation|guide:validation]) 같은 기능들이 필요하다.
+
+h4. Declaring Command Objects(Command 객체 정의하기)
+
+일반적으로 컨트롤러가 정의된 소스파일의 컨트롤러 아래에 Command 객체들을 정의한다:
+
+{code:java}
+class UserController {
+	...
+}
+class LoginCommand {
+   String username
+   String password
+   static constraints = {
+           username(blank:false, minSize:6)
+           password(blank:false, minSize:6)
+   }
+}
+{code}
+
+이 예제는 [domain classes|guide:GORM]에 정의했던 것처럼 Command 객체에도 제약조건([constraints|guide:constraints])을 정의할 수 있다는 것을 보여준다.
+
+h4. Using Command Objects(Command 객체 사용하기)
+
+Command 객체를 사용하기 위해서 컨트롤러의 액션은 Command 객체의 파라미터들을 원하는 만큼 명시할 수 있다. 파라미터의 형식은 개발자가 지정하기 때문에 Grails는 생성하고 할당(populate)하고 유효성 검사를 해야 할 객체들을 알 수 있다.
+
+Grails는 컨트롤러의 액션이 실행되기 전에 Command 클래스의 인스턴스를 자동으로 생성하고 요청 파라미터를 일치하는 Command 객체의 프로퍼티에 할당한다. 마지막으로 Command 객체의 유효성도 검사한다. 예를 들어:
+
+{code:java}
+class LoginController {
+  def login = { LoginCommand cmd ->
+         if(cmd.hasErrors()) {
+                redirect(action:'loginForm')
+         }
+         else {
+            // do something else
+        }
+  }
+}
+{code}
+
+h4. Command Objects and Dependency Injection(Command 객체와 의존성 주입)
+
+Command 객체로 의존성 주입도 다룰 수 있다. 이 것은 Grails의 서비스([services|guide:services])와 상호작용해야 하는 유효성 검사 로직을 Command 객체에 구현해야 할 때 유용하다.
+
+{code}
+class LoginCommand {
+    def loginService
+
+	String username
+	String password
+	static constraints = {
+		username(validator: {
+			loginService.canLogin(username, password)
+		})
+	}
+}
+{code}
+
+이 예제의 Command 객체는 Spring의 @ApplicationContext@에서 이름으로 주입된 빈(bean)과 상호작용한다.
+

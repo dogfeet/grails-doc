@@ -1,0 +1,100 @@
+h4. Logging Basics
+
+Grails는 "Log4j":http://logging.apache.org/log4j/1.2/index.html 로그 시스템에 기반한 공통의 '설정 매커니즘'을 사용한다. @grails-app/conf@ 디렉토리에 있는 @Config.groovy@를 수정하여 로깅을 설정하고 @Config.groovy@파일 하나로 @development@, @test@, @production@의 각 환경에 맞게 로깅 구성을 따로 정할 수 있다. Grails는 @Config.groovy@파일을 처리해서 @web-app/WEB-INF/classes@ 디렉토리 안에 알맞은 @log4j.properties@ 파일을 생성한다.
+
+Grails의 일반적인 Log4j 설정은 다음과 같다:
+
+{code:java}
+log4j {
+    appender.stdout = "org.apache.log4j.ConsoleAppender"
+	appender.'stdout.layout'="org.apache.log4j.PatternLayout"
+    rootLogger="error,stdout"
+    logger {
+        grails="info,stdout"
+        org {
+            grails.spring="info,stdout"
+            codehaus.groovy.grails.web="info,stdout"
+            codehaus.groovy.grails.commons="info,stdout"
+            ...
+        }
+}
+}
+{code}
+
+표준 Log4j 프로퍼티 파일 스타일을 선호한다면 groovy 멀티라인 문자열을 사용할 수 있다:
+
+{code:java}
+log4j = '''
+log4j.appender.stdout=org.apache.log4j.ConsoleAppender
+log4j.appender.stdout.layout=org.apache.log4j.PatternLayout
+# ...remaining configuration
+'''{code}
+
+여기에 유용한 logger를 소개한다:
+
+* org.codehaus.groovy.grails.commons - 클래스 로딩과 같은 중요한 정보
+* org.codehaus.groovy.grails.web - Grails의 웹 요청 처리
+* org.codehaus.groovy.grails.web.mapping - URL 매핑 디버깅
+* org.codehaus.groovy.grails.plugins - 로그 플러그인의 행동
+* org.springframework - Spring이 하는 일
+* org.hibernate - Hibernate가 하는 일
+
+
+h4. Full stacktraces
+
+예외가 발생 했을 때 자바와 Groovy 내부에서부터 스택을 트레이스하면 심한 노이즈가 있을 수 있다. Grails는 보통 관련이 없는 것들을 걸러내고 중요하지 않은 Grails/Groovy 클래스 패키지만을 Trace하도록 제한한다. Grails는 보통 그러한 관련이 없는 것들을 필터링 해주고, 핵심 Grails/Groovy 클래스 패키지가 아닌 것으로 Trace를 제한하고 있다.
+
+예외가 발생하면, 전체 추적 내용은 항상 StackTrace 로거에 씌여진다. StackTrace는 @stacktrace.log@ 파일에 기록하지만 Congfig.groovy파일을 이용해서 원하는 곳에 기록하도록 할 수 있다. 예를 들어 만약에 표준 출력으로 전체 추적 내용을 기록하고 싶다면 다음과 같은 설정을:
+
+{code:java}
+StackTrace="error,errors"
+{code}
+
+다음과 같이 바꾼다:
+
+{code:java}
+StackTrace="error,stdout"
+{code}
+
+@grails.full.stacktrace@ VM 프로퍼티을 @true@로 설정을 해서 스택 트레이스 필터링을 끌 수 있다.
+
+{code:java}
+grails -Dgrails.full.stacktrace=true run-app
+{code}
+
+h4. Logging by Convention
+
+어플리케이션의 모든 아티펙트에는 @log@ 프로퍼티을 동적으로 추가할 수 있다. 아티펙트는 [도메인 클래스|guide:GORM], [컨트롤러|guide:controllers], 태그 라이브러리 등을 말한다. 이것의 사용법은 다음과 같다:
+
+{code:java}
+def foo = "bar"
+log.debug "The value of foo is $foo"
+{code}
+
+로그의 이름은 @grails.app.<아티펙트 타입>.ClassName@ 과 같은 관례에 따른다. 다음은 다양한 Grails 아티펙트에 로그를 설정하는 예이다:
+
+{code:java}
+# Set level for all application artefacts
+log4j.logger.grails.app="info, stdout"
+
+# Set for a specific controller
+log4j.logger.grails.app.controller.YourController="debug, stdout"
+
+# Set for a specific domain class
+log4j.logger.grails.app.domain.Book="debug, stdout"
+
+# Set for a specific taglib
+log4j.logger.grails.app.tagLib.FancyAjax="debug, stdout"
+
+# Set for all taglibs
+log4j.logger.grails.app.tagLib="info, stdout"
+{code}
+
+아티펙트들의 이름은 관례에 따른다. 다음은 일반적인 아티펙트들의 목록이다.
+
+* bootstrap - 부트스트랩 클래스들을 위한 아티펙트
+* dataSource - data source들을 위한 아티펙트
+* tagLib - 태그 라이브러리를 위한 아티펙트
+* service - 서비스 클래스들을 위한 아티펙트
+* controller - 컨트롤러들을 위한 아티펙트
+* domain - 도메인 요소들을 위한 아티펙트

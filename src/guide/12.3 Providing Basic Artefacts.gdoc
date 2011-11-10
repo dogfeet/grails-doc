@@ -1,0 +1,32 @@
+h4. Adding a new Script(새로운 스크립트를 추가)
+
+플러그인의 스크립트 디렉토리에서 적절한 Gant 스크립트를 제공함으로써 간단히 새로운 스크립트를 추가할 수 있다.
+
+
+{code:java}
++ MyPlugin.groovy
+   + scripts     <-- 여기에 스크립트를 추가함
+   + grails-app
+        + controllers
+        + services
+        + etc.
+    + lib
+{code}
+
+h4. Adding a new Controller, Tag Library or Service(새로운 컨트롤러, 태그라이브러리, 서비스 추가하기)
+
+플러그인은 grails-app 트리안에 적절한 파일을 생성함으로써 새로운 컨트롤러, 태그라이브러리, 서비스를 추가할 수 있다. 플러그인이 설치되면 플러그인이 설치된 디렉토리에서 로드가 되고 메인 프로그램의 트리로 복사되지는 않는다.
+
+
+it will be loaded from where it is installed and not copied into the main application tree.
+
+{code:java}
++ ExamplePlugin.groovy
+   + scripts
+   + grails-app
+        + controllers  <-- 여기에 컨트롤러가 추가
+        + services <-- 여기에 서비스가 추가
+        + etc.  <-- 여기에 다른것들이 추가
+    + lib
+{code}
+

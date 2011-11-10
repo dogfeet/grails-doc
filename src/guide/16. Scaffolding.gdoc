@@ -1,0 +1,133 @@
+스케폴드는 주어진 도메인 클래스에 대해서 어플리케이션을 자동으로 생성해준다. 생성하는 내용은 다음과 같다:
+
+* 필요한 [View|guide:GSP]들
+* create/read/update/delete (CRUD)에 필요한 컨트롤러의 액션들
+
+h4. 스케폴드 기능 활성화
+
+scaffold 속성을 통해 스케폴드를 하도록 설정하하여 쉽게 스케폴드를 시작할 수 있다. @Book@도메인 클래스라면, 컨트롤러에서 @scaffold@ 속성을 true로 설정한다.
+
+{code:java}
+class BookController {
+   def scaffold = true
+}
+{code}
+
+@BookControoler@는 @Book@이라는 도메인 클래스의 동일한 이름짓기 관례를 따르고 있기 때문에 위의 코드는 동작한다. 관례를 따르는 것이 아니라 따로 지정된 도메인 클래스를 스케폴드하려면 다음과 같이 scaffold의 프로퍼티를 도메인 클래스에 직접 연결할 수 있다.
+
+{code:java}
+def scaffold = Author
+{code}
+
+이렇게 하고 실행을하면 Grails 어플리케이션은 자동으로 실행하는 시점에 필요한 액션과 뷰를 자동으로 생성한다. CRUD 인터페이스 뿐만 아니라 다음과 같은 액션들이 스케폴드 메커니즘을통해 기본적으로 동적으로 구현된다.
+
+* list
+* show
+* edit
+* delete
+* create
+* save
+* update
+
+위 예제의 인터페이스를 사용해 보려면 간단히 @http://localhost:8080/app/book@ 사이트를 열어본다.
+
+자바로 작성된 도메인 모델을 여전히 [하이버네이트와 매핑|guide:hibernate]시킨다고해도 여전히 스케폴딩을 할 수 있다. 간단히 필요한 클래스를 불러들여 스케폴드 프로퍼티를 설정해주면 된다.
+
+h4. 동적 스케폴드
+
+스케폴드 프로퍼티를 사용할때 생각해볼 점은 Grails는 코드템플릿이나 스케폴드만을 위한 코드생성을 하지 않는다. 따라서 사용자가 액션을 컨트롤러에 추가하여 스케폴드된 액션과 함께 사용할 수 있다. 예를 들어 아래의 예제를 보면 @changeAuthor@는 실제적으로 존재하지 않는 @show@ 액션으로 리다이렉트한다.
+
+{code:java}
+class BookController {
+   def scaffold = Book
+
+   def changeAuthor = {
+        def b = Book.get( params["id"] )
+        b.author = Author.get( params["author.id"] )
+        b.save()
+
+        // redirect to a scaffolded action
+        redirect(action:show)
+   }
+}
+{code}
+
+필요하다면 스케폴드 액션을 사용자가 정의한 오버라이드할 수 있다:
+
+{code:java}
+class BookController {
+   def scaffold = Book
+
+   // overrides scaffolded action to return both authors and books
+   def list = {
+         [ "books" : Book.list(), "authors": Author.list() ]
+   }
+}
+{code}
+
+이 모든것이 실행시에 동적으로 CRUD 인터페이스가 생성되는 “동적 스케폴딩”이라고 알려진 것이다. Grails는 이 밖에도 다음에 이어지는 절에서 다루는 “static” 스케폴딩을 지원한다.
+
+h4. 생성된 뷰를 사용자 정의하기
+
+Grails가 생성하는 뷰는 [유효성 제약|guide:constraints]들에 적용하는면에 있어서 어떤 지능적인 형태를 가진다. 예를 들어 간단히 빌드시 제약조건의 순서를 변경함으로써 뷰에서 필드가 나타나는 순서를 간단히 변경할 수 있다:
+
+{code:java}
+def constraints = {
+      title()
+      releaseDate()
+}
+{code}
+
+또한 @inList@ 제약조건을 사용한다면 텍스트 입력 대신에 리스트를 생성하는 생성자를 얻을 수 있다.
+
+{code:java}
+def constraints = {
+      title()
+      category(inList:["Fiction", "Non-fiction", "Biography"])
+      releaseDate()
+}
+{code}
+
+숫자의 경우는 @range@ 제약조건을 사용할 수 있다:
+
+{code:java}
+def constraints = {
+        age(range:18..65)
+}
+{code}
+
+제약조건을 통해 길이에 제한을 거는 것은 생성된 뷰에서 입력할 수 있는 문자열의 길이도 제한한다:
+
+{code:java}
+def constraints = {
+        name(size:0..30)
+}
+{code}
+
+h4. 컨트롤러와 뷰를 생성하기
+
+위에서 살펴본 스케폴드 기능은 매우 유용하지만 실제 상황에서는 로직이나 뷰를 사용가 정의해야 할 것이다. Grails는 명령줄을 통해서 위의 컨트롤러와 뷰에서 사용되는 인터페이스를 생성하는데 쓸 수 있다. 다음과 같이 컨트롤러 타입을 생성할 수 있다:
+
+{code:java}
+grails generate-controller Book
+{code}
+
+뷰 타입도 생성할 수 있다:
+
+{code:java}
+grails generate-views Book
+{code}
+
+이 모든것을 한꺼번에 생성할 수도 있다:
+
+{code:java}
+grails generate-all Book
+{code}
+
+패키지를 사용하여 도메인 클래스를 생성하거나 [하이버네이트로 매핑된 클래스|guide:hibernate]로부터 생성을 한다면 패키지네임을 완전하게 입력하는것을 기억해야 한다.
+
+{code:java}
+grails generate-all com.bookstore.Book
+{code}
+
+

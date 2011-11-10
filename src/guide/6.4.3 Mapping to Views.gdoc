@@ -1,0 +1,15 @@
+URL을 컨트롤러나 액션 없이 뷰에 매핑하고 싶다면 그렇게 할 수 있다. 예를 들어 루트 URL ”/“를 grails-app/views/index.gsp에 바로 매핑하고 싶다면 다음과 같이 할 수 있다:
+
+{code:java}
+static mappings = {
+      "/"(view:"/index")  // // 루트 URL이 매핑된다.
+}
+{code}
+
+뷰뿐만 아니라 컨트롤러도 명시하고 싶다면 다음과 같이 할 수 있다:
+
+{code:java}
+static mappings = {
+   "/help"(controller:"site",view:"help") // to a view for a controller
+}
+{code}

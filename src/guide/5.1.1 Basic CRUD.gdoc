@@ -1,0 +1,43 @@
+기본적인 CRUD(Create/Read/Update/Delete) 명령을 사용해 보자.
+
+h4. Create
+
+Groovy의 new 연산자를 사용하여 도메인 클래스를 생성하고 프로퍼티 값을 입력하고 [save|domainClasses] 메소드를를 호출한다:
+
+{code}
+def p = new Person(name:"Fred", age:40, lastVisit:new Date())
+p.save()
+{code}
+
+[save|domainClasses] 메소드는 Hibernate을 이용하여 도메인 클래스를 영속화한다.
+
+h4. Read
+
+Grails는 내부적으로 도메인 클래스에 @id@ 프로퍼티를 추가한다.
+
+{code}
+def p = Person.get(1)
+assert 1 == p.id
+{code}
+
+이 예에서는 [get|domainClasses] 메소드를 이용하여 데이터베이스에서 Person 객체를 읽는다.
+
+h4. Update
+
+특정 인스턴스의 정보를 업데이트하기 위해서 필요한 프로퍼티들을 변경하고 단순하게 다시 [save|domainClasses] 메소드를 호출하면 된다:
+
+{code}
+def p = Person.get(1)
+p.name = "Bob"
+p.save()
+{code}
+
+h4. Delete
+
+[delete|domainClasses] 메소드로 인스턴스를 삭제한다:
+
+{code}
+def p = Person.get(1)
+p.delete()
+{code}
+

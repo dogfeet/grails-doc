@@ -1,0 +1,41 @@
+Grails는 자바로 만들어졌기 때문에 data source를 설정하려면 JDBC에 대한 약간의 지식이 필요하다(자바 데이터베이스 접속과는 관계없는 지식).
+
+만약 HSQLDB외에 다른 DB를 사용하고 싶다면, 필수적으로 JDBC드라이버가 필요하다. MySQL을 예로 들자면 "Connector/J":http://www.mysql.com/products/connector/j/ 가 필요하다.
+
+드라이버는 일반적으로 JAR 아카이브 형대로 배포된다. JAR파일을 프로젝트의 lib 디렉토리에 넣어라.
+
+일단 @grails-app/conf/DataSource.groovy@ 에 있는 DataSource descriptor파일에 JAR에 대한 정보가 있어야 한다. 그 파일은 다음과 같은 정보들은 DataSource에 대한 정의를 담고 있다.
+
+* driverClassName - JDBC 드라이버의 클래스 이름
+* username - JDBC 연결하는데에 사용될 사용자 이름
+* password - JDBC 연결하는데에 사용될 비밀번호
+* url - 데이터베이스의 JDBC URL
+* dbCreate - 도메인 모델의 데이터베이스를 자동으로 생성할지 안할지 결정하는 플래그
+* pooled - 컨넥션의 풀을 사용할것인가를 결정하는 플래그(기본은 true)
+* logSql - SQL 로깅여부를 결정
+* dialect - Hibernate의 표현식(dialect)으로 표현되는 문자열이나 클래스는 데이터베이스를 통해서 통신한다. Hibernate의 문법을 사용하려면, [org.hibernate.dialect|http://www.hibernate.org/hib_docs/v3/api/org/hibernate/dialect/package-summary.html]t 패키지를 참고하라.
+
+MySQL에 대한 일반적인 설정은 아마도 다음과 같을 것이다.
+
+{code:java}
+dataSource {
+	pooled = true
+	dbCreate = "update"
+	url = "jdbc:mysql://localhost/yourDB"
+	driverClassName = "com.mysql.jdbc.Driver"
+	username = "yourUser"
+	password = "yourPassword"	
+}
+{code}
+
+{warning}
+DataSource를 설정할 때에는 타입이나 def 키워드를 사용하지 않는다. 왜냐하면 Groovy는 그러한 문법들을 지역변수를 정의한 것으로 보고 처리하지 않을 것이기 때문이다. 예를 들어 다음과 같은 경우는 잘못된 것이다.
+{warning}
+
+{code:java}
+dataSource {
+	boolean pooled = true // type declaration results in local variable
+	...
+}
+{code}
+

@@ -1,0 +1,28 @@
+이 것은 굉장하지만 보통 무슨 일이 일어났는지에 대한 피드백을 사용자에게 주는 것이 필요하다:
+
+{code:java}
+def delete = {
+      def b = Book.get( params.id )
+      b.delete()
+      render "Book ${b.id} was deleted"
+}
+{code}
+
+GSP 코드:
+
+{code:xml}
+<div id="message"></div>
+<g:remoteLink action="delete" id="1" update="message">Delete Book</g:remoteLink>
+{code}
+
+이 예제는 액션을 호출하고 “Book 1 was deleted”라는 응답을 message div 태그의 내용으로 설정할 것이다. 이 것은 태그의 update 속성이 해주는 일이고 실패했을 때 업데이트돼야 하는 것도 명시할 수 있다:
+
+
+{code:xml}
+<div id="message"></div>
+<div id="error"></div>
+<g:remoteLink action="delete" id="1"
+              update="[success:'message',failure:'error']">Delete Book</g:remoteLink>
+{code}
+
+이 예제의 error div는 요청이 실패하면 업데이트된다.

@@ -1,0 +1,17 @@
+Grails는 "설정보다 관례"를 사용한다. 이 것은 이름과 파일의 위치를 명시적으로 설정하는 하지 않고 Grails가 제공하는 디렉토리 구조에 익숙해져야 하는 것을 의미한다.
+
+여기에 Grails의 상세 내역과 관련된 링크가 있다.
+
+* @grails-app@ - 그루비 소스코드의 최상위 레벨의 디렉토리
+** @conf@ - [설정 소스|guide:3. Configuration]. 
+** @controllers@ - MVC에서 C인 [웹 컨트롤러|guide:6.1 Controllers]
+** @domain@ - The [어플리케이션의 도메인|guide:5. Object Relational Mapping (GORM)].     
+** @i18n@ - [국제화 (i18n)|guide:10. Internationalization] 를 위한 지원. 
+** @services@ - [서비스 계층|guide:8. The Service Layer].
+** @taglib@ - [태그 라이브러리|guide:6.3 Tag Libraries]. 
+** @views@ - [Groovy 서버 페이지|guide:6.2 Groovy Server Pages]. 
+* @scripts@ - [Gant 스크립트|guide:4. The Command Line].
+* @src@ - 지원 소스 코드
+** @groovy@ - 기타 Groovy 소스
+** @java@ - 기타 Java 소스
+* @test@  - [단위/통합 테스트|guide:9. Testing]. 

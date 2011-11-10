@@ -1,0 +1,46 @@
+매력적인 JSP의 유산들을 다루었다. 이제부터는 GSP 페이지를 편리하게 만들 수 있는 GSP의 빌트인 태그들을 다룬다.
+
+{note}
+태그 라이브러리([Tag Libraries|guide:taglibs])절에서는 테그 라이브러리를 만드는 방법에 대해서 다룬다.
+{note}
+
+빌트인 GSP 태그들은 @g:@로 시작한다. JSP와는 다르게 어떤 태그 라이브러리를 사용할 것인지를 명시해야 한다. 만약 태그가 @g:@로 시작한다면 GSP 태그로 간주한다. GSP를 사용한 예제를 보자:
+
+{code:xml}
+<g:example />
+{code}
+
+GSP 태그는 다음과 같이 바디를 가질 수 있다:
+
+{code:xml}
+<g:example>
+   Hello world
+</g:example>
+{code}
+
+GSP 표현식은 GSP 태그 속성에도 사용할 수 있다. 만약 표현식이 아니라 다른 것이 사용된다면 문자열이라고 간주한다:
+
+{code:xml}
+<g:example attr="${new Date()}">
+   Hello world
+</g:example>
+{code}
+
+맵도 GSP 태그 속성에 사용될 수 있고 네임드 파라미터 형식으로 자주 사용된다:
+
+{code:xml}
+<g:example attr="${new Date()}" attr2="[one:1, two:2, three:3]">
+   Hello world
+</g:example>
+{code}
+
+속성의 값들로 문자열을 정의할 때 작은 따옴표를 사용한다:
+
+{code:xml}
+<g:example attr="${new Date()}" attr2="[one:'one', two:'two']">
+   Hello world
+</g:example>
+{code}
+
+기본 문법은 이제 끝났다. 다음 절에서는 빌트인 태그들을 살펴볼 것이다.
+

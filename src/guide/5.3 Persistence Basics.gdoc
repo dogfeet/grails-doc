@@ -1,0 +1,3 @@
+Grails에서 잊지 말아야 할 것이 있는데 Grails는 내부적으로 "Hibernate":http://www.hibernate.org/ 을 사용하여 영속성을 구현했다. "ActiveRecord":http://wiki.rubyonrails.org/rails/pages/ActiveRecord 나 "iBatis":http://ibatis.apache.org/ 를 사용한적이 있다면 Hibernate의 "세션 모델"이 조금 어색할 수 있다.
+
+Grails는 자동으로 현재 실행하는 요청을 Hibernate 세션에 바인드(bind)시킨다. 이 것은 우리가 [save|domainClasses], [delete|domainClasses] 등의 GORM 메소드를 투명하게 사용할 수 있게 해준다.

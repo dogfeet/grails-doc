@@ -1,0 +1,41 @@
+h4. Displaying Errors(에러 출력하기)
+
+보통 유효성 검사 에러가 발생하면 그 뷰를 다시 보여줘야 할 것이고 에러를 출력할 어떤 방법이 필요하다. Grails에는 에러를 처리하는 태그들이 많이 있다. [renderErrors|tags]를 사용하여 단순히 에러의 목록을 출력할 수 있다:
+
+{code:xml}
+<g:renderErrors bean="${user}" />
+{code}
+
+[hasErrors|tags]와 [eachError|tags]를 사용하여 상세하게 제어할 수도 있다:
+
+{code:xml}
+<g:hasErrors bean="${user}">
+  <ul>
+   <g:eachError var="err" bean="${user}">
+       <li>${err}</li> 
+   </g:eachError>
+  </ul>
+</g:hasErrors>
+{code}
+
+h4. Highlighting Errors(에러 꾸미기)
+
+잘못된 값이 입력되면 붉은 박스나 어떤 지시자를 사용하여 꾸미는 것이 매우 유용하다. 이 것은 [hasErrors|tags]를 메소드처럼 호출하여 처리한다:
+
+{code:xml}
+<div class='value ${hasErrors(bean:user,field:'login','errors')}'>
+   <input type="text" name="login" value="${fieldValue(bean:user,field:'login')}"/>
+</div>
+{code}
+
+이 코드가 하는 일은 user Bean과 관련된 login 필드에 에러가 있는지 검사하고 에러가 있으면 div 태그의 class 속성에 “errors”를 추가한다. 그래서 CSS 규칙을 정의하여 div 태그를 꾸밀 수 있다.
+
+h4. Retrieving Input Values(입력 값 가져오기)
+
+각각의 에러는 실질적으로 Spring의 [FieldError|api:org.springframework.validation.FieldError] 클래스의 인스턴스이다. 이 인스턴스에는 원래 값이 저장돼 있다. 이 것은 [fieldValue|tags] 태그를 통해서 사용자가 입력 값을 고칠 수 있도록 에러 값을 재사용할 수 있다.
+
+{code:xml}
+<input type="text" name="login" value="${fieldValue(bean:user,field:'login')}"/>
+{code}
+
+이 코드는 user Bean에 FieldError가 있는지 확인하고 만약 존재하면 login 필드에 입력된 값을 다시 넣는다.

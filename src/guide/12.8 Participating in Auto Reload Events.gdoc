@@ -1,0 +1,60 @@
+h4. Monitoring Resources for Changes(리소스 변화를 지켜보기)
+
+종종 리소스의 변화를 살펴보고 그 변화가 일어났을때 다시 불러들이는 것은 그럴만한 가치가 있다. 이것은 실행시에 Grails가 Application의 상태의 진보적인 재로딩 어떻게 구현하는가 이다. 예를 들어 Grails에서 사용하는 ServicePlugin로 부터의 아래의 간략화 한 코드를 살펴보자:
+
+{code:java}
+class ServicesGrailsPlugin {
+    ...
+    def watchedResources = "file:./grails-app/services/*Service.groovy"
+
+    ...
+  def onChange = { event ->
+    if(event.source) {
+      def serviceClass = application.addServiceClass(event.source)
+      def serviceName = "${serviceClass.propertyName}"
+      def beans = beans {
+           "$serviceName"(serviceClass.getClazz()) { bean ->
+               bean.autowire =  true
+      }
+            }
+      if(event.ctx) {
+        event.ctx.registerBeanDefinition(serviceName,
+                                       beans.getBeanDefinition(serviceName))
+      }
+    }
+  }
+}
+{code}
+
+먼저 String이나 String 배열로 watchedResources 들을 정의한다. watchedResources 는 살펴볼 리소스에 대한 패턴이나 참조를 담고 있다. 살펴 보는 리소스가 Groovy 파일이고, 그 파일이 변경된다면 그 파일은 자동으로 재로드 되고 onChange 이벤트 객체의 클로져로 보내진다.
+
+event 객체는 몇 개의 유용한 프로퍼티를 정의한다.
+
+* event.source - 다시 읽어들인 클래스나 스프링 리소스의 이벤트의 소스
+* event.ctx - 스프링 ApplicationContext 인스턴스
+* event.plugin - 리소스를 관리하는 플러그인 객체 (대개 this이다)
+* event.application - GrailsApplication 인스턴스
+
+이런 객체들로부터 관례을 평가할 수 있고 ApplicationContext나 관례에 기반한 기타 등등에 적절한 변화를 적용시킬 수 있다. 위의 “Services” 예제에서 새로운 서비스 빈은 서비스 클래스들중 하나가 바뀌면 ApplicationContext에 다시 등록된다.
+
+h4. Influencing Other Plugins(다른 플러그인에 영향 주기)
+
+플러그인에서 변화가 일어날 때 일어나는 변화에 대응하는것 뿐만 아니라 종종 한 플러그인은 다른 플러그인에 영향을 줄 필요가 있다.
+
+서비스와 컨트롤러 플러그인의 예를 들어보자. 서비스가 다시 로드되면, 컨트롤러 또한 다시 로드되지 않는 한 문제가 발생한다. 그 문제는 다시 로드된 서비스를 예전의 컨트롤러 클래스에 자동으로 연결하려고 할 때 발생한다.
+
+이를 해결하기 위해 어느 플러그인이 다른 플러그인에 영향을 주는지 지정할 수 있다. 이것이 의미하는 것은 한 플러그인이 변화를 감지했을때 자신은 재로딩 될 것이고 그 후에 모든 영향을 주는 플러그인을 재로딩 할 것이다. 이 점을 ServicesGrailsPlugin의 부분을 통해 볼 수 있다.
+
+{code:java}
+def influences = ['controllers']
+{code}
+
+h4. Observing other plugins(다른 플러그인을 관찰하기)
+
+변화를 관찰하고자 하는 어떤 특정한 플러그인이 있다면 “observe” 프로퍼티를 사용할 수 있다. 지켜보고자 하는 플러그인이 모니터링하는 리소스의 변화를 지켜보는것이 아니라 플러그인의 변화 자체만을 관찰하는 것이다:
+
+{code:java}
+def observe = ["hibernate"]
+{code}
+
+이 경우에 Hibernate 도메인 클래스가 변화될 때 hibernate 플러그인으로부터 연결된 이벤트를 받을 것이다.

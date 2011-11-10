@@ -1,0 +1,61 @@
+Grails는 스크립트 이벤트를 가로채는 방법을 제공한다. Grails의 타겟과 플러그인 스크립트가 실행되는 동안 이벤트가 발생한다.
+
+이 매커니즘은 꽤 단순하고 유연하게loosely 기술된다. 가로챌 이벤트의 목록은 정해진 것이 아니다. 중요한 타겟target 스크립트에는 동일한 이벤트가 없기 때문에 플러그인 스트립트가 발생시킨 이벤트들을 가로챌 수 있다.
+
+h4. Defining event handlers(이벤트 핸들러 정의하기)
+
+이벤트 핸들러는 플러그인의 scripts/ 폴더나 USER_HOME 디렉토리의 .grails/scripts/ 폴더에 있는 Events.groovy라는 스크립트에 정의한다. 모든 이벤트 스크립트는 이벤트가 발생할 때마다 호출된다. 그래서 이벤트를 처리하는 플러그인을 10개를 만들 수도 있고 사용자마다 다르게 할 수도 있다.
+
+{code}
+eventCreatedArtefact = { type, name ->
+   println "Created $type $name"
+}
+
+eventStatusUpdate = { msg ->
+   println msg
+}
+
+eventStatusFinal = { msg ->
+   println msg
+}
+{code}
+
+You can see here the three handlers @eventCreatedArtefact@, @eventStatusUpdate@, @eventStatusFinal@. Grails provides some standard events, which are documented in the command line reference guide. For example the [compile|commandLine] command fires the following events:
+
+* @CompileStart@  - Called when compilation starts, passing the kind of compile - source or tests
+* @CompileEnd@ - Called when compilation is finished, passing the kind of compile - source or tests
+
+h4. Triggering events
+
+To trigger an event simply include the Init.groovy script and call the event() closure:
+
+{code}
+Ant.property(environment:"env")
+grailsHome = Ant.antProject.properties."env.GRAILS_HOME"
+includeTargets << new File ( "${grailsHome}/scripts/Init.groovy" )
+
+
+event("StatusFinal", ["Super duper plugin action complete!"])
+{code}
+
+h4. Common Events
+
+Below is a table of some of the common events that can be leveraged:
+
+{table}
+Event | Parameters | Description 
+ StatusUpdate | message | Passed a string indicating current script status/progress 
+ StatusError | message | Passed a string indicating an error message from the current script 
+ StatusFinal | message | Passed a string indicating the final script status message, i.e. when completing a target, even if the target does not exit the scripting environment 
+ CreatedArtefact | artefactType,artefactName | Called when a create-xxxx script has completed and created an artefact 
+ CreatedFile | fileName | Called whenever a project source filed is created, not including files constantly managed by Grails 
+ Exiting | returnCode | Called when the scripting environment is about to exit cleanly 
+ PluginInstalled | pluginName | Called after a plugin has been installed
+ CompileStart | kind | Called when compilation starts, passing the kind of compile - source or tests 
+ CompileEnd | kind | Called when compilation is finished, passing the kind of compile - source or tests 
+ DocStart | kind | Called when documentation generation is about to start - javadoc or groovydoc
+ DocEnd | kind | Called when documentation generation has ended - javadoc or groovydoc
+ SetClasspath | rootLoader | Called during classpath initialization so plugins can augment the classpath with rootLoader.addURL(...). Note that this augments the classpath *after* event scripts are loaded so you cannot use this to load a class that your event script needs to import, although you can do this if you load the class by name. 
+ PackagingEnd | none | Called at the end of packaging (which is called prior to the Jetty server being started and after web.xml is generated)
+ ConfigureJetty | Jetty Server object | Called after initial configuration of the Jetty web server.
+{table}

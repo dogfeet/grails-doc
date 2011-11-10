@@ -1,0 +1,12 @@
+많은 Java EE 컨테이너는 보통 JNDI("Java Naming and Directory Interface":http://java.sun.com/products/jndi/ )의 DataSource 인스턴스를 제공한다. 그래서 DataSource를 통해서 JNDI를 사용해야 할 때도 있다.
+
+아래와 같이 JNDI data source를 정의할 수 있다.
+
+{code:java}
+dataSource {
+    jndiName = "java:comp/env/myDataSource"
+}
+{code}
+
+JNDI 이름의 형태는 컨테이너 마다 다를지도 모르지만, DataSource를 정의하는 방법은 똑같다.
+

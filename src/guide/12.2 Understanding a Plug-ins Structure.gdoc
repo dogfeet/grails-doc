@@ -1,0 +1,35 @@
+위에서 언급한대로 플러그인은 플러그인 디스크립터를 포함하는 일반적인 Grails 어플리케이션이다. 하지만 플러그인이 설치되면 그 구조는 약간 달라지게 된다. 예를 들어 다음과 같은 플러그인 구조를 살펴보자.
+
+{code:java}
++ grails-app
+     + controllers
+     + domain
+     + taglib
+     etc.
+ + lib
+ + src
+     + java
+     + groovy
+ + web-app
+     + js
+     + css{code}
+
+기본적으로 플러그인이 프로젝트에 설치가되면 grails-app디렉토리의 내용들은 plugins/example-1.0/grails-app 디렉토리로 이동된다. 메인 소스의 디렉토리로 복사가 되는것이 아니다. 플러그인은 프로젝트의 주요 소스 트리를 절대 건드리지 않는다.
+
+하지만 web-app디렉토리 안의 내용 같은 static 리소스는 프로젝트의 web-app디렉토리 안의 특정 디렉토리로 복사될것이다. 예를 들어 web-app/plugins/example-1.0/js 처럼 말이다.
+
+그러므로 플러그인이 제대로된 위치에서 static 리소스를 불러오도록 하는것은 플러그인의 책임이다. 예를 들어 GSP에서 자바스크립트 소스를 불러오려면 다음과 같이 사용할 수 있다:
+
+{code:xml}
+<g:createLinkTo dir="/plugins/example/js" file="mycode.js" />{code}
+
+하지만 이것은 개발하는 과정에서 플러그인이 설치되었을때와 플러그인 자체를 실행할때 다른 주소를 가지는 문제를 일으킬 수 있다.
+
+이 문제를 쉽게처리하기 위해서 pluginContextPath라는 특별한 변수를 사용하는데, 이것은 플러그인이 자체로 동작하거나 어플리케이션에서 실행되거나에 따라 경로를 자동으로 변경해준다:
+
+{code:xml}
+<g:createLinkTo dir="${pluginContextPath}/js" file="mycode.js" />{code}
+
+실행시에 pluginContextPath 변수는 플러그인만 실행된 것인지 또는 어플리케이션에 설치되었는지에 따라 / 또는 /plugins/example의 값을 갖게 될 것이다.
+
+플러그인이 lib나 src/java나 src/groovy 디렉토리에서 제공하는 자바와 Groovy 코드는 컴파일되어 메인프로젝트의 web-app/WEB-INF/classes 디렉토리에 위치하여 실행시에 사용가능하게 될 것이다.

@@ -1,0 +1,321 @@
+Spring은 매우 강력하지만 XML 기반 문법은 번거롭고 다양한 수준에서 최근에 Spring 2.0에서 추가된 것들 조차 DRY를 위반한다. Grails의 BeanBuider는 Spring과 그 Core를 사용하여 의존성을 서로 연결하는 간단한 방법을 제공하는 것을 목표로 하고 있다.
+
+더불어 Spring의 (XML을 통해) 설정하는 방식은 반드시 정적으로 해야 하고, 런타임에 수정하고 설정하기 매우 힘들 뿐 아니라, 프로그램으로 XML을 생성하는 것보다 자주 오류를 발생시키고 틀리기 쉽다. Grails [BeanBuilder|api:grails.spring.BeanBuilder]는 런타임에 컴포넌트들을 서로 함께 프로그램적으로 연결하는것을 가능하게 함으로써 모든 것을 바꾼다. 그래서 시스템 프로퍼티나 환경 변수에 따라 로직을 적응할 수 있도록 할 수 있다.
+
+이것은 코드가 자신이 속한 환경에 적응할 수 있도록 하며 불필요한 코드의 중복(테스트, 개발, 실제품환경에 대한 서로다른 Spring 설정을 갖는것)을 줄여준다.
+
+h4. The BeanBuilder class(BeanBuilder 클래스)
+
+Grails는 [grails.spring.BeanBuilder|api:grails.spring.BeanBuilder] 클래스를 제공하며 Bean 정의들을 만들기위해 동적 Groovy를 사용한다. 기본 코드는 다음과 같다:
+
+{code:java}
+import org.apache.commons.dbcp.BasicDataSource
+import org.codehaus.groovy.grails.orm.hibernate.ConfigurableLocalSessionFactoryBean;
+import org.springframework.context.ApplicationContext;
+
+def bb = new grails.spring.BeanBuilder()
+
+bb.beans {
+	dataSource(BasicDataSource) {
+		driverClassName = "org.hsqldb.jdbcDriver"
+		url = "jdbc:hsqldb:mem:grailsDB"
+		username = "sa"
+		password = ""
+	}
+        sessionFactory(ConfigurableLocalSessionFactoryBean) {
+              dataSource = dataSource
+              hibernateProperties = [ "hibernate.hbm2ddl.auto":"create-drop",
+                                      "hibernate.show_sql":true  ]
+        }
+
+}
+
+ApplicationContext appContext = bb.createApplicationContext()
+{code}
+
+{note}
+plug-ins나 [grails-app/conf/spring/resources.groovy|guide:14.2 Configuring Additional Beans] 파일에서 새로운 BeanBuider 인스턴스를 새로 만들 필요는 없다. 그 대신 DSL은 묵시적으로 doWithSpring 안에서나 각 beans block에서 사용가능하다.
+{note}
+
+위의 예제는 BeanBuider 클래스를 이용하여 어떻게 Hibernate를 적절한 dataSource와 설정을 할 수 있는지를 보여준다.
+
+각 메소드 호출(이번 경우는 dataSource나 sessionFactory의 호출)은 필히 Spring에서 Bean의 이름에 매핑된다. 메소드에 대한 첫 번째 인자는 Bean의 클래스이며 마지막 인자는 코드 블럭이다. 블럭의 본체에서 표준 Groovy 문법을 이용하여 Bean의 프로퍼티를 정할 수 있다.
+
+Bean 참조문제는 Bean의 이름을 이용하여 자동적으로 풀어간다. 이것은 위의 예제에서 sessionFactory Bean이 dataSource 참조를 풀어가는 방식을 통해살펴 볼 수 있다.
+
+Bean 관리에 관계된 일정한 특정 프로퍼티는 아래의 코드에서 볼 수 있듯이 빌더에의해 정해질 수 있다:
+
+{code:java}
+sessionFactory(ConfigurableLocalSessionFactoryBean) { bean ->
+    bean.autowire = 'byName'       // Autowiring behaviour. The other option is 'byType'. [autowire]
+    bean.initMethod = 'init'       // Sets the initialisation method to 'init'. [init-method]
+    bean.destroyMethod = 'destroy' // Sets the destruction method to 'destroy'. [destroy-method]
+    dataSource = dataSource
+    hibernateProperties = [ "hibernate.hbm2ddl.auto":"create-drop",
+                            "hibernate.show_sql":true  ]
+}
+{code}
+
+'[', ']' 안의 문자열은 Spring의 XML 정의 안에서의 Bean 속성(Attribute)과 동일한 이름들이다.
+
+h4. Using Constructor Arguments(생성자 인자 사용)
+
+생성자의 인자는 각 메소드의 파라미터를 통해서 정의할 수 있고 Bean의 클래스와 마지막 클로져 사이에 위치한다:
+
+{code:java}
+bb.beans {
+   exampleBean(MyExampleBean, "firstArgument", 2) {
+       someProperty = [1,2,3]
+   }
+}
+{code}
+
+h4. Configuring the BeanDefinition (Using factory methods) (BeanDefinition을 설정(팩토리 메소드 사용하여))
+
+클로져의 첫 번째 인자는 Bean 설정 인스턴스의 한 참조이며 팩토리 메소드를 통해 설정하곤 하고 [AbstractBeanDefinition|api:org.springframework.beans.factory.support.AbstractBeanDefinition] 클래스상에서는 어떤 메소드도 실행할 수 있다:
+
+{code:java}
+bb.beans {
+   exampleBean(MyExampleBean) { bean ->
+       bean.factoryMethod = "getInstance"
+       bean.singleton = false
+       someProperty = [1,2,3]
+   }
+}
+{code}
+
+다른 대안으로서 Bean을 설정하기 위해 정의하는 메소드의 리턴 값을 이용할 수도 있다:
+
+{code:java}
+bb.beans {
+   def example = exampleBean(MyExampleBean) {
+       someProperty = [1,2,3]
+   }
+   example.factoryMethod = "getInstance"
+}
+{code}
+
+h4. Using Factory beans(Factory Bean을 이용)
+
+Spring은 Factory Bean이라는 개념을 정의한다. 그리고 종종 Bean은 클래스로부터 만들어지지 않고 이런 Factory들로부터 만들어진다. 이런 경우 Bean은 어떠한 클래스도 가지지 않으며 대신 Bean으로 Factory Bean의 이름을 넘겨줘야 한다:
+
+{code:java}
+bb.beans {
+   myFactory(ExampleFactoryBean) {
+       someProperty = [1,2,3]
+   }
+   myBean(myFactory) {
+        name = "blah"
+   }
+}
+{code}
+
+이 예제를 살펴보면 클래스 대신 myFactory Bean에 대한 참조를 메소드를 정의하는 Bean으로 넘긴다. 또 다른 것은 Factory Bean에서 호출되도록 Factory 메소드의 이름을 제공하는 것이다. 이것은 Groovy의 네임드 파라미터 문법을 이용하여 한다:
+
+{code:java}
+bb.beans {
+   myFactory(ExampleFactoryBean) {
+       someProperty = [1,2,3]
+   }
+   myBean(myFactory:"getInstance") {
+        name = "blah"
+   }
+}
+{code}
+
+myBean을 만들기 위해 ExampleFactoryBean의 getInstance메소드를 호출한다.
+
+h4. Creating Bean References at Runtime(런타임에 Bean 참조를 만들기)
+
+때때로 런타임에나 만들어야 할 Bean의 이름을 알게 될 수도 있다. 이런 경우 동적으로 Bean이 정의하는 메소드를 실행하려면 문자열 interpolation을 사용할 수 있다:
+
+{code:java}
+def beanName = "example"
+bb.beans {
+   "${beanName}Bean"(MyExampleBean) {
+       someProperty = [1,2,3]
+   }
+}
+{code}
+
+이 경우 앞에서 정의된 beanName 변수를 이용하여 Bean 정의 메소드를 실행할 때 사용한다.
+
+게다가 Bean의 이름을 런타임까지 알 수 없기 때문에 다른 Bean들과 함께 사용하려면 그것들을 참조할 필요가 있다. 이럴 경우 ref 메소드를 사용한다:
+
+{code:java}
+def beanName = "example"
+bb.beans {
+   "${beanName}Bean"(MyExampleBean) {
+       someProperty = [1,2,3]
+   }
+   anotherBean(AnotherBean) {
+       example = ref("${beanName}Bean")
+   }
+}
+{code}
+
+
+AnotherBean의 example 프로퍼티는 exampleBean에 대한 런타임 참조를 사용해 정해진다. ref 메소드는 또한 BeanBuider의 생성자에서 제공된 부모 ApplicationContext로부터의 Bean들을 참조하기 위해서도 사용한다:
+
+{code:java}
+ApplicationContext parent = ...//
+der bb = new BeanBuilder(parent)
+bb.beans {
+   anotherBean(AnotherBean) {
+       example = ref("${beanName}Bean", true)
+   }
+}
+{code}
+
+두번째 파라미터 true는 참조가 parent context에서 Bean을 찾도록 지정한다.
+
+h4. Using Anonymous (Inner) Beans(익명(내부) Bean 이용)
+
+Bean의 한 프로퍼티를 Bean 타입으로 인자를 받을 수 있는 코드로 설정해서 익명 내부 Bean을 이용할 수 있다:
+
+{code:java}
+bb.beans {
+  marge(Person.class) {
+      name = "marge"
+      husband =  { Person p ->
+ 	              name = "homer"
+		      age = 45
+                      props = [overweight:true, height:"1.8m"] }
+      children = [bart, lisa]
+  }
+  bart(Person) {
+      name = "Bart"
+      age = 11
+  }
+  lisa(Person) {
+      name = "Lisa"
+      age = 9
+  }
+}
+{code}
+
+위의 예제에서 marge Bean의 husband 프로퍼티를 내부 Bean 참조를 생성하는 코드로 정하였다. 또한 Factory Bean을 가지고 있다면 타입을 생략하고 Factory를 설정하는 대신에 넘겨받은 Bean 정의를 사용할 수 있다:
+
+{code:java}
+bb.beans {
+  personFactory(PersonFactory.class)
+  marge(Person.class) {
+      name = "marge"
+      husband =  { bean ->
+                     bean.factoryBean = "personFactory"
+                     bean.factoryMethod = "newInstance"
+ 	              name = "homer"
+		      age = 45
+                      props = [overweight:true, height:"1.8m"] }
+      children = [bart, lisa]
+  }
+}
+{code}
+
+h4. Abstract Beans and Parent Bean Definitions(추상 Bean과 부모 Bean 정의)
+
+추상 Bean 정의를 만들기위해서 아무 클래스도 받지 않는 클래스를 정의한다:
+
+{code:java}
+class HolyGrailQuest {
+	   def start() { println "lets begin" }
+}
+class KnightOfTheRoundTable {
+   String name
+   String leader
+   KnightOfTheRoundTable(String n) {
+      this.name = n
+   }
+   HolyGrailQuest quest
+
+   def embarkOnQuest() {
+       quest.start()
+   }
+}
+
+def bb = new grails.spring.BeanBuilder()
+bb.beans {
+  abstractBean {
+      leader = "Lancelot"
+  }
+  ...
+}
+{code}
+
+leader 프로퍼티가 “Lancelot”값을 갖도록 하는 추상 Bean을 정의하였다. 이 추상 Bean을 이용하기 위해서 자식 Bean의 부모로 Bean을 정한다:
+
+{code:java}
+bb.beans {
+  ...
+  quest(HolyGrailQuest)
+  knights(KnightOfTheRoundTable, "Camelot") { bean ->
+      bean.parent = abstractBean
+      quest = quest
+  }
+}
+{code}
+	
+{note}
+부모 Bean을 쓸 때 Bean의 다른 프로퍼티를 정하기전에 parent 프로퍼티를 먼저 정해야한다.
+{note}
+
+어떤 추상 Bean이 클래스를 가지도록 하려면 다음과 같이 할 수 있다.
+
+{code:java}
+def bb = new grails.spring.BeanBuilder()
+bb.beans {                                          
+  abstractBean(KnightOfTheRoundTable) { bean ->
+      bean.'abstract' = true                  
+      leader = "Lancelot"
+  }
+  quest(HolyGrailQuest)
+  knights("Camelot") { bean ->
+      bean.parent = abstractBean
+      quest = quest
+  }
+}{code}
+
+위의 예제에서 KnightOfTheroundTable이라는 타입의 추상 Bean을 만들고 Bean의 인자를 추상화하는데 사용했다. 그리고 나서 knights Bean을 클래스 없이 정의하고 부모 Bean에서 클래스를 상속한다.
+
+h4. Adding Variables to the Binding (Context) ((Context) 바인딩에 변수를 더하기)
+
+스크립트로부터 Bean을 로드하고 있다면 Groovy 바인딩 객체를 생성함으로써 사용할 바인딩을 설정할 수 있다:
+
+{code:java}
+def bb = new BeanBuilder("classpath:*SpringBeans.groovy")
+def binding = new Binding()
+binding.foo = "bar"
+
+bb.binding = binding
+
+def ctx = bb.createApplicationContext()
+{code}
+
+h4. Loading Bean Definitions from the File System(파일시스템으로부터 Bean 정의를 불러오기)
+
+외부의 Groovy 스크립트를 불러오기위해 BeanBuilder 클래스를 사용할 수 있다. Groovy 스크립트는 아래와 같이 경로 매칭 문법을 사용하여 Bean을 정의하고 있다:
+
+{code:java}
+def bb = new BeanBuilder("classpath:*SpringBeans.groovy")
+
+def applicationContext = bb.createApplicationContext()
+{code}
+
+BeanBuilder는 SpringBeans.groovy로 끝나는 클래스 경로에서 Groovy 파일들을 불러올 것이며 그 파일들을 Bean 정의로 파싱한다. 그 예제가 아래와 같다:
+
+{code:java}
+beans = {
+	dataSource(BasicDataSource) {
+		driverClassName = "org.hsqldb.jdbcDriver"
+		url = "jdbc:hsqldb:mem:grailsDB"
+		username = "sa"
+		password = ""
+	}
+        sessionFactory(ConfigurableLocalSessionFactoryBean) {
+              dataSource = dataSource
+              hibernateProperties = [ "hibernate.hbm2ddl.auto":"create-drop",
+                                      "hibernate.show_sql":true  ]
+        }
+
+}{code}
+

@@ -1,0 +1,24 @@
+현재 프로젝트의 루트에서 [create-script|commandLine] 명령어를 사용하여 Gant 스크립트를 만들 수 있다. 그 예로 다음과 같이 명령을 내리면
+
+{code}
+grails create-script compile-sources
+{code}
+
+@script/CompileSources.groovy@ 라는 스크립트가 만들어질 것이다. Gant 스크립트는 “타겟” 이라는 개념을 지원하고 그것에 의존한다는 것만 제외하면 Groovy 스크립트와 유사하다:
+
+{code:title=scripts/CompileSources.groovy}
+target(default:"The default target is the one that gets executed by Grails") {
+	depends(clean, compile)
+}
+target(clean:"Clean out things") {
+	Ant.delete(dir:"output")
+}
+target(compile:"Compile some sources") {
+	Ant.mkdir(dir:"mkdir")
+	Ant.javac(srcdir:"src/java", destdir:"output")
+}
+{code}
+
+위의 스크립트에서 보여준 예처럼 Gant 스크립트에는 암묵적으로 [Apache Ant API|http://ant.apache.org/manual/index.html] 에 접근 할 수 있는 Ant의 변수가 사용된다.
+
+You can also "depend" on other targets using the @depends@ method demonstrated in the @default@ target above.

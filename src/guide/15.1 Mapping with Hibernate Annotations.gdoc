@@ -1,0 +1,64 @@
+Grails는 Hibernate가 지원하는 자바 5.0 어노테이션을 사용하여 매핑된 도메인 클래스를 만들 수 있도록 지원한다. 그렇게 하기 위해 DataSource에 다음과 같이 configClass를 설정함으로써 어노테이션의 설정을 사용한다는 것을 Grails에 알려줄 필요가 있다:
+
+{code:java}
+import org.codehaus.groovy.grails.orm.hibernate.cfg.GrailsAnnotationConfiguration
+dataSource {
+	configClass = GrailsAnnotationConfiguration.class
+   ... // remaining properties
+}
+{code}
+
+이제 어노테이션을 위한 설정이 끝났다. 어노테이션을 사용하려면 Java 5.0이 필요하다는 것을 잊지 마라. 이제 쉽게 어노테이션을 사용한 클래스를 만들 수 있다. src/java 디렉토리에 새로운 자바 클래스를 생성하고 EJB 3.0 스펙의 한 부분으로 정의되어 있는 어노테이션을 사용한다(더 자세한 정보를 얻으려면 [Hibernate 어노테이션 Docs|http://annotations.hibernate.org/]를 찾아보라):
+
+{code:java}
+package com.books;
+@Entity
+public class Book {
+    private Long id;
+    private String title;
+    private String description;
+    private Date date;
+
+    @Id
+    @GeneratedValue
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+}
+{code}
+
+이제 하이버네이트 sessionFactory에 클래스를 등록해야 하기 위해서 grails-app/conf/hibernate/hibernate.cfg.xml 파일에 다음과 같이 추가 한다:
+
+{code:xml}
+<!DOCTYPE hibernate-configuration SYSTEM
+  "http://hibernate.sourceforge.net/hibernate-configuration-3.0.dtd">
+<hibernate-configuration>
+    <session-factory>
+        <mapping package="com.books" />
+        <mapping class="com.books.Book" />
+    </session-factory>
+</hibernate-configuration>
+{code}
+
+Grails가 이것을 로드할 때 해당 클래스에 관련된 필요한 동적 메소드를 등록한다. Hibernate 도메인 클래스로 할 수 있는 다른 것들을 살펴보려면 스케폴드([Scaffolding|guide:scaffolding])장에서 Hibernate절을 살펴보라.
+

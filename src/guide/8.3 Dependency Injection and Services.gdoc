@@ -1,0 +1,46 @@
+h4. Dependency Injection Basics(의존성 주입의 기초)
+
+"Spring":http://www.springframework.org/ 의 의존성 주입 기능을 이용하는 것은 Grails 서비스의 중요한 특징이다. Grails의 "의존성 주입은 관례를 사용"한다. 구체적으로 말해서 서비스의 클래스 이름으로 된 프로퍼티를 사용하면 자동으로 컨트롤러, 태그 라이브러리, 등에 의존성이 주입된다.
+
+예를 들어 BookService라고 불리는 서비스가 있다고 하자. 컨트롤러에 bookService 프로퍼티를 다음과 같이 넣는다:
+
+{code:java}
+class BookController {
+   def bookService
+   ...
+}
+{code}
+
+스프링 컨테이너는 자동으로 설정된 스콥에 기반하여 서비스의 인스턴스를 주입할 것이다. 모든 의존성은 이름으로 주입된다. Grails는 타입을 이용한 의존성 주입을 지원하지 않는다. 하지만, 다음과 같이 타입을 명시할 수 있다:
+
+{code:java}
+class AuthorService {
+	BookService bookService
+}
+{code}
+
+그러나 이 것은 개발중에 BookService가 변경되면 다시 로딩되면서 에러를 발생시키는 문제가 있다.
+
+h4. Dependency Injection and Services(의존성 주입과 서비스)
+
+서비스에도 동일한 방법으로 의존성을 주입할 수 있다. BookService를 사용해야 하는 AuthorService가 있을 때 AuthorService에 다음과 같이 의존성을 주입한다:
+
+{code:java}
+class AuthorService {
+	def bookService
+}
+{code}
+
+h4. Dependency Injection and Domain Classes(의존성 주입과 도메인 클래스)
+
+도메인 클래스에도 서비스를 주입할 수 있다. 이를 통해서 풍부한(rich) 도메인 모델을을 개발 할 수 있다:
+
+{code:java}
+class Book {	
+	...
+	def bookService
+	def buyBook() {
+		bookService.buyBook(this)
+	}
+}
+{code}

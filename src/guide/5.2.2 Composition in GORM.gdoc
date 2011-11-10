@@ -1,0 +1,21 @@
+[association|guide:5.2.1 Association in GORM] 외에도 Grails는 결합(Composition)도 지원한다. 클래스를 각각의 테이블에 매핑하지 않고 하나의 테이블에 "포함하여" 매핑할 수 있다.
+
+{code}
+class Person {
+	Address homeAddress
+	Address workAddress
+	static embedded = ['homeAddress', 'workAddress']
+}
+class Address {
+	String number
+	String code
+}
+{code}
+
+다음과 같이 테이블이 매핑된다.
+
+!5.2.2-composition.jpg!
+
+{note}
+@grails-app/domain@ 디렉토리에 새로운 Groovy 파일을 만들고 그 파일에 @Address@ 클래스를 만들면 @address@ 테이블이 생성된다. 이 것을 원하지 않으면 @grails-app/domain/Person.groovy@ 파일의 @Person@ 클래스 아래에 @Address@ 클래스를 만든다. Groovy에서는 한 파일에 여러개의 클래스를 정의할 수 있다.
+{note}

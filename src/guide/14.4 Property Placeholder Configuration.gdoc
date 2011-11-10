@@ -1,0 +1,17 @@
+Grails는 프로퍼티 위치지정 설정의 개념을 제공한다. 이것은 Spring의 [PropertyPlaceholderConfigurer|api:org.springframework.beans.factory.config.PropertyPlaceholderConfigurer]의 확장 버전을 통해 제공한다. 그리고 외부화된 설정([externalized configuration|guide:3.4 Externalized Configuration])과 함께 묶여서 사용될때 유용하다.
+
+자바 프로퍼티 파일의 "ConfigSlurper":http://groovy.codehaus.org/ConfigSlurper 스크립트에서 정의된 설정들은 grails-app/conf/spring/resources.xml 에서 Spring 설정을 위한 위치지정 값들로 사용된다. 예를 들어 grails-app/conf/Config.groovy 파일(또는 외부화된 설정)에서 다음 목록들entries을 들 수 있다:
+
+{code:java}
+database.driver="com.mysql.jdbc.Driver"
+database.dbname="mysql:mydb"
+{code}
+
+그리고 위치지정을 resources.xml파일에서 다음과 같은 ${..} 형식과 비슷하게 지정할 수 있다:
+
+{code:xml}
+<bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+   <property name="driverClassName"><value>${database.driver}</value></property>
+   <property name="url"><value>jdbc:${database.dbname}</value></property>
+ </bean>
+{code}

@@ -1,0 +1,88 @@
+일대일 관계은 가장 단순형태다. 이 관계는 다른 도메인 클래스의 형식으로 프로퍼티를 정의하는 것만으로 쉽게 정의할 수 있다. 다음의 예를 보자:
+
+h5. Example A
+
+{code}
+class Face {
+    Nose nose
+}
+class Nose {	
+}
+{code}
+
+Face에서 Nose로의 단뱡향 일대일 관계를 만들었다. 이제 양뱡향 관계를 만들어보자:
+
+h5. Example B
+
+{code}
+class Face {
+    Nose nose
+}
+class Nose {	
+	Face face
+}
+{code}
+
+이제 양뱡향 관계를 만들었다. 하지만 아직 두 클래스 모두 연쇄적으로 업데이트되지 않는다.
+
+연쇄적으로 업데이트 되게하면 다음과 같다:
+
+h5. Example C
+
+{code}
+class Face {
+    Nose nose
+}
+class Nose {	
+	static belongsTo = [face:Face]
+}
+{code}
+
+belongsTo를 이용하여 Nose를 Face에 종속시켰다. 이제 Face를 생성하고 저장하면 _연쇄적으로_ Nose도 추가되고 변경된다:
+
+{code}
+new Face(nose:new Nose()).save()
+{code}
+
+The example above will save both face and nose. Note that the inverse _is not_ true and will result in an error due to a transient @Face@:
+
+위 예제는 Face와 Nose가 모두 잘 저장되지만 Face가 비영속 객체(transient object)므로 역순으로 생성하면 저장이 _안되고_ 오류가 발생할 것이다.
+
+{code}
+new Nose(face:new Face()).save() // will cause an error
+{code}
+
+그리고 Nose는 Face에 종속되어 있기 때문에 Face를 삭제하면 Nose 역시 삭제된다.
+
+{code}
+def f = Face.get(1)
+f.delete() // both Face and Nose deleted
+{code}
+
+belongsTo를 명시하지 않았다면 연쇄적으로 삭제되지 않는다. Nose를 명시적으로 삭제하지 않은 상태에서 Face를 삭제하면 외래키 제약조건(foreign key constraint) 에러가 발생한다:
+
+{code}
+// error here without belongsTo
+def f = Face.get(1)
+f.delete() 
+
+// no error as we explicitly delete both
+def f = Face.get(1)
+f.nose.delete()
+f.delete()
+{code}
+
+다음과 같이 작성하면 이 관계를 단방향으로 만들 수도 있다. 그리고 연쇄적으로 저장, 업데이트 시킬 수 있다.
+
+{code}
+class Face {
+    Nose nose
+}
+class Nose {	
+	static belongsTo = Face
+}
+{code}
+
+이 예제에서 belongsTo를 선언할 때 map 문법을 사용하지 않았고 관계(association)라고 부르지도 않았다는 점을 주목하자. Grails는 단방향으로 해석한다. 3가지 예제를 모두 요약하면 아래의 다이어그램과 같다.
+
+!GORM-1to1.png!

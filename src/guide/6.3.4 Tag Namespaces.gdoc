@@ -1,0 +1,26 @@
+태그는 자동으로 Grails의 기본 네임스페이스에 추가되고 GSP 페이지에서 'g:' 접두어로 태그를 사용할 수 있다. 그러나 TagLib 클래스에 static namespace 프로퍼티에 사용해서 다른 네임스페이스를 명시할 수 있다:
+
+{code:java}
+class SimpleTagLib {
+    static namespace = "my"
+
+    def example = { attrs ->
+        ...
+    }
+}
+{code}
+
+이 예제에서 “my” 네임스페이스를 명시했다. 이 태그 라이브러리의 태그는 GSP 페이지에서 다음과 같이 사용해야 한다:
+
+{code:xml}
+<my:example name="..." />
+{code}
+
+이 접두어는 static namespace 프로퍼티에 명시한 값이다. 네임스페이스는 플러그인에 특히 유용하다.
+
+네임스페이스를 접두어로 사용해서 네임스페이스의 태그를 매소드처럼 호출할 수 있다:
+{code:java}
+out << my.example(name:"foo")
+{code}
+
+이 것은 GSP, 컨트롤러, 태그 라이브러리에서 잘 동작한다.

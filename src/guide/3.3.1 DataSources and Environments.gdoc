@@ -1,0 +1,16 @@
+이전의 구성 예는 모든 환경(서비스, 테스트, 개발등)이 같다고 가정하였다.
+
+하지만, Grails는 DataSource를 "환경 별로(environment aware)" 정의할 수 있다다. 따라서 다음과 같이 할 수 있다.
+
+{code}
+dataSource {
+	// common settings here
+}                     
+environments {
+  production {
+     dataSource {
+          url = "jdbc:mysql://liveip.com/liveDb"					
+     }			
+  }
+}    
+{code}

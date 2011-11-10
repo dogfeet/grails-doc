@@ -1,0 +1,19 @@
+Grails는 다음과 같이 꽤 많은 컨테이너들을 지원한다.
+
+* Tomcat 5.5 	  	
+* Tomcat 6.0 		
+* GlassFish v1 (Sun AS 9.0) 		
+* GlassFish v2 (Sun AS 9.1) 		
+* Sun App Server 8.2 		
+* Websphere 6.1 		
+* Websphere 5.1 		
+* Resin 3.2 		
+* Oracle AS 		
+* JBoss 4.2 		
+* Jetty 6.1
+* Jetty 5
+* Weblogic 7/8/9/10
+
+몇몇 컨테이너들는 버그가 있지만 대부분의 경우에는 잘 동작한다. [설치에 관한 문제|http://grails.org/Deployment]는 Grails 위키에서 찾을 수 있다.
+
+Some containers have bugs however, which in most cases can be worked around. A [list of known deployment issues|http://grails.org/Deployment] can be found on the Grails wiki.

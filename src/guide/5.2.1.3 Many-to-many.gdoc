@@ -1,0 +1,39 @@
+Grails는 다대다 관계를 지원한다. 양쪽 클래스에 hasMany를 정의하고 관계를 소유하는 쪽에 belongsTo를 사용하면 다대다 관계가 만들어진다.
+
+{code}
+class Book {
+   static belongsTo = Author
+   static hasMany = [authors:Author]
+   String title
+}
+class Author {
+   static hasMany = [books:Book]
+   String name
+}
+{code} 
+
+Grails는 데이터베이스의 테이블 조인을 사용하여 다대다 관계를 구현한다. 관계를 소유하는 쪽에 관계를 영속화할 책임이 있다. 오직 한쪽에서만 연쇄적으로 저장할 수 있다. 이 경우에는 Author 클래스에 책임이 있다.
+
+다음의 예는 올바르게 작동하고 연쇄적으로 저장된다:
+
+{code}
+new Author(name:"Stephen King")
+		.addToBooks(new Book(title:"The Stand"))
+		.addToBooks(new Book(title:"The Shining"))		
+		.save()
+{code}
+
+하지만 아래의 예는 Book만 저장되고 Author들은 저장되지 않는다.
+
+{code}
+new Book(name:"Groovy in Action")
+		.addToAuthors(new Author(name:"Dierk Koenig"))
+		.addToAuthors(new Author(name:"Guillaume Laforge"))		
+		.save()
+{code}
+
+다대다 관계에서는 오직 한 쪽에서만 관계를 관리할 수 있는데 이것은 Hibernate에서도 마찬가지다.
+
+{warning}
+Grails의 [Scaffolding|guide:scaffolding] 기능은 현재 다대다 관계를 *지원하지 않는다*. 따라서 관계를 관리하는 코드를 직접 작성해야 한다.
+{warning}

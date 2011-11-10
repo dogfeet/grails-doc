@@ -1,0 +1,46 @@
+h4. Optimistic Locking(낙관적 잠금)
+
+기본적으로 GORM 클래스는 낙관적 잠금을 사용하도록 돼 있다. 낙관적 잠금은 Hibernate의 것을 이용하므로 데이터베이스의 @version@ 컬럼에 버전을 저장한다.
+
+@version@ 프로퍼티를 통해서 이 버전 컬럼을 읽을 수 있다. 사용하고 있는 영속성 인스턴스의 버전을 읽는다.
+
+{code}
+def airport = Airport.get(10)
+
+println airport.version
+{code}
+
+도메인 클래스에 대해서 업데이트를 실행하면 Hiberate는 자동으로 version 프로퍼티과 데이터베이스의 version 컬럼을 검사한다. 만약 서로 다르면 [StaleObjectException|api:org.hibernate.StaleObjectStateException]을 던지고 트랜잭션을 롤백한다.
+
+이 것은 성능 문제를 야기하는 비관적 잠금을 사용하지도 않고서도 원자성을 확실하게 보장하기 때문에 유용하다. 단, 동시 쓰기가 많이 발생한다면 이 예외를 직접 처리해야 한다.
+
+{code}
+def airport = Airport.get(10)
+
+try {
+	airport.name = "Heathrow"
+	airport.save(flush:true)
+}
+catch(org.springframework.dao.OptimisticLockingFailureException e) {
+	// deal with exception
+}
+{code}
+
+어플리케이션에 따라 예외를 처리하는 방법이 달라질 수 있다. 전적으로 사용자에게 떠넘길 수도 있고 프로그램으로 데이터를 자동으로 병합해줄 수도 있고 충돌을 해결하도록 사용자에게 요청할 수 있다.
+
+이 방법이 싫다면 비관적 잠금을 사용하면 된다.
+
+h4. Pessimistic Locking(비관적 잠금)
+
+비관적 잠금은 "SELECT * FOR UPDATE" 라는 SQL 문을 실행하는 것과 동일하게 데이터베이스의 특정 열을 잠근다. 잠긴 것이 해제될 때까지 다른 읽기가 블럭된다.
+
+[lock|domainClasses] 메소드를 이용하여 비관적 잠금을 사용할 수 있다.
+
+{code}
+def airport = Airport.get(10)
+airport.lock() // lock for update
+airport.name = "Heathrow"
+airport.save()
+{code}
+
+트랜잭션이 커밋되면 Grails는 잠금을 자동으로 해제한다.

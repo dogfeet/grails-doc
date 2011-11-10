@@ -1,0 +1,35 @@
+
+Grails 어플리케이션을 만들려면 해결할 문제의 도메인을 알아야 한다. "Amazon":http://www.amazon.com/ 서점을 만들고 싶다면 책, 저자, 고객, 출판사들을 고려하게 될 것이다.
+
+여기에서는 제목, 출판일, ISBN등의 정보를 가지는 Book 클래스를 GORM으로 모델링 할 것이다. 계속해서 GORM으로 도메인을 모델링하는 법을 보여줄 것이다.
+
+[create-domain-class|commandLine] 명령으로 도메인 클래스를 생성할 수 있다:
+
+{code}
+grails create-domain-class Book
+{code}
+
+이 명령을 실행하면 @grails-app/domain/Book.groovy@ 파일이 다음과 같은 내용으로 생성된다:
+
+{code}
+class Book {	
+}
+{code}
+
+{note}
+패키지를 사용하려면 도메인 클래스의 위치를 도메인 디렉토리 밑의 하위 디렉토리로 옮기고 Groovy 패키지 규칙(Java와 동일하다)에 따라 패키지를 정의하면 된다.
+{note}
+
+위 클래스는 자동적으로 클래스 이름과 동일한 데이터베이스의 book 테이블과 매핑된다. 이 규칙은 [ORM Domain Specific Language|guide:ormdsl] 도메인 명세 언어(ORM Domain Specific Language)로 수정할 수 있다.
+
+이제 도메인 클래스를 만들었고 Java 데이터 형식을 이용하여 프로퍼티를 정의해보자. 다음의 예를 보면:
+
+{code}
+class Book {
+	String title
+	Date releaseDate
+	String ISBN
+}
+{code}
+
+각 프로퍼티는 데이터베이스의 컬럼으로 매핑되고 그 컬럼 이름은 '_'로 구분되는 소문자로 만들어진다. 예를 들어 releaseDate는 release_date의 컬럼이름으로 매핑된다. SQL 데이터 형식은 Java 데이터 형식에 따라 자동으로 매핑된다. 그리고 [ORM DSL|guide:ormdsl] 이나 제약조건([Constraints|guide:constraints])을 이용하여 매핑 규칙을 수정할 수 있다.

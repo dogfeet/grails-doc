@@ -1,0 +1,19 @@
+GORM은 두 개 이상의 속성으로 구성되는 복합 식별자의 개념을 지원한다. 권장되는 방법이 아니지만 할 수 있다:
+
+{code:java}
+class Person {
+  String firstName
+  String lastName
+
+  static mapping = {
+      id composite:['firstName', 'lastName']
+  }
+}
+{code}
+
+이 예는 Person클래스의 @firstName@과 @lastName@ 속성을 이용하는 복합 식별자를 만든다. 나중에 식별자로 인스턴스를 얻어와야 한다면 다음처럼 객체의 프로토타입을 이용해야 한다:
+
+{code:java}
+def p = Person.get(new Person(firstName:"Fred", lastName:"Flintstone"))
+println p.firstName
+{code}

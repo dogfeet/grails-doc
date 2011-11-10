@@ -1,0 +1,26 @@
+종종 객체의 컬랙션을 정렬하고 필터링이 필요할 때가 있다. GSP는 이 것을 위해 [findAll|tags]과 [grep|tags]을 지원한다.
+
+{code:xml}
+Stephen King's Books:
+<g:findAll in="${books}" expr="it.author == 'Stephen King'">
+     <p>Title: ${it.title}</p>
+</g:findAll>
+{code}
+
+필터링하기 위해 @expr@ 속성에 Groovy 표현식을 사용한다. [grep|tags] 태그를 이용하여 클래스로 필터링할 수도 있다.
+
+{code:xml}
+<g:grep in="${books}" filter="NonFictionBooks.class">
+     <p>Title: ${it.title}</p>
+</g:grep>
+{code}
+
+정규 표현식도 사용할 수 있다:
+
+{code:xml}
+<g:grep in="${books.title}" filter="~/.*?Groovy.*?/">
+     <p>Title: ${it}</p>
+</g:grep>
+{code}
+
+이 예제에서는 GPath가 사용됐다. GPath는 Groovy가 지원하는 XPath같은 언어이다. 구체적으로 설명하자면 @books@ 컬랙션은 @Book@ 인스턴스들의 컬랙션이다. 그리고 @Book@이 @title@을 가지고 있다고 가정하면 @books.title@ 표현식을 사용하여 @Book@의 @title@들을 리스트로 얻어올 수 있다. Groovy는 자동으로 Book 인스턴스들의 리스트를 이용하여 title의 리스트를 만들어 반환한다!

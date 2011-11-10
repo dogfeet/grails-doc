@@ -1,0 +1,57 @@
+h4. SQL injection(SQL 인젝션)
+
+GORM 도메인 클래스에 놓여있는 기술인 하이버네이트는 데이터베이스에 자료를 입력할때 자동으로 데이터를 분리하여 처리한다. 그렇기 때문에 이 것는 그다지 문제거리가 되지 않는다. 하지만 확인하지 않은 요청 파라미터를 사용하여 잘못된 HQL 코드를 만들게 될 가능성이 있다. 예를 들어 아래와 같이 동작하는 것은 HQL 인젝션에 대해 취약하다:
+
+{code:java}
+def vulnerable = {
+	def books = Book.find("from Book as b where b.title ='" + params.title + "'")
+}
+{code}
+
+이런 식으로 코드를 짜면 안된다. 파라미터로 전달하려면 이름을 통해서나 위치지정 파라미터를 통해서 전달해야 한다:
+
+{code:java}
+def safe = {
+	def books = Book.find("from Book as b where b.title =?", [params.title])
+}
+{code}
+
+
+h4. Phishing(피싱)
+
+공개적인 관계들은 고객과의 커뮤니케이션에서 서비스 브랜드를 가로채는 문제를 발생시킨다. 고객들은 받은 메일의 진의를 가려낼 줄 알아야 한다.
+
+h4. XSS - cross-site scripting injection(크로스 사이트 스크립팅 인젝션)
+
+여러분의 어플리케이션은 외부 뿐만 아내라 프로그램 내부적에서 발생한 들어오는 요청에 대해서도 최대한 확인하는 것은 매우 중요하다. 티켓팅과 페이지 플로우 시스템은 이에 대한 도움을 주며 Grails는 기본적으로 이런 보안기능을 가진 "스프링 웹 플로우":http://opensource.atlassian.com/confluence/spring/display/WEBFLOW 를 지원한다.
+
+It is important that your application verifies as much as possible that incoming requests were originated from your application and not from another site. Ticketing and page flow systems can help this and Grails' support for "Spring Web Flow":http://opensource.atlassian.com/confluence/spring/display/WEBFLOW includes security like this by default.
+
+뷰에 그려지는 모든 데이터의 값들이 옳게 분리됐는지 확인하는 것 또한 매우 중요하다. 예를 들어 HTML이나 XHTML로 데이터를 그려낼 때 다른이들에게 보여질 데이터나 태그에 악의적인 JavaScript나 HTML을 인젝션 하지 못하도록 확실하게 보장해야 하고 이를 위해 모든 객체들에 대해 [encodeAsHTML|guide:codecs]을 호출해야 한다. Grails는 이런 목적에서 다양한 동적 인코딩 메소드([Dynamic Encoding Methods|guide:codecs])를 제공한다. 그리고 여러분의 결과물이 사용하는 분리 포맷(escaping format)이 지원되지 않을 경우에는, 그것을 지원하기 위한 사용자만의 코덱을 쉽게 작성 할 수 있다.
+
+사용자에게 전달 될 다음 리다이렉트 주소 정보를 판단하는데 있어서 요청된 파라미터나 데이터 필드의 사용을 하지 말아야 한다. 만약 예를 들어 성공적으로 로그인 한 사용자의 다음 리다이렉팅 페이지의 URL을 successURL 파라미터로 사용한다면, 공격하는 사람은 공격자의 사이트에서 로그인 과정을 흉내낼 것이고 사용자가 로그인하면 그들의 사이트로 리다이렉트 시킬 것이다. 이것은 잠재적으로 자바스크립트 코드가 사이트에서 로그인 된 계정에 대해 잘못된 방법으로 정보를 얻을 수 있기 때문에 가능하다.
+
+h4. HTML/URL injection(HTML/URL 인젝션)
+
+페이지에서 링크를 생성하는 곳에 좋지 않은 데이터가 공급되고 그 링크를 클릭하면 원하지 않는 결과를 나타내거나 원하지 않는 곳으로 사이트를 이동시키거나 요청 파라미터를 변경시킬 것이다.
+
+HTML/URL 인젝션은 Grails가 제공하는 코덱([codecs|guide:codecs])으로 쉽게 방지할 수 있다. 그리고 Grails가 지원하는 태그라이브러리를 이용해 적절한 곳에 [encodeAsURL|guide:codecs] 을 사용한다. URL을 생성하는데 있어 자신만의 태그를 만들고자 한다면 이 점을 염두해야 한다.
+
+h4. Denial of service(서비스 거부)
+
+이것은 로드밸런서나 다른 어플라이언스에 유용할 것 같지만 공격자가 만들어낸 링크에 의한 쿼리를 처리하는 것과 관련된 문제에도 관련된다. 예를 들어 공격자가 결과 값을 최대로 설정한다면 쿼리는 서버의 메모리 한도를 초과하게 되거나 시스템이 느려지게 된다. 이것을 해결하기 위한 벙법은 요청 파라미터를 동적 파인더나 다른 GORM 쿼리 메소드에 넘겨주기 전에 언제나 깨끗하게 처리를 하는 것이다:
+
+{code:java}
+def safeMax = Math.max(params.max?.toInteger(), 100) // never let more than 100 results be returned
+return Book.list(max:safeMax)
+{code}
+
+h4. Guessable IDs(예측할 수 있는 ID)
+
+많은 어플리케이션들이 GORM이나 다른 곳들에서 객체정보를 받아오기 위해 URL의 뒷부분을 “id” 로서 사용한다. 특별히 GORM의 경우 보통 순서대로 나열된 정수를 사용하기에 이런 점은 쉽게 예측이 가능하다.
+
+그러나 요청하는 사용자가 해당 요청한 객체를 볼 수 있는지 사용자에게 응답하기 전에 확인해야 한다.
+
+이렇게 하지 않으면 “letmein”으로 기본 패스워드를 가지는 것과 같은, “security through obscurity” 보안 문제가 생겨 시스템에 구멍이 날 수 밖에 없다.
+
+모든 보호되지 않은 URL은 한 가지 방법 이상으로 공개적으로 접근될 수 있다는 것을 염두해두어야 한다.

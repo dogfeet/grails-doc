@@ -1,0 +1,19 @@
+Grails는 HTTP 응답 코드를 컨트롤러, 액션, 뷰에 매핑할 수 있도록 허용한다. 응답 코드를 매소드에 매핑시키고 싶다면 그렇게 할 수 있다:
+
+{code:java}
+static mappings = {
+   "500"(controller:"errors", action:"serverError")
+   "404"(controller:"errors", action:"notFound")
+   "403"(controller:"errors", action:"forbidden")
+}
+{code}
+
+응답코드를 사용자가 정의한 에러 페이지에 매핑할 수도 있다:
+
+{code:java}
+static mappings = {
+   "500"(view:"/errors/serverError")
+   "404"(view:"/errors/notFound")
+   "403"(view:"/errors/forbidden")
+}
+{code}

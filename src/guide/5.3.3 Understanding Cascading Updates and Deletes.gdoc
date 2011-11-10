@@ -1,0 +1,36 @@
+GORM을 사용할 때 연쇄(Cascade) 갱신과 삭제가 어떻게 동작하는 지를 이해하는 것은 중요하다. 클래스가 관계를 "소유"하는 것을 제어하는 @belongsTo@ 설정이 우리가 기억해야 할 핵심이다.
+
+일대일, 일대다, 다대다 관계에 상관없이 @belongsTo@를 정의했다면 갱신과 삭제는 소유한 클래스에서 그 소유물(관계의 다른 쪽)까지 연쇄적으로 동작할 것이다.
+
+_belongsTo를 정의하지 않으면_ 연쇄 작업은 일어나지 않으며 모든 객체를 일일이 손수 저장해야 한다.
+
+여기에 한 예가 있다.
+
+{code}
+class Airport {
+	String name
+	static hasMany = [flights:Flight]
+}
+class Flight {
+	String number
+	static belongsTo = [airport:Airport]
+}
+{code}
+
+@Airport@를 생성하고 @Flight@를 몇 개 추가한 후 @Airport@를 저장하면 @Flight@도 연쇄적으로 저장된다. 결국 생성한 모든 객체가 저장된다.
+
+{code}
+new Airport(name:"Gatwick")
+	 .addToFlights(new Flight(number:"BA3430"))
+	 .addToFlights(new Flight(number:"EZ0938"))
+	 .save()
+{code}
+
+반대로 @Airport@를 삭제하면 관련된 모든 @Flight@도 삭제될 것이다.
+
+{code}
+def airport = Airport.findByName("Gatwick")
+airport.delete()
+{code}
+
+그러나 @belongsTo@를 제거하면 위의 코드는 더 이상 연쇄적으로 삭제하지 않는다. [ORM DSL|guide:ormdsl]을 사용하여 연쇄 행동을 제어할 수 있다.

@@ -1,0 +1,12 @@
+Grails는 보안면에 있어서 자바 서블릿과 동일한 수준이며, 더하지도 덜하지도 않다. 하지만 서블릿(Grails를 비롯)은 보안측면에 매우 안전하다. 일반적인 버퍼오버런과 비정상 URL공격에 있어서 광범위하게 안전하며 그 이유는 코드의 토대가 되는 JVM의 특성때문이다.
+
+웹에서의 보안문제는 일반적으로 개발자의 순진함이나 실수로부터 발생하며 Grails에는 일반적인 실수를 방지하거나 보안에 안전한 프로그램을 작성하기 쉽도록 돕는 기능이 있다.
+
+h4. What Grails Automatically Does(Grails가 자동으로 하는 것)
+
+Grails는 기본적으로 안전에 대한 몇 가지 매커니즘을 내장하고 있다.
+
+# 모든 표준적인 데이터베이스 접근은 [GORM|guide:GORM] 도메인 객체를 통해 이루어지며 이는 자동적으로 SQL 인젝션 공격으로부터 SQL을 보호한다.
+# 기본적인 [scaffolding|guide:scaffolding]은 데이터를 화면에 표시할 때 모든 데이터 필드를 HTML로부터 보호하는 템플릿이다.
+# Grails는 태그([link|tags], [form|tags], [createLink|tags], [createLinkTo|tags], 기타)를 생성하는 링크는 인젝션 인젝션으로부터 지켜주는 적절한 보호 메커니즘을 사용한다.
+# Grails는 인젝션 공격을 막기 위해 여러분이 HTML, JavaScript, URL들로 데이터를 표현할 때 쉽게 데이터를 보호하는 코덱([codecs|guide:codecs])을 제공한다.

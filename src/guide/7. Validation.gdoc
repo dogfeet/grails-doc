@@ -1,0 +1,5 @@
+Grails의 유효성 검사 기능은 Spring의 [Validator API|http://static.springframework.org/spring/docs/2.0.x/api/org/springframework/validation/package-summary.html]와 바인딩 기능에 의존한다. 하지만 Grails는 이 것을 더 발전시켜서 제약조건을 정의하는 통합된 방법을 제공한다.
+
+Grails의 제약조건은 유효성 검사 규칙을 명시하는 것을 말한다. 대부분의 경우 도메인 클래스([domain classes|guide:GORM])에 정의하지만 URL 매핑([URL Mappings|guide:mappings])과 일반 객체([Command Objects|guide:commandObjects])에도 정의할 수 있다.
+
+

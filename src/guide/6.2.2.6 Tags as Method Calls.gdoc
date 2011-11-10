@@ -1,0 +1,44 @@
+이 것이 GSP 태그와 다른 태그 기술들과의 중요한 차이점이다. GSP 태그는 [controllers|guide:controllers], [tag libraries|guide:taglibs], GSP 뷰에서 일반 태그처럼 사용할 수도 있고 메소드를 호출하듯이 사용할 수도 있다.
+
+h4. Tags as method calls from GSPs(GSP에서 태그 호출하기)
+
+태그를 호출하면 그 결과는 바로 응답에 쓰여지는 것이 아니라 문자열로 반환된다. 예를 들어 [createLinkTo|tags] 태그는 메소드처럼 호출 될 수 있다:
+
+{code:xml}
+Static Resource: ${createLinkTo(dir:"images", file:"logo.jpg")}
+{code}
+
+이 것은 속성에 태그를 사용해야 할때 매우 유용하다:
+
+{code:xml}
+<img src="${createLinkTo(dir:'images', file:'logo.jpg')}" />
+{code}
+
+이 기능을 지원하지 않는 뷰 기술에서는 태그 안에 GSP 태그를 네스트(nest)시켜야 한다. 이 방법은 코드를 매우 지져분하게 만들고 마크업을 엉터리로(not well-formed) 렌더링하는 Dreamweaver같은 WSYWIG 도구를 사용하기 어렵게 만든다(an adverse effect of WYSWIG tools).
+
+{code:xml}
+<img src="<g:createLinkTo dir="images" file="logo.jpg" />" />
+{code}
+
+h4. Tags as method calls from Controllers and Tag Libraries(컨트롤러와 태그 라이브러리에서 태그 호출 하기)
+
+컨트롤러와 태그 라이브러리에서도 태그를 호출할 수 있다. @g:@로 시작하는 태그들은 접두어([namespace|guide:namespaces], 역자주 - @g:@) 없이 실행 가능할 수 있고 결과는 문자열로 반환된다:
+
+{code:java}
+def imageLocation = createLinkTo(dir:"images", file:"logo.jpg")
+{code}
+
+그리고 이름이 충돌되지 않게 하기 위해 접두어를 사용할 수 있다:
+
+{code:java}
+def imageLocation = g.createLinkTo(dir:"images", file:"logo.jpg")
+{code}
+
+Grails 네임스페이스가 아니라면([custom namespace|guide:namespaces]) 접두어를 사용해야 한다([FCK Editor plugin|http://grails.org/FCK+editor+plugin] 을 사용하는 예제를 보면):
+
+{code:java}
+def editor = fck.editor()
+{code}
+
+
+

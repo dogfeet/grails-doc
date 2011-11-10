@@ -1,0 +1,18 @@
+HTML 폼을 비동기적으로 제출하는 방법도 두 가지이다. 첫째는 [formRemote|tags] 태그를 사용하는 것이다. 이 태그는 [remoteLink|tags] 태그의 속성과 유사한 속성들을 가지고 있다:
+
+{code:xml}
+<g:formRemote url="[controller:'book',action:'delete']" update="[success:'message',failure:'error']">
+       <input type="hidden" name="id" value="1" />
+       <input type="submit" value="Delete Book!" />
+</g:formRemote >
+{code}
+
+둘째로 [submitToRemote|tags] 태그를 사용하여 submit 버튼을 만들 수 있다. 이 태그의 버튼을 클릭하면 원격에 제출되지만 액션을 사용하지 않는 버튼도 만들 수 있다:
+
+{code:xml}
+<form action="delete">
+       <input type="hidden" name="id" value="1" />
+       <g:submitToRemote action="delete" update="[success:'message',failure:'error']" />
+</form>
+{code}
+

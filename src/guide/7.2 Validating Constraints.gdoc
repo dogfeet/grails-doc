@@ -1,0 +1,50 @@
+h4. Validation Basics(유효성 검사의 기초)
+
+도메인 클래스의 유효성을 검사하기 위해 모든 인스턴스의 [validate|domainClasses] 메소드를 호출할 수 있다:
+
+{code:java}
+def user =  new User(params)
+
+if(user.validate()) {
+    // do something with user
+}
+else {
+    user.errors.allErrors.each {
+        println it
+    }
+}
+{code}
+
+도메인 클래스의 errors 속성은 Spring의 [Errors|api:org.springframework.validation.Errors] 인터페이스의 인스턴스이다. Errors 인터페이스는 유효성 검사의 에러를 살펴보는(navigate) 방법과 원래 값을 얻어 오는 방법을 제공한다.
+
+h4. Validation Phases(유효성 검사 시점)
+
+Grails의 유효성 검사는 본질적으로 두 가지로 나뉜다. 먼저 다음과 같이 인스턴스에 요청 파리미터를 바인딩([data binding|guide:dataBinding])할 때 유효성이 검사된다:
+
+{code:java}
+def user = new User(params)
+{code}
+
+이 시점에서 String을 Date로 변환하는 것 같은 형 변환 에러가 errors 속성에 이미 넣어진다. Errors API를 이용해 이 에러를 확인하고 원래 값을 얻을 수 있다:
+
+{code:java}
+if(user.hasErrors()) {
+	if(user.hasFieldError("login")) {
+		println user.getFieldError("login").rejectedValue
+	}
+}
+{code}
+
+[validate|domainClasses]나 [save|domainClasses]를 호출될 때도 유효성이 검사된다. 이 때 [constraints|domainClasses] 속성에 정의한 조건에 만족하는지 검사된다. 기본적으로 영속적 [save|domainClasses] 메소드는 유효성을 검사하기 때문에 다음과 같이 코드를 작성할 수 있다:
+
+{code:java}
+if(user.save()) {
+    return user
+}
+else {
+    user.errors.allErrors.each {
+        println it
+    }
+}
+{code}
+

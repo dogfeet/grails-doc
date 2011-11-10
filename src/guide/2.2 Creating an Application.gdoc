@@ -1,0 +1,18 @@
+
+Grails 어플리케이션을 생성하려면 먼저 다음과 같은 @grails@ 명령어의 사용법에 익숙해질 필요가 있다.
+
+{code}
+grails [command name]
+{code}
+
+이제 create-app 명령어를 사용하여 어플리케이션을 생성할 수 있다.
+
+tc.
+grails create-app helloworld
+
+
+이 명령어는 현재 디렉토리 위치에 프로젝트를 담고있는 새로운 디렉토리를 만들어 줄 것이다. 당신은 이제 터미널에서 이 디렉토리를 돌아다녀야 한다:
+
+bc.
+cd helloworld
+

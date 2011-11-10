@@ -1,0 +1,21 @@
+Grails는 사실 Spring MVC 어플리케이션이 변장한 것이다. [Spring MVC|http://www.springframework.org/docs/MVC-step-by-step/Spring-MVC-step-by-step.html]는 Spring Framework에 내재된 MVC 웹 어플리케이션 프레임워크이다. Spring MVC가 사용하기에 쉬운가 라는 점에서 Structs만큼 어렵지만, Grails는 멋지게 설계되고 구조화 되었다. Grails는 다른 프레임워크의 꼭대기에 만들었기에 가장 완벽한 프레임워크가 되었다.
+
+다음과 같은 부분에서 Grails는 Spring MVC를 확대화(leverage) 한다.
+
+* 기본 컨트롤러 로직 - Grails는 Spring의 [DispatcherServlet|api:org.springframework.web.servlet.DispatcherServlet]을 상속받아 Grails 컨트롤러([controllers|guide:controllers])의 delegate를 통해 사용함
+* 데이터 바인딩과 검증 - Grails의 검증([validation|guide:validation])과 데이터 바인딩 능력은 Spring으로부터 제공받은 것들 위에서 이뤄짐
+* 런타임 설정 - Grails의 전체 런타임 관례기반 시스템은 Spring [ApplicationContext|api:org.springframework.context.ApplicationContext]에 의해 서로 연결됨
+* 트랜잭션 - Grails는 [GORM|guide:GORM]에서 Spring의 트랜잭션 관리구조(transaction management)를 사용함
+
+달리 말하자면 Grails는 전체에 걸쳐서 Spring을 품고 동작한다.
+
+h4. The Grails ApplicationContext
+
+Spring 개발자들은 종종 Grails ApplicationContext 인스턴스가 어떻게 생성되는지 이해하고 싶어한다. 그 기본구조는 다음과 같다.
+
+* Grails는 부모 ApplicationContext를 web-app/WEB-INF/applicationContext.xml로부터 생성한다. 이 ApplicationContext는 [GrailsApplication|api:org.codehaus.groovy.grails.commons.GrailsApplication] 객체와 [GrailsPluginManager|api:org.codehaus.groovy.grails.plugins.GrailsPluginManager]를 설정한다.
+* ApplicationContext 를 Grails의 부모로서 사용하여 GrailsApplication의 인스턴스를 통해 관례을 분석하고 웹 어플리케이션의 최상위root ApplicationContext 로서 사용되는 자식 ApplicationContext를 생성한다.
+
+h4. Configured Spring Beans(설정된 Spring Bean)
+
+대부분의 Grails 설정은 런타임에 일어난다. 각 [플러그인|guide:plug-ins]은 아마도 Spring Bean을 설정 할 것이다. Spring Bean은 ApplicationContext에 등록되어 있다. 한 참조가 어떤 Bean으로 설정 되기 위해(to which beans are configured) 레퍼런스 가이드를 참조한다. 그것은 각 Grails 플러그인의 어떤 설명이나 플러그인들이 어떤 Bean을 설정할지에 대한 참조 가이드이다(Most of Grails' configuration happens at runtime. Each [plug-in|guide:plug-ins] may configure Spring beans that are registered with the @ApplicationContext@. For a reference as to which beans are configured refer to the reference guide which describes each of the Grails plug-ins and which beans they configure).

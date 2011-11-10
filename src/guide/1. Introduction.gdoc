@@ -1,0 +1,18 @@
+오늘날의 현재 자바 웹 개발은 필요 이상으로 너무 복잡하다. 요즘 자바진영에 있는 대부분의 웹 프레임워크들은 지나치게 복잡하고, DRY(Don't Repeat Yourself)의 원칙을 따르고 있지않다.
+
+Rails, Django, TurboGear같은 동적 프레임워크는 웹 어플리케이션을 좀 더 현대적으로 생각해 볼 수 있게 해주었다. Grails는 이러한 개념위에 탄생했고 자바 플랫폼에서 웹 어플리케이션을 개발하는 일을 획기적으로 단순화시킨다. 하지만 Grails가 다른 프레임워크와의 차이점은 Spring이나 Hibernate같이 구현된 자바 기술을 활용하여 구현됐다는 점이다.                      
+
+Grails는 풀스택 프레임워크다. 그리고 Grails의 핵심기술 및 Grails의 플러그인을 이용해서 웹 개발이라는 퍼즐을 풀려한다. 그 안에는 다음과 같은 것을 포함한다.
+
+* [Hibernate|http://www.hibernate.org]를 기반으로 만들어진 손쉽게 사용할 수 있는 ORM
+* GSP(Groovy Server Pages)라 불리는 풍부한 뷰 기술
+* "Spring":http://www.springframework.org 에서 사용된 MVC모델의 컨트롤러 레이어.                               
+* Groovy로 강력해진 "Gant":http://groovy.codehaus.org/Gant 를 이용한 명령줄 스크립트 환경
+* 실행 중 로드를 기본으로 지원하는<sup>configured</sup> Jetty 컨테이너의 탑재
+* "Spring":http://www.springframework.org 컨테이너에의한 의존성 주입<sup>Dependency injection</sup>
+* Spring의 MessageSource 개념에 기반한 국제화 지원(i18n)
+* Spring의 트랜잭션 추상화 기능에 기반한 트랜잭션 서비스 레이어
+
+이 모든 것을 "Groovy":http://groovy.codehaus.org 언어와 DSL(Domain Specific Languages)를 통해서 사용하기 쉽게 만들었다.
+
+이 문서는 당신이 Grails를 시작하고, 또 Grails 프레임워크로 웹 어플리케이션을 만들 수 있도록 안내할 것이다.

@@ -1,0 +1,23 @@
+GSP는 조건과 반복을 위한 태그도 지원한다. 일반적인 분기 시나리오를 위해 [if|tags], [else|tags], [elseif|tags] 같은 태그를 다음과 같이 사용할 수 있다:
+
+{code:xml}
+<g:if test="${session.role == 'admin'}">
+   <%-- show administrative functions --%>
+</g:if>
+<g:else>
+   <%-- show basic functions --%>
+</g:else>
+{code}
+
+[each|tags]와 [while|tags] 태그로 GSP에서 반복 시나리오도 작성할 수 있다:
+
+{code:xml}
+<g:each in="${[1,2,3]}" var="num">
+   <p>Number ${num}</p>
+</g:each>
+
+<g:set var="num" value="${1}" />
+<g:while test="${num < 5 }">
+    <p>Number ${num++}</p>
+</g:while>
+{code}

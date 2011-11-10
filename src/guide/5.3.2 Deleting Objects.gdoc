@@ -1,0 +1,22 @@
+다음은 [delete|domainClasses] 메소드를 사용하는 예이다.
+
+{code}
+def p = Person.get(1)
+p.delete()
+{code}
+
+[delete|domainClasses] 메소드에도 flush 인자를 이용하여 flush시킬 수 있다.
+
+{code}
+def p = Person.get(1)
+p.delete(flush:true)
+{code}
+
+데이터를 삭제하는 것은 조심해야 하기 때문에 Grails도 @deleteAll@ 메소드를 제공하지 않는다. 이진 flags/logic을 이용해서 데이터를 삭제할 수 있다.
+
+정말 일괄 삭제해야 한다면 [executeUpdate|domainClasses] 메소드를 이용하여 DML 문을 실행시켜서 삭제할 수 있다.
+
+{code}
+Customer.executeUpdate("delete Customer c where c.name = :oldName", [oldName:"Fred"])
+{code}
+

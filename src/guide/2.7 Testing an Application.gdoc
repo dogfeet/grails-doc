@@ -1,0 +1,14 @@
+Grails의 @create-*@형식의 명령어들은 t@est/integration@ 디렉토리에 통합 테스트들을 자동적으로 만든다. 물론 [테스트|guide:testing] 에 대한 장에서 설명하는 정보와 테스트 로직에 부합하도록 내용을 채우는 일은 당신의 몫이다. 하지만 만약 테스트를 실행하기를 원한다면 당신은 다음과 같이 [test-app|commandLine] 명령어를 사용할 수 있다.
+
+{code}
+grails test-app
+{code}
+
+Grails는 [test-app|commandLine] 명령어와 동일하게 동작하는 Ant의 @build.xml@ 파일을 자동으로 만들어준다.
+
+
+{code}
+ant test
+{code}
+
+이것을 통해 CruiseControl같은 지속적 통합(continuous integration) 플랫폼을 유용하게 사용할 수 있다

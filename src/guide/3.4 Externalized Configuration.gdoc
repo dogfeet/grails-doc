@@ -1,0 +1,19 @@
+기본 설정 파일인 @grails-app/conf@ 에 있는 @Config.groovy@ 는 주요 상황에서는 꽤 괜찮다. 하지만 메인 어플리케이션 구조 _바깥에_ 구성 파일을 유지하고 싶을때가 있을 수 있다. 예를 들어, 어떤 관리자들은 WAR를 설치한 후에 설정을 변경하기 위하여 WAR을 다시 만들기 싫어서 어플리케이션의 설정을 외부로 빼고 싶어한다.
+
+이렇게 설정하는 시나리오를 위해 설정을 어플리케이션 밖에 위치 시킬 수 있다. @Config.groovy@ 파일 안에 @grails.config.locations@ 설정을 다음과 같이 사용하여 설정 파일의 위치를 Grails에 알린다:
+
+{code:java}
+grails.config.locations = [ "classpath:${appName}-config.properties",
+                            "classpath:${appName}-config.groovy",
+                            "file:${userHome}/.grails/${appName}-config.properties",
+                            "file:${userHome}/.grails/${appName}-config.groovy"]
+{code}
+
+이 예제는 클래스패스와 다른 경로인 @USER_HOME@ 에 위치한 설정파일(Java 프로퍼티 파일과 "ConfigSlurper":http://groovy.codehaus.org/ConfigSlurper 설정 모두)을 로드한다.
+
+모든 설정은 결국 [GrailsApplication|api:org.codehaus.groovy.grails.commons.GrailsApplication] 객체의 @config@ 프로퍼티로 합쳐지기 때문에 이를 이용해 설정에 접근할 수 있다.
+
+
+{note}
+또 Grails는 Spring의 프로퍼티 플레이스홀더(placeholder)와 프로퍼티를 오버라이드하는 configurer 개념도 지원한다. 자세한 정보는 [Grails와 Spring|guide:spring] 에 대한 장에 있다.
+{note}

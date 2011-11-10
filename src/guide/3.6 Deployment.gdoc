@@ -1,0 +1,59 @@
+h4. 빠른 설치
+
+실제 서비스(production) 환경에서는 Grails 어플리케이션들이 언제나 WAR파일로 설치된다. Grails 어플리케이션을 절대로 run-app명령어를 사용해서 설치하면 안된다. 왜냐하면, 그 명령어는 개발하는 동안 Grails를 auto-reloading을 하도록 구성하기 때문이다.
+
+하지만 run-war명령어를 이용해 다음과 같이 쉽고 빠르게 Grails 어플리케이션을 실행 할 수 있다.
+
+{code}
+grails prod run-war
+{code}
+
+80번 포트로 실행하도록 하는 방법이다.
+
+{code}
+grails -Dserver.port=80 prod run-war
+{code}
+
+그러면 WAR 파일이 생성되고 서비스production 환경의 WAR 파일은 Jetty를 이용해서 실행된다.
+
+h4. WAR 설치
+
+이전에 WAR 설치에 대해 언급했었다. war 명령어는 WAR 파일을 만들기 위한 편의를 제공한다. WAR 파일은 다양한 Java EE 호환 컨테이너에 설치된다.
+
+WAR 파일을 만들었다면 다음은 WAR 파일을 적당한 디렉토리에 넣어야 한다. 만악 컨테이너가 핫 디플로이먼트hot deployment를 지원한다면 자동으로 리로드될 것이고 그렇지 않으면 컨테이너를 재기동해야 할 것이다.
+
+예를 들어 아파치 톰캣에서는 TOMCAT_HOME/webapps 디렉토리에 WAR를 놓고 컨테이너를 재시작하면 된다.
+
+또 다른 컨테이너(특히 상업용)에서는 보통 웹 인터페이스를 제공한다. WAR파일을 웹 인터페이스로 실행중인 컨테이너에 올리고, 설치할 수 있다. 자세한 것은 해당 컨테이너에 대한 문서를 참조하고 설명대로 따라해야 한다.
+
+h4. WAR 파일 생성 수정하기
+
+만약 WAR 생성과정을 변경해야 한다면 다양한 방법으로 변경할 수 있다. 만약 간단하게 WAR가 생성되는 장소를 변경하고 싶다면 다음과 같이 하면된다:
+
+{code}
+grails war /my/container/path
+{code}
+
+위 방법 대신에 Config.groovy파일의 grails.war.destFile 옵션을 설정해도 된다:
+
+{code}
+grails.war.destFile=/my/container/path
+{code}
+
+만약에 WAR 파일을 생성하는 동안 의존성들을 수정해야 한다면(예를들어 컨테이너가 공유 라이브러리를 지원한다면) 다음과 같이 특정한 Ant fileset을 grails.war.dependencies 옵션에 명시할 수 있다.
+
+{code}
+grails.war.dependencies = {
+	fileset(dir:"/my/libs", includes:"*.jar")
+}
+{code}
+
+좀 더 유연하게 grails.war.resources를 설정할 수 있다. 이 설정에 WAR 파일을 어디에 생성할지 명시할 수 있다.
+
+{code}
+grails.war.resources = { warLocation ->
+	copy(todir:"$warLocation/WEB-INF") {
+		fileset(dir:"/my/configs", includes:"*.xml")
+	}
+}
+{code}

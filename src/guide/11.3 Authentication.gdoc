@@ -1,0 +1,44 @@
+기본적으로 현재 인증에 관한 기본 메커니즘이 없다고 하더라도 여러가지 다양한 방법으로 인증을 구현할 수 있다. 하지만 [interceptors|guide:interceptors]나 [filters|guide:filters]를 이용하면 인증 메커니즘을 쉽게 구현할 수 있다. 
+
+필터는 인증이 모든 컨트롤러나 URI 스페이스에 적용될 수 있다. 예를 들어 grails-app/conf/SecurityFilters.groovy 클래스를 아래와 같은 내용으로 생성할 수 있다:
+
+{code:java}
+class SecurityFilters {
+   def filters = {
+       loginCheck(controller:'*', action:'*') {
+           before = {
+              if(!session.user && actionName != "login") {
+                  redirect(controller:"user",action:"login")
+                  return false					
+	           }
+           }
+
+       }
+   }
+}
+{code}
+
+loginCheck 필터는 어떤 액션이 실행되기 전에 가로챌 것이다. 그리고 session에 user가 없거나 login 액션을 실행한것이 아니라면 login 액션으로 리다이렉트 한다.
+
+login 액션은 다음과 같이 간단하게 작성할 수 있다:
+
+{code:java}
+def login = {
+	if(request.get) render(view:"login")
+	else {
+		def u = User.findByLogin(params.login)
+		if(u) {
+			if(u.password == params.password) {
+				session.user = u
+				redirect(action:"home")
+			}
+			else {
+				render(view:"login", model:[message:"Password incorrect"])							
+			}
+		}
+		else {
+			render(view:"login", model:[message:"User not found"])			
+		}
+	}
+}
+{code}

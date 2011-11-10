@@ -1,0 +1,17 @@
+필터는 [controllers|guide:controllers], 태그 라이브러리([tag libraries|guide:taglibs]), 어플리케이션 컨텍스트에서 사용되는 모든 프로퍼티들을 지원한다:
+
+* [request|controllers] - HttpServletRequest 객체
+* [response|controllers] - HttpServletResponse 객체
+* [session|controllers] - HttpSession 객체
+* [servletContext|controllers] - ServletContext 객체
+* [flash|controllers] - flash 객체
+* [params|controllers] - 요청 파라미터 객체
+* [actionName|controllers] - 가로챈 액션의 이름
+* [controllerName|controllers] - 가로챈 컨트롤러의 이름
+* [grailsApplication|controllers] - 현재 실행중인 Grails 어플리케이션
+* [applicationContext|api:org.springframework.context.ApplicationContext] -  ApplicationContext 객체
+
+하지만 필터는 컨트롤러나 태그 라이브러리들에서 사용 가능한 모든 메소드들이 아니라 일부분만 지원한다:
+
+* [redirect|controllers] - 컨트롤러와 다른 액션으로 리다이렉트시키기 위해 사용
+* [render|controllers] - 사용자 정의 응답을 렌더링하기 위해 사용한다

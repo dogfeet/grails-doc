@@ -1,0 +1,4 @@
+컨트롤러(Controller)는 요청([request|controllers])을 처리해 응답(response)을 생성한다. 요청이 들어올 때마다 새로운 인스턴스가 생성되고 컨트롤러는 응답을 생성하거나 뷰에 넘길 수 있다. 컨트롤러를 만드는 방법은 쉽다. @Controller@로 끝나는 클래스를 만들고 이 클래스를 @grails-app/controllers@ 디렉토리에 넣으면 된다.
+
+먼저 컨트롤러 이름을 URI에 매핑하고 그 다음에 컨트롤러에 정의된 액션을 URI에 매핑하는 것이 기본적으로 [URL이 매핑|guide:mapping]되는 방법이다.
+

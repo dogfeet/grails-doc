@@ -1,0 +1,90 @@
+h4. Creating Layouts(레이아웃 만들기)
+
+Grails는 데코레이터 엔진인 [Sitemesh|http://www.opensymphony.com/sitemesh/]에 기반한 레이아웃을 지원한다. 레이아웃은 @grails-app/views/layouts@ 디렉토리에 위치한다. 일반적인 레이아웃은 다음과 같다:
+
+{code:xml}
+<html>
+      <head>
+          <title><g:layoutTitle default="An example decorator" /></title>
+          <g:layoutHead />
+      </head>
+      <body onload="${pageProperty(name:'body.onload')}">
+            <div class="menu"><!--my common menu goes here--></menu>
+                 <div class="body">
+                      <g:layoutBody />
+                 </div>
+            </div>
+      </body>
+</html>
+{code}
+
+핵심은 [layoutHead|tags], [layoutTitle|tags], [layoutBody|tags] 태그를 사용한 것이다. 각각의 태그의 의미는 다음과 같다:
+
+* @layoutTitle@ - 대상 페이지의 제목을 출력
+* @layoutHead@ - 대상 페이지의 head 태그의 내용을 출력
+* @layoutBody@ - 대상 페이지의 body 태그의 내용을 출력
+
+위의 예제의 [pageProperty|tags] 태그는 대상 페이지의 모습(aspect)를 검사하고(inspect) 반환하기 위해 사용했다.
+
+h4. Triggering Layouts(레이아웃 사용하기)
+
+레이아웃을 사용하는 방법은 여러가지이다. 가장 단순한 방법은 meta 태그를 뷰에 삽입하는 것이다:
+
+{code:xml}
+<html>
+    <head>
+	    <title>An Example Page</title>
+        <meta name="layout" content="main"></meta>
+    </head>
+    <body>This is my content!</body>
+</html>
+{code}
+
+이 경우에는 grails-app/views/layouts/main.gsp라는 레이아웃이 사용된다. 위에서 설명한 레이아웃에 적용한다면 다음과 같은 결과를 얻게될 것이다:
+
+{code:xml}
+<html>
+      <head>
+          <title>An Example Page</title>
+      </head>
+      <body onload="">
+        <div class="menu"><!--my common menu goes here--></div>
+                 <div class="body">
+					This is my content!
+                 </div>
+      </body>
+</html>
+{code}
+
+h4. Layout by Convention(관례에 따르는 레이아웃)
+
+레이아웃을 사용하는 두번째 방법은 관례를 따르는 것이다. 예를 들어 다음과 같은 컨트롤러를 가지고 있다면:
+
+{code:java}
+class BookController {
+    def list = {  ... }
+}
+{code}
+
+grails-app/views/layouts/book.gsp이라는 레이아웃을 만들면 관례에 따라 BookController와 관련된 모든 뷰에 적용될 것이다.
+
+BookController의 list 액션에만 적용되는 레이아웃은 grails-app/views/layouts/book/list.gsp에 만들면 된다.
+
+list 액션이 실행될 때 여기에서 언급한 레이아웃이 모두 존재한다면 액션의 레이아웃이 적용될 것이다.
+
+h4. Inline Layouts(인라인 레이아웃)
+
+Grails는 applyLayout 태그를 통해 Sitemesh의 인라인 레이아웃의 개념도 지원한다. [applyLayout|tags] 태그는 템플릿, URL, 내용중 일부에만 레이아웃을 적용하는데 사용한다. 근본적으로 이 것은 템플릿과 함께 뷰 구조를 모듈화할 수 있게 해준다.
+
+다음은 이 것을 보여주는 몇 가지 예제들이다:
+
+{code:xml}
+<g:applyLayout name="myLayout" template="bookTemplate" collection="${books}" />
+
+<g:applyLayout name="myLayout" url="http://www.google.com" />
+
+<g:applyLayout name="myLayout">
+The content to apply a layout to
+</g:applyLayout>
+{code}
+

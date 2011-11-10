@@ -1,0 +1,23 @@
+쉽게 매핑을 정의하려면 메소드 이름으로 하위 URL을 만들고 매핑할 컨트롤러와 액션을 네임드 파라미터를 사용하여 명시한다:
+
+{code:java}
+"/product"(controller:"product", action:"list")
+{code}
+
+이 예제는 ProductController의 list 액션에 /product URL이 매핑된다는 의미이다. 물론 action을 생략하여 컨트롤러의 기본 액션에 매핑되도록 할 수 있다:
+
+{code:java}
+"/product"(controller:"product")
+{code}
+
+메소드에 넘기는 블력 안에 컨트롤러와 액션을 명시하는 방법도 있다:
+
+{code:java}
+"/product" {
+	controller = "product"
+	action = "list"
+}
+{code}
+
+'어떤 방법을 사용하는 가?'는 전적으로 개인의 취향에 달려있다.
+

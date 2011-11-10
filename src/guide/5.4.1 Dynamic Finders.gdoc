@@ -1,0 +1,117 @@
+GORM은 *동적 파인더* 개념을 지원한다. 동적 파인더는 정적 메소드를 실행하는 것과 비슷하다. 그렇지만 동적 파인더를 지원하기 위해 특별한 메소드가 존재하는 것은 아니다.
+
+메소드를 사용하는 것이 아니다. 클래스의 프로퍼티를 기반으로 런타임에 코드를 합성하여 마술처럼 자동으로 생성한다. 다음 Book 클래스의 예를 보자.
+
+{code} 
+class Book {
+	String title
+	Date releaseDate
+	Author author
+}                
+class Author {
+	String name
+}
+{code}
+
+@Book@ 클래스는 title, releaseDate, author같은 프로퍼티를 가지고 있다. 이 프로퍼티들은 '메소드 표현식(method expressions)'에 따라 [findBy|domainClasses] [findAllBy|domainClasses] 메소드에서 사용된다.
+
+{code}
+def book = Book.findByTitle("The Stand")
+
+book = Book.findByTitleLike("Harry Pot%")
+
+book = Book.findByReleaseDateBetween( firstDate, secondDate )
+
+book = Book.findByReleaseDateGreaterThan( someDate )
+
+book = Book.findByTitleLikeOrReleaseDateLessThan( "%Something%", someDate )
+{code}
+
+h4. Method Expressions(메소드 표현식)
+
+GORM의 메소드 표현식은 [findBy|domainClasses] 같은 접두어 뒤에 프로퍼티들을 연결시켜서 완성된다. 기본식은 다음과 같다.
+
+{code}
+     Book.findBy[Property][Suffix]*[Boolean Operator]*[Property][Suffix]
+{code}
+
+*는 생략가능하고 각각의 접미어에 따라 쿼리가 달라진다. 예를 들면:
+
+{code}
+def book = Book.findByTitle("The Stand")
+
+book =  Book.findByTitleLike("Harry Pot%")
+{code}                                    
+
+
+이 예에서 전자는 등호 연산과 동일하고 후자는 접미어 @Like@로 인해 @like@ 연산으로 동작한다.
+
+가능한 접미어들:
+
+* @LessThan@ - less than the given value
+* @LessThanEquals@ - less than or equal a give value
+* @GreaterThan@ - greater than a given value
+* @GreaterThanEquals@ - greater than or equal a given value
+* @Like@ - Equivalent to a SQL like expression
+* @Ilike@ - Similar to a @Like@, except case insensitive
+* @NotEqual@ - Negates equality
+* @Between@ - Between two values (requires two arguments)
+* @IsNotNull@ - Not a null value (doesn't require an argument)
+* @IsNull@ - Is a null value (doesn't require an argument)
+
+You'll notice the last 3 effect the number of arguments required to the method as demonstrated by the example:
+ 
+{code}
+def now = new Date()
+def lastWeek = now - 7
+def book = Book.findByReleaseDateBetween( lastWeek, now )
+
+{code}   
+
+Equally @isNull@ and @isNotNull@ require no arguments:
+
+{code}
+def books = Book.findAllByReleaseDateIsNull()
+{code}       
+
+h4. Boolean logic (AND/OR) 
+
+Method expressions can also use a boolean operator to combine two criteria:
+
+{code}
+def books = 
+    Book.findAllByTitleLikeAndReleaseDateGreaterThan("%Java%", new Date()-30)
+{code}     
+
+In this case we're using @And@ in the middle of the query to make sure both conditions are satisfied, but you could equally use @Or@:
+ 
+{code}
+def books = 
+    Book.findAllByTitleLikeOrReleaseDateGreaterThan("%Java%", new Date()-30)
+{code}
+
+Clearly, method names can end up being quite long, in which case you should consider using [Criteria|guide:5.4.2 Criteria].
+
+h4. Querying Associations
+
+Associations can also be used within queries:
+
+{code}
+def author = Author.findByName("Stephen King")
+
+def books = author ? Book.findAllByAuthor(author) : []
+{code}
+
+In this case if the @Author@ instance is not null we use it in a query to obtain all the @Book@ instances for the given @Author@.      
+
+h4. Pagination & Sorting
+
+The same pagination and sorting parameters available on the [list|domainClasses] method can also be used with dynamic finders by supplying a map as the final parameter:
+
+{code}
+def books = 
+  Book.findAllByTitleLike("Harry Pot%", [max:3, 
+                                         offset:2, 
+                                         sort:"title",
+                                         order:"desc"])
+{code}

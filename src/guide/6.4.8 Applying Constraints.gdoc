@@ -1,0 +1,34 @@
+URL 매핑은 Grails의 유효성 검사 제약조건([validation constraints|guide:constraints]) 매커니즘과 통합돼 있다. 이것은 URL이 매핑될때 제약조건을 달 수 있게 해준다. 다음과 같이 위의 블로그 예제에 적용해 본다면:
+
+{code:java}
+static mappings = {
+   "/$blog/$year?/$month?/$day?/$id?"(controller:"blog", action:"show")
+}
+{code}
+
+다음의 URL은 매핑된다:
+
+{code:java}
+/graemerocher/2007/01/10/my_funky_blog_entry
+{code}
+
+그러나 이것은 다음의 URL도 허용할 것이다:
+
+{code:java}
+/graemerocher/not_a_year/not_a_month/not_a_day/my_funky_blog_entry
+{code}
+
+하지만 컨트롤러에서 url을 파싱해야 하는 것은 큰 문제가 아닐 수 없다. 운좋게도 URL 매핑에 제약조건을 정의해서 URL 토큰의 유효성을 검사할 수 있다.
+
+{code:java}
+"/$blog/$year?/$month?/$day?/$id?" {
+     controller = "blog"
+     action = "show"
+     constraints {
+          year(matches:/\d{4}/)
+          month(matches:/\d{2}/)
+          day(matches:/\d{2}/)
+     }
+}{code}
+
+이 예제에서 contraints 블럭은 year, month, day 파라미터가 특별한 형식을 따르도록 보증한다. 그래서 우리가 해야 할 일을 줄여 준다.

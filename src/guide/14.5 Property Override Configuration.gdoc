@@ -1,0 +1,21 @@
+Grails는 프로퍼티 오버라이드 설정의 개념을 제공한다. 이것은 Spring의 [PropertyOverrideConfigurer|api:org.springframework.beans.factory.config.PropertyOverrideConfigurer]의 확장 버전을 통해 제공한다. 이것은 외부화된 설정([externalized configuration|guide:3.4 Externalized Configuration])과 함께 묶여서 사용될때 일반적으로 유용하다.
+
+기본적으로 Bean에서 설정을 오버라이드 할 수 있는 Bean 코드를 정의하는 "ConfigSlurper":http://groovy.codehaus.org/ConfigSlurper 스크립트를 제공할 수 있다:
+
+{code:java}
+beans {
+   bookService.webServiceURL = "http://www.amazon.com"
+}
+{code}
+
+오버라이드는 Spring ApplicationContext가 생성되기 전에 적용된다. 그 형식은 아래와 같다:
+
+{code:java}
+[bean name].[property name] = [value]
+{code}
+
+또한 Bean으로 이름이 시작되는 각 Entry를 써서 자바 프로퍼티 파일을 제공할 수 있다:
+
+{code:java}
+beans.bookService.webServiceURL=http://www.amazon.com
+{code}

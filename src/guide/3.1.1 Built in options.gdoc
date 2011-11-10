@@ -1,0 +1,10 @@
+Grails는 다음과 같은 설정 옵션을 제공한다.
+
+* grails.config.locations - 프로퍼티 파일이나 추가할 Grails의 설정 파일의 위치를 나타낸다. 추가된 Grails의 설정 파일은 메인 설정파일과 통합돼야 한다.
+* grails.enable.native2ascii - 만약 Grails의 i18n 프로퍼티 파일의 native2ascii 전환이 필요없다면 false로 세팅하라
+* grails.views.default.codec - GSP를 위한 기본 인코딩을 지정한다. - 'none', 'html', 'base64'중에 하나로 설정할 수 있다. (기본은 'none'이다.) XSS 공격의 위험을 줄이려면 'html'로 바꿔라.
+* grails.views.gsp.encoding - GSP 소스파일에서 사용되는 파일 인코딩 (기본적으로 'utf-8'로 되어있다)
+* grails.war.destFile - [war|commandLine] 명령어로 WAR 파일을 생성 할 장소를 지정한다.
+* grails.mime.file.extensions - Content Negotiation의 마임 타입에서 사용할 파일 확장자를 지정한다.
+* grails.mime.types - Grails에서 Content Negotiation에 사용할 MIME 타입을 맵 형식으로 지정한다.
+* @grails.serverURL@ - 서버의 도메인 이름을 포함한 URL의 절대경로 서버 주소. 예, grails.serverURL="http://my.yourportal.com" . [createLink|Tags] 참조.

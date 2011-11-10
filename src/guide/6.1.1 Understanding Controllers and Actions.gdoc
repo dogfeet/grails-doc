@@ -1,0 +1,50 @@
+h4. Creating a controller(컨트롤러 만들기)
+
+[create-controller|commandLine] 명령(target)으로 컨트롤러를 만들 수 있다. Grails 프로젝트의 루트(root) 디렉토리에서 다음의 명령을 실행한다:
+
+{code:java}
+grails create-controller book
+{code}
+
+이 명령을 실행하면 컨트롤러가 @grails-app/controllers/BookController.groovyv@파일에 만들어진다:
+
+
+{code:java}
+class BookController { ... }
+{code}
+
+이 @BookController@는 기본적으로 /book URI로 매핑된다(어플리케이션의 루트의 하위로).
+
+{note}
+@create-controller@ 명령은 매우 편리하다. 아주 쉽게 컨트롤러를 만들고 텍스트 에디터나 IDE로 편집할 수 있다.
+{note}
+
+h4. Creating Actions(액션 만들기)
+
+컨트롤러는 코드 블럭으로 구현된 많은 프로퍼티를 가질 수 있다. 각 프로퍼티는 URI에 매핑된다.
+
+{code:java}
+class BookController {
+    def list = {
+
+        // do controller logic
+        // create model
+
+        return model
+    }
+}
+{code}
+
+이 예제의 list 프로퍼티는 기본적으로 @/book/list@로 매핑된다.
+
+h4. The Default Action(기본 액션)
+
+컨트롤러의 URI에 매핑하는 기본 액션이 있다. 이 경우의 기본 URI는 @/book@이고 기본 URI는 다음 규칙을 따른다.
+
+* 컨트롤러에 액션이 하나밖에 없다면 기본 URI는 그 액션에 매핑된다.
+* /book에 명시된 액션이 없을 때 요청을 처리하는 액션은 @index@ 액션이다.
+* @defaultAction@ 프로퍼티를 이용해서 기본 URI에 매핑되는 액션을 설정할 수 있다:
+
+{code:java}
+def defaultAction = "list"
+{code}

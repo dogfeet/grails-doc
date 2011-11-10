@@ -1,0 +1,24 @@
+당연히 @<% %>@ 블럭에 변수를 정의 할 수 있다:
+
+{code:xml}
+<% now = new Date() %>
+{code}
+
+그리고 정의한 부분 이후부터 이 변수를 재사용할 수 있다:
+
+{code:xml}
+<%=now%>
+{code}
+
+그러나 GSP에서 사용할 수 있도록 미리 정의된 변수들이 많이 있다:
+
+* @application@ - [javax.servlet.ServletContext|api:javax.servlet.ServletContext] 인스턴스
+* @applicationContext@ - Spring의 [ApplicationContext|api:org.springframework.context.ApplicationContext] 인스턴스
+* @flash@ - [flash|controllers] 객체
+* @grailsApplication@ - [GrailsApplication|api:org.codehaus.groovy.grails.commons.GrailsApplication] 인스턴스
+* @out@ - 출력 스트림에 쓸 수 있는 응답 writer
+* @params@ - 요청 파라미터들을 얻을 수 있는 [params|controllers] 객체
+* @request@ - [HttpServletRequest|api:javax.servlet.http.HttpServletRequest] 인스턴스
+* @response@ - [HttpServletResponse|api:javax.servlet.http.HttpServletResponse] 인스턴스
+* @session@ - [HttpSession|api:javax.servlet.http.HttpSession] 인스턴스
+* @webRequest@ - [GrailsWebRequest|api:org.codehaus.groovy.grails.web.servlet.mvc.GrailsWebRequest] 인스턴스

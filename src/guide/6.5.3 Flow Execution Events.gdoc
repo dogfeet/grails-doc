@@ -1,0 +1,60 @@
+플로우의 상태를 다른 상태로 전이 시키기 위해서 플로우가 무슨 상태로 전이 해야 하는지를 알리는 이벤트를 발생시켜야 한다. 이벤트는 뷰 상태와 액션 상태에서 발생시킬 수 있다.
+
+h4. Triggering Events from a View State(뷰 상태에서 이벤트 발생시키키)
+
+위에서 다뤘던 플로우의 시작 상태는 checkout과 continueShopping이라는 두 가지 이벤트를 처리할 수 있었다:
+
+{code:java}
+def shoppingCartFlow = {
+    showCart {
+        on("checkout").to "enterPersonalDetails"           
+        on("continueShopping").to "displayCatalogue"
+    }
+    ...
+}
+{code}
+
+showCart는 뷰 상태이기 때문에 grails-app/book/shoppingCart/showCart.gsp를 렌더링할 것이다. 이 뷰에는 플로우를 실행하는 요소가 포함돼야 한다. 폼에 [submitButton|tags] 태그를 사용하여 플로우를 실행시킨다:
+
+{code:xml}
+<g:form action="shoppingCart">
+    <g:submitButton name="continueShopping" value="Continue Shopping"></g:submitButton>
+    <g:submitButton name="checkout" value="Checkout"></g:submitButton>
+</g:form>
+{code}
+
+이 폼은 shoppingCart 플로우에 전송(submit)된다. 각 [submitButton|tags] 태그의 name 속성은 발생되는 이벤트를 의미한다. [link|tags] 태그를 사용하여 폼없이 이벤트를 발생시킬 수 있다.
+
+{code:xml}
+<g:link action="shoppingCart" event="checkout" />{code}
+
+h4. Triggering Events from an Action(액션에서 이벤트 발생시키기)
+
+액션에서 이벤트를 발생시키려면 메소드를 실행해야 한다. 예를 들어 error()와 success()라는 빌트인 메소드가 있다. 다음 예제는 전이 액션에서 유효성 감사에 실패했을 때 error() 이벤트를 발생시킨다:
+
+{code:java}
+enterPersonalDetails {
+   on("submit") {
+         def p = new Person(params)
+         flow.person = p
+         if(!p.validate())return error()
+   }.to "enterShipping"
+   on("return").to "showCart"
+}
+{code}
+
+전이 액션에서 에러가 발생하면 플로우를 enterPersonalDetails 상태로 되돌아 가게 만들 것이다.
+
+액션 상태에서 플로우를 리다이렉트 시키기위해 이벤트를 발생시킬 수 있다:
+
+{code:java}
+shippingNeeded {
+   action {
+       if(params.shippingRequired) yes()
+       else no()
+   }
+   on("yes").to "enterShipping"
+   on("no").to "enterPayment"
+}
+{code}
+

@@ -1,0 +1,22 @@
+일반적인 설정을 위해서 grails는 @grails-app/conf/Config.groovy@ 라는 파일을 제공한다. 이 파일은 groovy의 "ConfigSlurper":http://groovy.codehaus.org/ConfigSlurper를 사용한다. ConfigSlurper는 순수 groovy로 만들어졌다는 것을 제외하고는 자바 프로퍼티 파일과 매우 유사하다. 따라서 적절한 자바 타입과 변수를 재사용 할 수 있다.
+
+예를 들어, 다음과 같이 설정을 추가할 수 있다:
+
+{code}
+foo.bar.hello = "world"
+{code}
+
+그리고 나서 어플리케이션에서 두 가지 방법으로 이 설정에 접근할 수 있다. 컨트롤러나 태그라이브러리에서 사용가능한 [GrailsApplication|api:org.codehaus.groovy.grails.commons.GrailsApplication] 객체를 통해서 접근하는 것이 가장 일반적이다:
+
+{code}
+assert "world" == grailsApplication.config.foo.bar.hello
+{code}
+
+두번째 방법으로 설정 객체를 참조하고 있는 [ConfigurationHolder|api:org.codehaus.groovy.grails.commons.ConfigurationHolder] 사용할 수도 있다:
+
+{code}
+import org.codehaus.groovy.grails.commons.*
+...
+def config = ConfigurationHolder.config
+assert "world" == config.foo.bar.hello
+{code}

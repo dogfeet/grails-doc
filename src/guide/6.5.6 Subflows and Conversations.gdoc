@@ -1,0 +1,58 @@
+Grails의 웹 플로우는 서브플로우를 지원한다. 서브플로우는 플로우안에 있는 플로우를 말한다. 검색 플로우의 예를 보면:
+
+{code:java}
+def searchFlow = {
+            displaySearchForm {
+                on("submit").to "executeSearch"
+            }
+            executeSearch {
+                action {
+                    [results:searchService.executeSearch(params.q)]
+                }
+                on("success").to "displayResults"
+                on("error").to "displaySearchForm"
+            }
+            displayResults {
+                on("searchDeeper").to "extendedSearch"
+                on("searchAgain").to "displaySearchForm"
+            }
+            extendedSearch {
+                subflow(extendedSearchFlow)   // <--- 확장된 검색 서브플로우
+                on("moreResults").to "displayMoreResults"
+                on("noResults").to "displayNoMoreResults"
+            }
+            displayMoreResults()
+            displayNoMoreResults()
+}{code}
+
+이 것은 extendedSearch 상태에 있는 서브플로우를 참조한다. 서브플로우는 다른 플로우와 완전히 동일하다:
+
+{code:java}
+def extendedSearchFlow = {
+       startExtendedSearch {
+           on("findMore").to "searchMore"
+           on("searchAgain").to "noResults"
+       }
+       searchMore {
+           action {
+              def results = searchService.deepSearch(ctx.conversation.query)
+              if(!results)return error()
+              conversation.extendedResults = results
+           }
+           on("success").to "moreResults"
+           on("error").to "noResults"
+       }
+       moreResults()
+       noResults()
+}{code}
+
+extendedResults가 conversation 스콥에 어떻게 저장되는지 살펴보자. 이 스콥는 conversation 전체에 걸친 모든 상태에 공유되므로 flow 스콥와 다르다. 서브플로우의 끝 상태인 noResults와 moreResults는 이벤트를 주 플로우에 발생킨다:
+
+{code:java}
+extendedSearch {
+         subflow(extendedSearchFlow)   // <--- extended search subflow
+         on("moreResults").to "displayMoreResults"
+         on("noResults").to "displayNoMoreResults"
+}
+{code}
+

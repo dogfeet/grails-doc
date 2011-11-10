@@ -1,0 +1,11 @@
+지금까지 이 문서에서는 URL을 /controller/action/id라는 관례에 따라서만 사용했다. 그러나 이 관례는 Grails에서 고정된 것(hard wired)이 아니고 실제로 URL 매핑 클래스를 grails-app/conf/UrlMappings.groovy에 구현하여 제어할 수 있다.
+
+UrlMappings 클래스는 코드의 블럭을 할당할 수 있는 mappings이라는 프로퍼티 하나만 가진다:
+
+{code:java}
+class UrlMappings {
+    static mappings = {
+    }	
+}
+{code}
+

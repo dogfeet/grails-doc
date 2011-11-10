@@ -1,0 +1,43 @@
+Grails의 URL 매핑 메커니즘은 와일드카드도 지원한다. 다음과 같이 사용할 수 있다:
+
+{code:java}
+static mappings = {
+	"/images/*.jpg"(controllers:"image")
+}
+{code}
+
+이 예제에서는 /image/logo.jpg처럼 이미지에 대한 모든 경로가 매핑될 것이다. 물론 변수를 사용해서 동일한 결과를 얻을 수도 있다:
+
+{code:java}
+static mappings = {
+	"/images/$name.jpg"(controllers:"image")
+}
+{code}
+
+한 단계 이상의 것들이 매핑되도록 와일드카드를 두 개 사용할 수도 있다:
+
+{code:java}
+static mappings = {
+	"/images/**.jpg"(controllers:"image")
+}
+{code}
+
+이 경우에 /image/logo.jpg 뿐만아니라 /image/other/logo.jpg도 매핑된다. 와일드카드와 변수를 함께 사용할 수 있다:
+
+{code:java}
+static mappings = {
+	// will match /image/logo.jpg and /image/other/logo.jpg 
+	"/images/$name**.jpg"(controllers:"image")
+}
+{code}
+
+와일드카드로 매핑된 경로가 [params|controllers] 객체에서 얻을 수 있는 name 파라미터에 저장될 것이다:
+
+{code:java}
+def name = params.name
+println name // "logo.jpg"나 "other/logo.jpg"가 출력된다
+{code}
+
+
+
+

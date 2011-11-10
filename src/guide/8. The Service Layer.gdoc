@@ -1,0 +1,18 @@
+Grails는 웹 레이어([Web layer|guide:6. The Web Layer]) 뿐만아니라 서비스 레이어 개념도 지원한다. Grails 팀은 컨트롤러에 어플리케이션의 중요한(core) 로직을 내장시키는 것을 권장하지 않는다. 내장시키는 일은 재사용을 어렵게 만들고 깨끗하게 분리되지 않게 만든다.
+
+리다이렉트등의 요청을 처리하는 것은 컨트롤러의 책임으로 남겨두고 어플리케이션의 로직들은 Grails의 서비스에 구현하는 것이 낫다.
+
+h4. Creating a Service(서비스 만들기)
+
+터미널 윈도우를 띄우고 프로젝트 루트 디렉토리로 가서 [create-service|commandLine] 명렁어를 실행하면 Grails 서비스가 만들어진다:
+
+{code:java}
+grails create-service simple
+{code}
+
+이 예제를 실행하면 grails-app/services/SimpleService.groovy라는 서비스가 생성된다. 서비스는 보통의 Groovy 클래스이고 서비스의 이름은 관례에 따라 Service로 끝난다:
+
+{code:java}
+class SimpleService {	
+}
+{code}

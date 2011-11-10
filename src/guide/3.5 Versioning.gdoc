@@ -1,0 +1,34 @@
+h4. Versioning Basics(버전 기초)
+
+Grails에는 어플리케이션 버전을 관리하는 기능이 내장되어 있다. [create-app|commandLine] 를 이용해서 어플리케이션을 처음 만들었을 때의 버전은 0.1이 된다. 버전은 프로젝트의 루트에 있는 @application.properties@ 라는 어플리케이션 메타 데이터에 저장이 된다.
+
+어플리케이션의 버전을 바꾸기 위해서는, set-version명령어를 사용한다.
+
+{code:java}
+grails set-version 0.2
+{code}
+
+버전은 war 명령어뿐만 아니라 많은 명령어에서 사용된다. [war|commandLine] 명령어를 실행하면 생성되는 WAR파일의 끝에 어플리케이션의 버전을 덧붙혀진다.
+
+h4. Detecting Versions at Runtime(런타임에 버전 알아내기)
+
+런타임에 어플리케이션의 버전을 알아낼 수 있다. Grails에서 제공하는 [GrailsApplication|api:org.codehaus.groovy.grails.commons.GrailsApplication] 클래스를 통해 어플케이션의 메타데이터에 접근한다. 예를 들어 [컨트롤러|guide:controllers] 에는 다음과 같이 사용할 수 있는 [grailsApplication|controllers] 변수가 이미 있다:
+
+{code:java}
+def version = grailsApplication.metadata['app.version']
+{code}
+
+만약 Grails의 버전을 알고 싶다면 다음과 같이 사용할 수 있다.
+
+{code:java}
+def grailsVersion = grailsApplication.metadata['app.grails.version']
+{code}
+
+또는 @GrailsUtil@ 클래스를 사용할 수도 있다:
+
+{code:java}
+import grails.util.*
+def grailsVersion = GrailsUtil.grailsVersion
+{code}
+
+

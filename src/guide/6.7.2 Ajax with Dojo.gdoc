@@ -1,0 +1,13 @@
+"Dojo":http://dojotoolkit.org/ 플러그인을 Grails에 추가하여 사용한다. 터미널 윈도우를 띄우고 프로젝트 루트 디렉토리에서 다음과 같은 명령어를 사용하여 플러그인을 설치한다:
+
+{code:java}
+grails install-plugin dojo
+{code}
+
+이 것은 현재 지원하는 Dojo버전을 다운로드하고 Grails 프로젝트에 설치할 것이다. 그리고 페이지에 다음과 같이 참조 태그를 추가해서 사용할 수 있다:
+
+{code:xml}
+<g:javascript library="dojo" />
+{code}	
+
+현재 [remoteLink|tags], [formRemote|tags], [submitToRemote|tags]같은 모든 Grails 태그는 Dojo에서도 잘 동작한다.

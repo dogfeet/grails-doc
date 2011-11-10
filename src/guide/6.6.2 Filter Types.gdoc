@@ -1,0 +1,26 @@
+필터의 바디에 정의할 수 있는 인터셉터의 타입은 다음과 같다:
+
+* @before@ - 액션이 실행되기 전에 실행된다. false를 반환하면 뒤따르는 모든 필터와 액션이 실행되지 않음
+* @after@ - 액션이 실행된 후에 실행된다. 첫번째 파라미터로 뷰 모델을 넘겨 받음
+* @afterView@ - 뷰가 렌더링된 후에 실행
+
+예를 들어 보통의 인증 유즈 케이스를 구현하기 위해서 다음과 같이 정의한다:
+
+{code:java}
+class SecurityFilters {
+   def filters = {
+       loginCheck(controller:'*', action:'*') {
+           before = {
+              if(!session.user && !actionName.equals('login')) {
+                  redirect(action:'login')
+                  return false
+               }
+           }
+
+       }
+   }
+}
+{code}
+
+
+이 예제의 loginCheck 필터는 before 인터셉터를 사용한다. 이 인터셉터는 사용자의 세션이 열려있고 login 액션으로 리다이렉트시켜야 하는지를 검사한다. false가 반환되면 액션이 실행되지 않는다는 것을 기억하라.

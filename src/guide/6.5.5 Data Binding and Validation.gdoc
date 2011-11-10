@@ -1,0 +1,32 @@
+시작과 끝 상태를 다룬 절에서 첫 예제의 시작상태는 enterPersonalDetails 상태로 전이를 일으켰다. 이 상태는 뷰를 렌더링하고 사용자가 요구된 정보를 입력할 때까지 기다린다:
+
+{code:java}
+enterPersonalDetails {
+   on("submit").to "enterShipping"
+   on("return").to "showCart"
+}
+{code}
+
+이 뷰에는 submit 이벤트와 return 이벤트를 발생시킬 수 있는 두 개의 submit 버튼이 있다:
+
+{code:xml}
+<g:form action="shoppingCart">
+    <!-- Other fields -->
+    <g:submitButton name="submit" value="Continue"></g:submitButton>
+    <g:submitButton name="return" value="Back"></g:submitButton>
+</g:form>
+{code}
+
+그러나 폼에 제출된 정보를 가로챌 수는 없을까? 폼의 정보를 가로 채기 위해서 플로우의 전이 액션을 사용할 수 있다:
+
+{code:java}
+enterPersonalDetails {
+   on("submit") {
+         flow.person = new Person(params)
+         !flow.person.validate() ? error() : success()
+   }.to "enterShipping"
+   on("return").to "showCart"
+}
+{code}
+
+요청 파라미터로 부터 데이터를 어떻게 바인딩할 수 있고 flow 스콥에 Person 인스턴스가 어떻게 저장되는지 알아보자. 흥미로운 것은 유효성을 검사하고 유효성 검사([validation|guide:validation])가 실패했을 때 error() 메소드를 실행시키는 것이다. 이 것은 플로우의 전이를 중지하고 enterPersonalDetails 뷰로 되돌아가야 한다는 것을 의미한다. 그 결과로 사용자는 올바른 정보만 입력할 수 있다. 실패하지 않으면 enterShipping 상태로 계속 전이할 것이다.

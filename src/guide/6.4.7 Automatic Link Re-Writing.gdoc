@@ -1,0 +1,23 @@
+URL 매핑의 강력한 기능이 하나 더 있다. 이 기능은 자동으로 [link|tags]를 수정한다. mapping 프로퍼티을 수정하지 않고서도 모든 링크를 수정할 수 있다.
+
+이것은 URL 매핑시 링크를 리버스엔지니어링하는 URL rewrite 기술을 통해 이루어진다. 다음과 같이 위에서 설명한 블로그 매핑이 있다면:
+
+{code:java}
+static mappings = {
+   "/$blog/$year?/$month?/$day?/$id?"(controller:"blog", action:"show")
+}
+{code}
+
+다음과 같이 link 태그를 사용할 수 있다:
+
+{code:xml}
+<g:link controller="blog" action="show" params="[blog:'fred', year:2007]">My Blog</g:link>
+<g:link controller="blog" action="show" params="[blog:'fred', year:2007, month:10]">My Blog - October 2007 Posts</g:link>
+{code}
+
+자동으로 올바른 URL로 rewrite될 것이다:
+
+{code:xml}
+<a href="/fred/2007">My Blog</a>
+<a href="/fred/2007/10">My Blog - October 2007 Posts</a>
+{code}

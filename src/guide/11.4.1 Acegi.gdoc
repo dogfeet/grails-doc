@@ -1,0 +1,5 @@
+
+Acegi 플러그인은 "Spring Acegi":http://www.acegisecurity.org/ 프로젝트에서 만들어졌고 모든 종류의 인증이나 권한부여 스키마를 구축하는데 있어 유연하고 확장성있는 프렘임워크을 제공한다. 
+
+Acegi 플러러그인은 URI와 롤(Role)과의 매핑을 지정해야 하며 기본 도메인 모델을 사용자, 권한 설정들, 요청 매핑에 대해서 모델링 하는것을 제공한다. "위키의 문서":http://grails.org/AcegiSecurity+Plugin 를 참고하면 더 자세한 정보를 얻을 수 있다.
+

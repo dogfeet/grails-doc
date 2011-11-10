@@ -1,0 +1,43 @@
+h4. Reading Messages in the View(뷰에서 메시지 읽어오기)
+
+메시지가 필요한곳은 대부분 뷰 안에서이다. 뷰에서 메시지를 읽어오기 위해서는 간단히 [message|tags] 태그를 사용한다.
+
+{code:xml}
+<g:message code="my.localized.content" />
+{code}
+
+적절한 Locale 접미사를 가진 message.properties 파일에 아래와 같이 key를 가지고 있으면 Grails는 해당 메시지를 찾는다.
+
+{code:java}
+my.localized.content=Hola, Me llamo John. Hoy es domingo.
+{code}
+
+종종 메시지에 인자를 전달해야할 필요가 있음을 기억하라. 이것은 메시지태그를 통해 전달할 수 있다.
+
+{code:xml}
+<g:message code="my.localized.content" args="${ ['Juan', 'lunes'] }" />
+{code}
+
+그리고 메시지에서 위치지정 파라미터를 사용한다:
+
+{code:java}
+my.localized.content=Hola, Me llamo {0}. Hoy es {1}.
+{code}
+
+h4. Reading Messages in Controllers and Tag Libraries(컨트롤러나 태그라이브러리에서 메시지 읽어오기)
+
+컨트롤러에서도 태그를 메소드처럼 호출할 수 있기 때문에 컨트롤러에서도 쉽게 메시지를 읽을 수 있다:
+
+{code:java}
+def show = {
+	def msg = message(code:"my.localized.content", args:['Juan', 'lunes'])
+}
+{code}
+
+같은 방법으로 태그 라이브러리에서도 사용할 수 있다. 하지만 [태그 라이브러리|guide:taglibs]의 [네임스페이스|guide:namespaces]가 다른 경우 “g.”를 앞에 붙여줘야 한다:
+
+{code:java}
+def myTag = { attrs, body ->
+	def msg = g.message(code:"my.localized.content", args:['Juan', 'lunes'])
+}
+{code}

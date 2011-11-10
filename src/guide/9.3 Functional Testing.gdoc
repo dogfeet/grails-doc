@@ -1,0 +1,10 @@
+기능 테스트는 어플리케이션을 실행시키는 테스트이고 보통 자동화하기 어렵다. Grails는 기본적으로 기능 테스트를 지원하지 않는다. 하지만 "Canoo 웹 테스트 플러그인":http://webtest.canoo.com/ 이 있다.
+
+웹 테스트를 설치하기 위해서 다음과 같은 명령을 실행한다:
+
+{code:java}
+grails install-plugin webtest
+
+{code}
+
+웹 테스트와 Grails를 함께 사용하는 방법은 [위키|http://grails.org/Functional+Testing]를 참조해야 한다.

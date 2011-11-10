@@ -1,0 +1,13 @@
+Grails 어플리케이션은 [run-app|commandLine] 명령어를 사용해서 Jetty 서버에서 돌아갈 수 있다. Jetty서버는 기본적으로 8080포트를 사용한다.
+
+{code}
+grails run-app
+{code}
+
+@server.port@ 인자를 이용해서 다른 포트를 사용할 수 있다.
+
+{code}
+grails -Dserver.port=8090 run-app
+{code}
+
+[run-app|commandLine] 에 대한 더 많은 정보는 레퍼런스 가이드에서 얻을 수 있다.

@@ -1,0 +1,156 @@
+h4. Table names(테이블 이름)
+
+@table@을 사용하여 클래스가 매핑될 데이터베이스 테이블 이름을 정의할 수 있다.:
+
+{code:java}
+class Person {
+  ..
+  static mapping = {
+      table 'people'
+  }
+}
+{code}
+
+이 경우 @person@이 아니라 @people@이라는 테이블에 매핑될 것이다.
+
+h4. Column names(컬럼 이름)
+
+데이터베이스의 컬럼에 매핑하는 규칙도 정의할 수 있다. 다음의 예제처럼 원하는 이름으로 매핑시킬 수 있다:
+
+{code:java}
+class Person {
+  String firstName
+  static mapping = {
+      table 'people'
+      firstName column:'First_Name'
+  }
+}
+{code}
+
+이 예제에서는 매핑할 프로퍼티 이름은 @firstName@이고 @column@이라는 파라미터를 이용하여 어느 컬럼에 매핑할지 명시한다.
+
+h4. Column type(컬럼 타입)
+
+GORM은 DSL의 타입 속성(attribute)으로 Hibernate 타입을 설정할 수 있다. 이 것은 [org.hibernate.types.UserType|api:org.hibernate.types.UserType]를 상속한 사용자 타입도 명시할 수 있고 타입에 어떻게 영속성을 부여할지 정의할 수 있게 한다. @PostCodeType@을 만들었고 이 것을 사용한다면 다음의 예제처럼 할 수 있다:
+
+{code:java}
+class Address {
+   String number
+   String postCode
+   static mapping = {
+      postCode type:PostCodeType
+   }
+}
+{code}
+
+뿐만아니라 Grails가 선택하는 기본 타입을 사용하지 않고 Hibernate가 제공하는 기본 타입중에 하나로 매핑하게 할 수 있다:
+
+{code:java}
+class Address {
+   String number
+   String postCode
+   static mapping = {
+      postCode type:'text'
+   }
+}
+{code}
+
+이 예제에서는 @postCode@ 컬럼이 SQL TEXT나 CLOB 형식에 매핑된다. 매핑되는 형식은 사용하는 데이터베이스에 따라 다르다.
+
+h4. One-to-One Mapping(일대일 매핑)
+
+관계(association)가 있을 때 관계를 매핑하는 외래 키를 변경하는 것도 가능하다. 일대일 관계에서는 일반 컬럼을 매핑하는 것과 동일하다. 예를 들면 다음과 같다:
+
+{code:java}
+class Person {
+  String firstName
+  Address address
+  static mapping = {
+      table 'people'
+      firstName column:'First_Name'
+	  address column:'Person_Adress_Id'
+  }
+}
+{code}
+
+기본적으로 @address@ 관계는 외래키 컬럼 @address_id@에 매핑된다. 그러나 @Person_Adress_Id@ 컬럼에 매핑하도록 변경했다.
+
+h4. One-to-Many Mapping(일대다 매핑)
+
+양방향 일대다 관계에서는 '다'쪽의 컬럼이름을 변경하는 것만으로도 외래키 컬럼을 변경할 수 있다. 하지만 단방향 관계에서는 관계 자체에 외래키를 명시해야 한다. 다음은 @Person@과 @Address@사이의 단방향 일대다 관계에서 @address@ 테이블의 외래키를 변경시키는 예제이다:
+
+{code:java}
+class Person {
+  String firstName
+  static hasMany = [addresses:Address]
+  static mapping = {
+      table 'people'
+      firstName column:'First_Name'
+	  addresses column:'Person_Address_Id'
+  }
+}
+{code}
+
+@joinTable@ 파라미터를 이용하면 @address@ 테이블에 있는 컬럼이 아니라 테이블을 조인할 수 있다:
+
+{code:java}
+class Person {
+  String firstName
+  static hasMany = [addresses:Address]
+  static mapping = {
+      table 'people'
+      firstName column:'First_Name'
+      addresses joinTable:[name:'Person_Addresses', key:'Person_Id', column:'Address_Id']
+  }
+}
+{code}
+
+h4. Many-to-Many Mapping(다대다 매핑)
+
+Grails에서는 기본적으로 n-n 관계를 조인 테이블으로 매핑한다. 다음은 n-n 관계의 예제이다:
+
+{code:java}
+class Group {
+	...
+	static hasMany = [people:Person]
+}
+class Person {
+	...
+	static belongsTo = Group
+	static hasMany = [groups:Group]
+}
+{code}
+
+이 예제에서 Grails는 @person@과 @group@ 테이블을 참조하는 외래키 @person_id@와 @group_id@을 사용하여 @group_person@이라는 조인 테이블을 만든다. 각 클래스를 매핑할 때 mapping 블럭에 컬럼을 명시하여 매핑하는 컬럼도 변경할 수 있다:
+
+{code:java}
+class Group {
+   ...
+   static mapping = {
+       people column:'Group_Person_Id'
+   }	
+}
+class Person {
+   ...
+   static mapping = {
+       groups column:'Group_Group_Id'
+   }	
+}
+{code}
+
+사용할 조인 테이블의 이름도 명시할 수 있다:
+
+{code:java}
+class Group {
+   ...
+   static mapping = {
+       people column:'Group_Person_Id',joinTable:'PERSON_GROUP_ASSOCIATIONS'
+   }	
+}
+class Person {
+   ...
+   static mapping = {
+       groups column:'Group_Group_Id',joinTable:'PERSON_GROUP_ASSOCIATIONS'
+   }	
+}
+{code}

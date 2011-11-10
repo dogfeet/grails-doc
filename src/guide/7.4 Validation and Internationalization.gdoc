@@ -1,0 +1,50 @@
+에러를 출력하는 코드가 어느곳에도 하드코딩되지 않아야 한다는 것은 Grails에서도 역시 중요하다. Spring의 [FieldError|api:org.springframework.validation.FieldError] 클래스는 내부적으로 Grails의 [i18n|guide:i18n] 기능에서 메시지들을 읽어온다.
+
+h4. Constraints and Message Codes(제약조건과 메시지 코드)
+
+메시지 코드 자체는 관례에 따른다. 예를 들어 위에 예시했던 제약조건을 살펴보면:
+
+{code:java}
+class User {
+    ...
+
+    static constraints = {
+        login(size:5..15, blank:false, unique:true)
+        password(size:5..15, blank:false)
+        email(email:true, blank:false)
+        age(min:18, nullable:false)
+    }
+}
+{code}
+
+blank 제약 조건을 위반하게 되면 Grails는 다음과 같은 관례에 따라 메시지를 찾는다:
+
+{code:java}
+[Class Name].[Property Name].[Constraint Code]
+{code}
+
+blank 제약 조건을 위반한 경우에의 메시지 코드는 user.login.blank가 될 것이기 때문에 grails-app/i18n/messages.properties 파일에 다음과 같이 메시지를 정의해야 한다:
+
+{code:java}
+user.login.blank=Your login name must be specified!
+{code}
+
+어떤 제약조건이 어떤 메시지 코드를 사용하는 지를 알고 싶다면 레퍼런스 가이드를 참고하라.
+
+h4. Displaying Messages(메시지 출력하기)
+
+[renderErrors|tags] 태그는 자동으로 [message|tags] 태그에 사용할 메시지를 찾는다. 하지만 다음과 같이 원하는 대로 메시지를 출력할 수 있다:
+
+{code:xml}
+<g:hasErrors bean="${user}">
+  <ul>
+   <g:eachError var="err" bean="${user}">
+       <li><g:message error="${err}" /></li> 
+   </g:eachError>
+  </ul>
+</g:hasErrors>
+{code}
+
+이 예제에서는 에러 메시지를 읽어오기 위해 [eachError|tags] 태그의 바디에 [message|tags] 태그를 넣고 err 인자를 사용했다.
+
+

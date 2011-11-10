@@ -1,0 +1,17 @@
+GSP는 JSP 스타일의 페이지 지시자를 지원한다.
+
+import 지시자는 페이지에 클래스를 import할 수 있게 해준다. 하지만 Groovy가 기본적으로 import해주는 것들과 [GSP Tags|guide:tags]가 있기 때문에 거의 필요 없다.
+
+{code:xml}
+<%@ page import="java.awt.*" %> 
+{code}
+
+GSP는 contentType 지시자도 지원한다:
+
+{code:xml}
+
+<%@ page contentType="text/json" %> 
+
+{code}
+
+contentType 지시자는 GSP를 사용하여 다른 형식으로 렌더링할 수 있도록 해준다.

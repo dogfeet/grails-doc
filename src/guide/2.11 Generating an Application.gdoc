@@ -1,0 +1,6 @@
+Grails를 시작할 때 어플리케이션의 뼈대를 만들어주는 [스케폴드|guide:scaffolding] 라는 특징은 매우 유용하다. @generate-*@ 명령어들 중에서 하나를 사용하여 만들 수 있고 [generate-all|commandLine] 을 사용하면 관계된 [컨트롤러|guide:controllers] 와 [뷰|guide:gsp] 가 생성될 것이다.
+
+{code}
+grails generate-all Book
+{code}
+

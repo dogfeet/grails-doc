@@ -1,0 +1,139 @@
+h4. Using the render method to output XML(render 메소드를 이용하여 XML 형식으로 응답하기)
+
+Grails가 XML과 JSON 형식으로 응답할 수 있도록 제공하는 방법은 여러가지다. 먼저 [render|controllers] 메소드를 사용하는 법부터 알아보자:
+
+XML을 생성하는 코드의 블럭을 @render@ 메소드에 넘길 수 있다:
+
+{code}
+def list = {
+	def results = Book.list()
+	render(contentType:"text/xml") {
+		books {
+			for(b in results) {
+				book(title:b.title)
+			}
+		}	
+	}
+}
+{code}                            
+
+이 코드의 결과는 다음과 같을 것이다:
+
+{code:xml}
+<books>
+	  <book title="The Stand" />
+	  <book title="The Shining" />	
+</books>
+{code}
+
+마크업을 만들 때 이름이 중복되지 않도록 주의해야 한다. 예를 들어 다음과 같은 코드는 오류가 발생한다:
+ 
+{code}
+def list = {
+	def books = Book.list()  // 변수 이름이 중복됐다
+		render(contentType:"text/xml") {
+		books {
+			for(b in results) {
+				book(title:b.title)
+			}
+		}	
+	}
+}
+{code} 
+
+Groovy에서는 지역 변수 @books@를 메소드처럼 실행하려고 하기 때문이다
+
+h4. Using the render method to output JSON(render 메소드를 이용하여 JSON형식으로 응답하기)
+
+@render@ 메소드를 사용하여 JSON형식으로도 출력할 수 있다:
+
+{code}
+def list = {
+	def results = Book.list()
+	render(contentType:"text/json") {
+		books {
+			for(b in results) {
+				book(title:b.title)
+			}
+		}	
+	}
+}
+{code}     
+
+이 결과는 다음과 같다:
+
+{code}
+[
+	{title:"The Stand"}, 
+	{title:"The Shining"}
+]
+{code}
+
+JSON을 만들 때에도 이름이 중복되지 않게 해야 한다.
+
+h4. Automatic XML Marshalling(자동 XML 마샬링)
+
+Grails에는 특수한 변환기를 이용해 자동으로 [domain classes|guide:gorm]를 XML 마샬링하는 기능이 있다.
+
+컨트롤러에 @grails.converters@ 패키지를 import한다.
+                          
+{code}
+import grails.converters.*
+{code}
+
+다음과 같이 굉장히 간편한 문법으로 도메인 클래스를 XML로 변환할 수 있다:
+
+{code}
+render Book.list() as XML
+{code}
+
+이 결과는 다음과 같다:
+
+{code}
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<list>
+  <book id="1">
+    <author>Stephen King</author>
+    <title>The Stand</title>
+  </book>
+  <book id="2">
+    <author>Stephen King</author>
+    <title>The Shining</title>
+  </book>
+</list>                          
+{code}     
+
+Grails의 코덱([codecs|guide:codecs]) 기능을 사용하도록 변환기를 사용할 수도 있다. 이 코덱 기능으로 [encodeAsXML|guide:codecs]과 [encodeAsJSON|guide:codecs] 메소드를 제공한다:
+
+{code}
+def xml = Book.list().encodeAsXML()
+render xml
+{code}
+
+XML 마샬링에 대한 내용은 [REST|guide:REST]를 설명하는 절에서도 볼 수 있다.
+
+h4. Automatic JSON Marshalling(자동 JSON 마샬링)
+
+Grails는 자동으로 JSON을 마샬링해주는 방법도 제공한다. XML 마샬링의 방법과 동일하다. 단지 @XML@을 @JSON@으로 바꾸기만 하면 된다.
+
+{code}
+render Book.list() as JSON
+{code}
+
+이 결과는 다음과 같다:
+
+{code}
+[
+	{"id":1,
+	 "class":"Book",
+	 "author":"Stephen King",
+	 "title":"The Stand"},
+	{"id":2,
+	 "class":"Book",
+	 "author":"Stephen King",
+	 "releaseDate":new Date(1194127343161),
+	 "title":"The Shining"}
+ ]
+{code}
+
+XML 마샬링처럼 @encodeAsJSON@ 메소드를 사용할 수도 있다.

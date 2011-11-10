@@ -1,0 +1,20 @@
+특정 조건이 만족돼야만 결과를 출력하는 논리 태그를 만들 수도 있다. 다음의 예제는 보안 태그를 만들어 본 것이다:
+
+{code:java}
+def isAdmin = { attrs, body ->
+     def user = attrs['user']
+     if(user != null && checkUserPrivs(user)) {
+           out << body()
+     }
+}
+{code}
+
+이 태그는 사용자가 관리자인지를 검사하고 오직 접근권한이 있을 때만 body의 내용을 출력한다:
+
+{code:xml}
+<g:isAdmin user="${myUser}">
+    // some restricted content
+</g:isAdmin>
+{code}
+
+

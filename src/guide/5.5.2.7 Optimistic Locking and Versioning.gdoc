@@ -1,0 +1,17 @@
+[낙관적 잠금과 비관적 잠금|guide:locking]에 대해 이미 살펴보았듯이 기본적으로 GORM은 낙관적 작금을 사용하고 자동으로 @version@ 속성을 모든 클래스에 주입(inject)한다. 그리고 이 @version@ 속성은 데이터베이스의 @version@ 컬럼에 매핑된다.
+
+레거시 스키마에 이대로 매핑한다면 골칫거리가 될 뿐이다. 레거시 스키마에 매핑할 때에는 이 기능을 끌 수 있다:
+
+{code:java}
+class Person {
+  ..
+  static mapping = {
+      table 'people'
+      version false
+  }
+}
+{code}
+	
+{note}
+낙관적 잠금을 사용하지 않으면 근본적으로 동시 업데이트를 고려해야 한다. 그리고 [비관적 잠금|guide:locking]을 사용하지 않으면 사용자가 데이터를 덮어 쓸수도 있기 때문에 언제라도 데이터를 잃어 버릴 수 있다.
+{note}
